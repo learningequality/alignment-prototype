@@ -32,6 +32,6 @@ class DbRouter(object):
         """
         Do not allow migrations on the remote database
         """
-        if model._meta.app_label == 'commonstandardsproject':
+        if app_label == 'commonstandardsproject':
             return False
         return True
