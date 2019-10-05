@@ -62,7 +62,7 @@ class StandardNode(MP_Node):
     # source_id / source_url ?
     kind = models.CharField(max_length=20, choices=NODE_KINDS, default='unit')
     title = models.CharField(max_length=400)
-    sort_order = models.IntegerField()
+    sort_order = models.IntegerField(default=1)
     node_order_by = ['sort_order']  # the order of children within parent node
     # learning_objectives = reverse relation on LearningObjective.node
 
@@ -84,7 +84,7 @@ class StandardNode(MP_Node):
 
 class LearningObjective(MP_Node):
     """
-    Individual lerning objectives statements associated with a curriculum unit,
+    Individual learning objectives statements associated with a curriculum unit,
     e.g., "Describe the reaction between a given metal and metal oxide"
     or "solving quadratic equations by completing the square".    
     """
@@ -121,7 +121,8 @@ class HumanRelevanceJudgment(models.Model):
     ui_name = models.CharField(max_length=100)   # name of frontend within forntends/ ~= team name
     ui_version_hash = models.CharField(max_length=100) # hash of page contents w/o data)  # which verison of the rapid feedback UI was used
 
-    user = models.ForeignKey(User, related_name='feedbacks', null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, related_name='judgments', null=True, on_delete=models.SET_NULL)
+    is_test_data = BooleanField(blank=True, null=True, help_text="True for held out test data.")
     created = models.DateTimeField(auto_now_add=True)
 
     def __repr__(self):
@@ -151,6 +152,11 @@ class StandardNodeFeatureVector(models.Model):
 # DATA EXPORT METADATA
 ################################################################################
 
+# TODO: add model for export policy
+#   is_test_proportion = models.FloatField()   # e.g. 0.15 => 0.15 prob of assigning to test dataset
+#   created = models.DateTimeField(auto_now_add=True)
+#   modified = models.DateTimeField(auto_now=True)
+
 class DataExport(models.Model):
     curriculum_data_version = models.CharField(max_length=50)
     feedback_data_version = models.CharField(max_length=50)
@@ -161,11 +167,13 @@ class DataExport(models.Model):
     # test_data = models.FileField    
 
     # def export(self):
-    #     for feedback_datum in feedback_data:
-    #         istestdata = random Bool # training vs. test prob 0.85 / 0.15
+    #     new_feedback_data = HumanRelevanceJudgment.filter(is_test_data=None)
+    #     for feedback_datum in new_feedback_data:
+    #         istestdata = random addignmnt from ExportPolicy
     #         if istestdata:
+    #             feedback_datum.is_test_data = True
     #             test_data.append(feedback_datum)
     #         else:
+    #             feedback_datum.is_test_data = False
     #             train_data.append(feedback_datum)
-
 
