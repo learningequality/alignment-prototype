@@ -77,14 +77,6 @@ class StandardNode(MP_Node):
     @property
     def judgments(self):
         return HumanRelevanceJudgment.objects.filter(Q(node1=self) | Q(node2=self))
-        #   == self._relations.filter(Q(node1=self) | Q(node2=self))
-    # implementation details
-    _relations = models.ManyToManyField('self',
-        through='HumanRelevanceJudgment',
-        through_fields=('node1', 'node2'),
-        symmetrical=False)  # this means a human relatedness jugments edge could
-                            # be attached from one end (self==e.node1) the another
-                            # (self==e.node2) so we won't access _relations directly
 
     def __repr__(self):
         return '<StandardNode: {} {}>'.format(self.identifier, self.title)
