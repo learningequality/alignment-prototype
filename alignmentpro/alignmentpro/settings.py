@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'alignmentpro.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'alignmentpro',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '',
     },
     'standards': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -90,7 +94,9 @@ DATABASES = {
     }
 }
 
-DATABASE_ROUTERS = ['alignmentpro.dbrouters.DbRouter', ]
+DATABASE_ROUTERS = [
+    'alignmentpro.dbrouters.DbRouter',
+]
 
 
 # Password validation
