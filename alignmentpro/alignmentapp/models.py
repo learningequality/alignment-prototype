@@ -81,9 +81,6 @@ class StandardNode(MP_Node):
     def __repr__(self):
         return '<StandardNode: {} {}>'.format(self.identifier, self.title)
 
-    class Meta:
-        unique_together = ['document', 'path']  # so document 1-to-1 with MP_Node tree
-
 
 class LearningObjective(MP_Node):
     """
