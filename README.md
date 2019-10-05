@@ -40,13 +40,13 @@ Sample documents, nodes, and human judgment edge
 from alignmentapp.models import CurriculumDocument, StandardNode, LearningObjective
 from alignmentapp.models import HumanRelevanceJudgment
 
-d1 = CurriculumDocument.objects.create(title='KICD Math')
+d1, _ = CurriculumDocument.objects.get_or_create(title='KICD Math', source_id='kicd-math-sample')
 n1 = StandardNode.add_root(title='KICD standards root', document=d1)
 n2 = n1.add_child(title='Math', document=n1.document)
 n3 = n2.add_child(title='Algebra', document=n2.document)
 n4 = n2.add_child(title='Geometry', document=n2.document)
 
-d2 = CurriculumDocument.objects.create(title='Uganda Math')
+d2, _ = CurriculumDocument.objects.get_or_create(title='Uganda Math', source_id='uganda-math-sample')
 n5 = StandardNode.add_root(title='NCDC Math standard root', document=d2)
 
 e = HumanRelevanceJudgment(node1=n1, node2=n2, rating=0.7)

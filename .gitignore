@@ -1,3 +1,13 @@
+# during initial prototype step no need to commit this
+Pipfile.lock
+
+
+# Data export dirs
+exports/data
+notebooks/exports/data
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

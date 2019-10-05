@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "treebeard",  # for TreeAdmin views
     "alignmentapp",
     # 'commonstandardsproject',   # tmp to extract CCSS and NGSS data
+    'importing',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +141,13 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ]
 }
+
+
+# Data export paths and constnts
+DATA_EXPORT_BASE_DIR = os.path.join("exports", "data")
+CURRICULUM_DOCUMENTS_FILENAME = 'curriculumdocuments.csv'
+STANDARD_NODES_FILENAME = 'standardnodes.csv'
+LEARNING_OBJECTIVE_FILENAME = 'learningobjectives.csv'
+HUMAN_JUDGMENTS_TRAIN_FILENAME = 'humanjudgments_train.csv'
+HUMAN_JUDGMENTS_TEST_FILENAME = 'humanjudgments_test.csv'
+METADATA_FILENAME = 'metadata.json'
