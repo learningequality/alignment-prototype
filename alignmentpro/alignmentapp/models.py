@@ -112,18 +112,17 @@ class HumanRelevanceJudgment(models.Model):
     node1 = models.ForeignKey(StandardNode, related_name='node1+', on_delete=models.CASCADE)
     node2 = models.ForeignKey(StandardNode, related_name='node2+', on_delete=models.CASCADE)
 
-    rating = models.FloatField()  # min = 0.0  max = 1.0
-    confidence = models.FloatField(blank=True, null=True) # 1.0= 100% confident, 50% depends, 0% just guessing
-    comment = JSONField(blank=True, null=True)  # provide additional context about verdict as free form text
+    rating = models.FloatField()  # min = 0.0 (not relevant at all), max = 1.0 (highly relevant)
+    confidence = models.FloatField(blank=True, null=True) # 1.0= 100% confident, 50% depends, 0% just guessing (or null)
+    extra_fields = JSONField(blank=True, null=True)  # additional context and comments about verdict
 
-
-    mode = models.CharField(max_length=30)      # (manually added  vs.  rapid feedback)
+    mode = models.CharField(max_length=30)       # (manually added  vs.  rapid feedback)
     ui_name = models.CharField(max_length=100)   # name of frontend within forntends/ ~= team name
-    ui_version_hash = models.CharField(max_length=100) # hash of page contents w/o data)  # which verison of the rapid feedback UI was used
+    ui_version_hash = models.CharField(max_length=100) # hash of the js bundle of the rapid feedback UI that was used
 
     user = models.ForeignKey(User, related_name='judgments', null=True, on_delete=models.SET_NULL)
-    is_test_data = BooleanField(blank=True, null=True, help_text="True for held out test data.")
     created = models.DateTimeField(auto_now_add=True)
+    is_test_data = models.BooleanField(blank=True, null=True, help_text="True for held out test data.")
 
     def __repr__(self):
         return '<HumanRelevanceJudgment: {} <--{}--> {}>'.format(repr(self.node1), self.rating, repr(self.node2))
@@ -133,19 +132,25 @@ class HumanRelevanceJudgment(models.Model):
 # FEATURES CACHE
 ################################################################################
 
-class StandardNodeFeatureVector(models.Model):
+class MachineLearningModel(models.Model):
     """
-    Store arbitrary-length feature vector that represets `node` in `model_name:model_version`.
+    Stores metadata for a particular instance of ML model (code and training data).
     """
-    #
-    node = models.ForeignKey('StandardNode', related_name='features', on_delete=models.CASCADE)
-    data = ArrayField(models.FloatField())  # An arbitrary-length feature vector
-
+    # id = auto-incrementing integet primary key
     model_name = models.CharField(max_length=50)    # foldername/   /api?model=foldername
     model_version = models.IntegerField()           # get automatically? from git somehow e.g. count # commits that affect the folder for that ML model
     git_hash = models.CharField(max_length=200)
-    # created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
 
+
+class StandardNodeFeatureVector(models.Model):
+    """
+    Store arbitrary-length feature vector that represets `node` in a given `model`.
+    """
+    # id = auto-incrementing integet primary key
+    mlmodel = models.ForeignKey('MachineLearningModel', related_name='feature_vectors', on_delete=models.CASCADE) 
+    node = models.ForeignKey('StandardNode', related_name='features', on_delete=models.CASCADE)
+    data = ArrayField(models.FloatField())  # An arbitrary-length feature vector
 
 
 
