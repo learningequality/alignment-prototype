@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'alignmentapp',
-    'commonstandardsproject',   # tmp to extract CCSS and NGSS data
+    # 'commonstandardsproject',   # tmp to extract CCSS and NGSS data
 ]
 
 MIDDLEWARE = [

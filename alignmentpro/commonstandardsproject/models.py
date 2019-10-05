@@ -6,10 +6,10 @@ from django.db import models
 
 class Jurisdictions(models.Model):
     # id
-    csp_id = models.CharField(max_length=-1, blank=True, null=True)
+    csp_id = models.CharField(max_length=200, blank=True, null=True)
     document = JSONField(blank=True, null=True)  # This field type is a guess.
-    title = models.CharField(max_length=-1, blank=True, null=True)
-    type = models.CharField(max_length=-1, blank=True, null=True)
+    title = models.CharField(max_length=200, blank=True, null=True)
+    type = models.CharField(max_length=200, blank=True, null=True)
 
     def get_roots(self, **kwargs):
         return Standards.objects.filter(jurisdiction=self, parent_ids=[], **kwargs)
@@ -28,11 +28,11 @@ class Jurisdictions(models.Model):
 class Standards(models.Model):
     # id
     jurisdiction = models.ForeignKey(Jurisdictions, models.DO_NOTHING)
-    csp_id = models.CharField(max_length=-1, blank=True, null=True)
+    csp_id = models.CharField(max_length=200, blank=True, null=True)
     parent_ids = ArrayField(models.IntegerField())  # This field type is a guess.
-    education_levels = ArrayField(models.CharField())  # This field type is a guess.
-    title = models.CharField(max_length=-1, blank=True, null=True)
-    subject = models.CharField(max_length=-1, blank=True, null=True)
+    education_levels = ArrayField(models.CharField(max_length=200))  # This field type is a guess.
+    title = models.CharField(max_length=200, blank=True, null=True)
+    subject = models.CharField(max_length=200, blank=True, null=True)
     document = JSONField(blank=True, null=True)  # This field type is a guess.
     indexed = models.BooleanField()
     child_count = models.IntegerField(blank=True, null=True)
