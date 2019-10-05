@@ -26,14 +26,14 @@ class CurriculumDocument(models.Model):
     # id = auto-incrementing integet primary key
     source_id = models.CharField(max_length=200, help_text="A unique identifier for the source document")
     title = models.CharField(max_length=200)
-    country = models.CharField("Country", max_length=200)
+    country = models.CharField(max_length=200, help_text="Country")
     digitization_method = models.CharField(choices=DIGITIZATION_METHODS, max_length=200, help_text="Digitization method")
     source_url = models.CharField(max_length=200, help_text="URL of source used for this document")
     # root = reverse relation on StandardNode.document
     created = models.DateTimeField(auto_now_add=True)
     #? modified = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=True,
-        help_text="True for most recent version of the curriculum data for a given source_id.")
+    is_draft = models.BooleanField(default=True,
+        help_text="True for draft version of the curriculum data.")
 
 
 
@@ -60,29 +60,29 @@ class StandardNode(MP_Node):
     document = models.ForeignKey('CurriculumDocument', related_name='root', on_delete=models.CASCADE)
     identifier = models.CharField(max_length=20)
     # source_id / source_url ?
-    kind = models.CharField(max_length=20, choices=NODE_KINDS, default='entry')
+    kind = models.CharField(max_length=20, choices=NODE_KINDS, default='unit')
     title = models.CharField(max_length=400)
-    sort_order = models.FloatField(default=1.0)
+    sort_order = models.IntegerField()
     node_order_by = ['sort_order']  # the order of children within parent node
     # learning_objectives = reverse relation on LearningObjective.node
 
     # domain-specific 
     time_units = models.FloatField(blank=True, null=True,
         help_text="A numeric value ~ to the hours of instruction for this unit")
-    notes = models.TextField(help_text="A numeric value ~ to the hours of instruction for this unit")
+    notes = models.TextField(help_text="Additional notes and modification attributes.")
     extra_fields = JSONField(blank=True, null=True)  # basic model extensibility w/o changing base API
 
 
     # Human relevance jugments on edges between nodes
-    def get_judgments(self):
+    @property
+    def judgments(self):
         return HumanRelevanceJudgment.objects.filter(Q(node1=self) | Q(node2=self))
         #   == self._relations.filter(Q(node1=self) | Q(node2=self))
-    judgments = property(get_judgments)
     # implementation details
     _relations = models.ManyToManyField('self',
         through='HumanRelevanceJudgment',
         through_fields=('node1', 'node2'),
-        symmetrical=False)  # this means a human relatedness jugement edge could
+        symmetrical=False)  # this means a human relatedness jugments edge could
                             # be attached from one end (self==e.node1) the another
                             # (self==e.node2) so we won't access _relations directly
 
@@ -107,6 +107,9 @@ class LearningObjective(MP_Node):
 
     def __repr__(self):
         return '<LearningObjective: {}>'.format(self.text)
+
+
+
 
 # HUMAN JUDGMENTS
 ################################################################################
