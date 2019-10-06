@@ -1,18 +1,29 @@
 # alignment-prototype
 Code base for a prototype for the alignment hackathon
 
+TODOs
+-----
+ - How do we ensure only one tree per document?
+ - How do we make robust/forgiving/helpful errors when bad Excel formatting?
+
+
+
 
 Install
 -------
 
-    pipenv install
+    pipenv --python python3.6 install
+
 
 
 Services
 --------
+Assuming you have Postgres DB running on localhost, you'll need to create the
+DB called `alignmentpro` using the following command:
 
-    # start postgres
+    # make sure postgres is running
     createdb alignmentpro
+
 
 Setup
 -----
@@ -20,6 +31,37 @@ Setup
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate
     ./alignmentpro/manage.py createsuperuser --username admin --email a@b.c
+
+
+
+
+Load sample data
+----------------
+We've prepared some sample curriculum structures in this gsheet.
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='sample1-uganda-biology' \
+        --title='Uganda Biloogy sample topic' \
+        --country='Uganda' \
+        --digitization_method='scan_manual' \
+        --gsheet_id='1-ei7BBMOx0udbXxyLJjMPYLW0EJWg9wFUyV9ODa8m5o' \
+        --gid='1733263132'
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='sample2-kenya-math' \
+        --title='Kenya sample math topics' \
+        --country='Kenya' \
+        --digitization_method='scan_manual' \
+        --gsheet_id='1-ei7BBMOx0udbXxyLJjMPYLW0EJWg9wFUyV9ODa8m5o' \
+        --gid='1031912854'
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='sample4-uganda-chemistry' \
+        --title='Uganda chemistry sample topic' \
+        --country='Uganda' \
+        --digitization_method='scan_manual' \
+        --gsheet_id='1-ei7BBMOx0udbXxyLJjMPYLW0EJWg9wFUyV9ODa8m5o' \
+        --gid='1069644580'
 
 
 
@@ -72,6 +114,7 @@ HumanRelevanceJudgment.objects.by_nodes([n1]) ?
 
 
 
+
 Feature vectors
 ---------------
 
@@ -79,8 +122,8 @@ Feature vectors
 from alignmentapp.models import CurriculumDocument, StandardNode, LearningObjective
 from alignmentapp.models import MachineLearningModel, StandardNodeFeatureVector
 
-d1 = CurriculumDocument.objects.create(title='KICD Math')
-n1 = StandardNode.add_root(title='KICD Math standard root', document=d1)
+d1 = CurriculumDocument.objects.create(title='KICD Bio')
+n1 = StandardNode.add_root(title='KICD Bio standard root', document=d1)
 model1 = MachineLearningModel.objects.create(model_name="sentence_embeddings", model_version=1, git_hash='fefefe')
 
 v1data = list(i/3123 for i in range(0,1000))
