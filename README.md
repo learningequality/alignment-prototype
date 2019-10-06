@@ -19,6 +19,8 @@ Setup
 
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate
+    ./alignmentpro/manage.py createsuperuser --username admin --email a@b.c
+
 
 
 Interactive debug
@@ -38,13 +40,14 @@ Sample documents, nodes, and human judgment edge
 from alignmentapp.models import CurriculumDocument, StandardNode, LearningObjective
 from alignmentapp.models import HumanRelevanceJudgment
 
-d1 = CurriculumDocument(title='KICD Math')
-d1.save()
-n1 = StandardNode.add_root(title='KICD Math standard root', document=d1)
+d1 = CurriculumDocument.objects.create(title='KICD Math')
+n1 = StandardNode.add_root(title='KICD standards root', document=d1)
+n2 = n1.add_child(title='Math', document=n1.document)
+n3 = n2.add_child(title='Algebra', document=n2.document)
+n4 = n2.add_child(title='Geometry', document=n2.document)
 
-d2 = CurriculumDocument(title='Uganda Math')
-d2.save()
-n2 = StandardNode.add_root(title='NCDC Math standard root', document=d2)
+d2 = CurriculumDocument.objects.create(title='Uganda Math')
+n5 = StandardNode.add_root(title='NCDC Math standard root', document=d2)
 
 e = HumanRelevanceJudgment(node1=n1, node2=n2, rating=0.7)
 e.save()
@@ -114,5 +117,6 @@ Delete all data and start form clean slate:
     dropdb alignmentpro
     rm -rf alignmentpro/alignmentapp/migrations/00*py
     createdb alignmentpro
+    sleep 1
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate

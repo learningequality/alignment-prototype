@@ -28,13 +28,15 @@ class CurriculumDocument(models.Model):
     title = models.CharField(max_length=200)
     country = models.CharField(max_length=200, help_text="Country")
     digitization_method = models.CharField(choices=DIGITIZATION_METHODS, max_length=200, help_text="Digitization method")
-    source_url = models.CharField(max_length=200, help_text="URL of source used for this document")
+    source_url = models.CharField(max_length=200, blank=True, help_text="URL of source used for this document")
     # root = reverse relation on StandardNode.document
     created = models.DateTimeField(auto_now_add=True)
     #? modified = models.DateTimeField(auto_now=True)
     is_draft = models.BooleanField(default=True,
         help_text="True for draft version of the curriculum data.")
 
+    def __str__(self):
+        return '{}: {} ({})'.format(self.country, self.title, self.source_id)
 
 
 
@@ -68,21 +70,24 @@ class StandardNode(MP_Node):
 
     # domain-specific 
     time_units = models.FloatField(blank=True, null=True,
-        help_text="A numeric value ~ to the hours of instruction for this unit")
-    notes = models.TextField(help_text="Additional notes and modification attributes.")
+        help_text="A numeric value ~= to the # hours of instruction for this unit or topic")
+    notes = models.TextField(blank=True, help_text="Additional notes and modification attributes.")
     extra_fields = JSONField(blank=True, null=True)  # basic model extensibility w/o changing base API
-
 
     # Human relevance jugments on edges between nodes
     @property
     def judgments(self):
         return HumanRelevanceJudgment.objects.filter(Q(node1=self) | Q(node2=self))
 
-    def __repr__(self):
-        return '<StandardNode: {} {}>'.format(self.identifier, self.title)
+    def __str__(self):
+        return '{} {}'.format(self.identifier, self.title)
 
+    def add_child(self, **kwargs):
+        if 'document' not in kwargs:
+            kwargs['document'] = self.document
+        return super().add_child(**kwargs)
 
-class LearningObjective(MP_Node):
+class LearningObjective(models.Model):
     """
     Individual learning objectives statements associated with a curriculum unit,
     e.g., "Describe the reaction between a given metal and metal oxide"
@@ -94,8 +99,8 @@ class LearningObjective(MP_Node):
     # optional:
     kind = models.CharField(max_length=50, blank=True, null=True)  # system tag, e.g. KUD:Know, KUD:Understand, KUD:Do
 
-    def __repr__(self):
-        return '<LearningObjective: {}>'.format(self.text)
+    def __str__(self):
+        return '- {}'.format(self.text)
 
 
 
@@ -124,8 +129,8 @@ class HumanRelevanceJudgment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     is_test_data = models.BooleanField(blank=True, null=True, help_text="True for held out test data.")
 
-    def __repr__(self):
-        return '<HumanRelevanceJudgment: {} <--{}--> {}>'.format(repr(self.node1), self.rating, repr(self.node2))
+    def __str__(self):
+        return '{} <--{}--> {}'.format(repr(self.node1), self.rating, repr(self.node2))
 
 
 

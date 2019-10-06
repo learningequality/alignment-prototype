@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'treebeard',                  # for TreeAdmin views
     'alignmentapp',
     # 'commonstandardsproject',   # tmp to extract CCSS and NGSS data
 ]
