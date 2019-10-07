@@ -37,7 +37,7 @@ def export_data(dir_name, test_size):
     export_documents(all_documents, csvpath1)
     csvpath2 = os.path.join(export_dir, settings.STANDARD_NODES_FILENAME)
     export_nodes(all_nodes, csvpath2)
-    csvpath3 = os.path.join(export_dir, settings.LEARNING_OBJECTIVE_FILENAME)
+    csvpath3 = os.path.join(export_dir, settings.LEARNING_OBJECTIVES_FILENAME)
     export_learning_objectives(all_learning_objectives, csvpath3)
 
 

@@ -91,27 +91,3 @@ def load_curriculum_csv(csvfilepath):
                     started = True
         return curriculum_list
 
-
-
-def print_curriculum_tree(channel_tree):
-    """
-    Print tree structure.
-    """
-    def print_tree(subtree, indent=''):
-        kind = subtree.get("kind", 'topic')  # topic default to handle channel root
-        if kind == "exercise":
-            print(indent, subtree['title'],
-                          'kind=', subtree['kind'],
-                          len(subtree['assessment_items']), 'questions',
-                          len(subtree['files']), 'files')
-        else:
-            print(indent, subtree['title'],
-                          'kind=', subtree['kind'],
-                          len(subtree['files']), 'files')
-        for child in subtree['children']:
-            print_tree(child, indent=indent+'    ')
-    print_tree(channel_tree)
-
-
-
-

@@ -33,12 +33,8 @@ router.register(r"objective", LearningObjectiveViewSet, basename="objective")
 router.register(r"judgment", HumanRelevanceJudgmentViewSet, basename="judgment")
 router.register(r"user", UserViewSet, basename="user")
 
-from exporting import views
-
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     url(r"^api/", include(router.urls)),
     url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-    path('standardnodes/', views.StandardNodeCsvView.as_view()),
 ]
