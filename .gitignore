@@ -1,10 +1,14 @@
-# during initial prototype step no need to commit this
+# during initial prototype step no need to commit these
 Pipfile.lock
-
+alignmentpro/alignmentapp/migrations/
 
 # Data export dirs
 exports/data
-notebooks/exports/data
+
+
+
+# Dev notebooks
+notebooks/
 
 
 
