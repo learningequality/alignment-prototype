@@ -25,6 +25,7 @@ class CurriculumDocument(models.Model):
 
     # id = auto-incrementing integet primary key
     source_id = models.CharField(
+        unique=True,
         max_length=200, help_text="A unique identifier for the source document"
     )
     title = models.CharField(max_length=200)
@@ -41,6 +42,10 @@ class CurriculumDocument(models.Model):
     is_draft = models.BooleanField(
         default=True, help_text="True for draft version of the curriculum data."
     )
+
+    @property
+    def root(self):
+        return StandardNode.get_root_nodes().get(document=self)
 
     def __str__(self):
         return "{}: {} ({})".format(self.country, self.title, self.source_id)
@@ -74,13 +79,13 @@ class StandardNode(MP_Node):
     # id = auto-incrementing integet primary key
     # path = inherited from MP_Node, e.g. ['0001'] for root node of tree_id 0001
     document = models.ForeignKey(
-        "CurriculumDocument", related_name="root", on_delete=models.CASCADE
+        "CurriculumDocument", related_name="roots", on_delete=models.CASCADE
     )
     identifier = models.CharField(max_length=20)
     # source_id / source_url ?
     kind = models.CharField(max_length=20, choices=NODE_KINDS, default="unit")
     title = models.CharField(max_length=400)
-    sort_order = models.IntegerField(default=1)
+    sort_order = models.FloatField(default=1.0)
     node_order_by = ["sort_order"]  # the order of children within parent node
     # learning_objectives = reverse relation on LearningObjective.node
 
@@ -91,11 +96,11 @@ class StandardNode(MP_Node):
         help_text="A numeric value ~= to the # hours of instruction for this unit or topic",
     )
     notes = models.TextField(
-        blank=True, help_text="Additional notes and modification attributes."
+        blank=True, blank=True, help_text="Additional notes and modification attributes."
     )
     extra_fields = JSONField(
-        default={}
-    )  # basic model extensibility w/o changing base API
+        default=dict
+    ) # basic model extensibility w/o changing base API
 
     # Human relevance jugments on edges between nodes
     @property
