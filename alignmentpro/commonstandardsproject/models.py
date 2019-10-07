@@ -1,4 +1,3 @@
-
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.db import models
@@ -15,14 +14,14 @@ class Jurisdictions(models.Model):
         return Standards.objects.filter(jurisdiction=self, parent_ids=[], **kwargs)
 
     def __unicode__(self):
-        return '<Jurisdictions %s: %s>' % (self.id, self.title)
-    
+        return "<Jurisdictions %s: %s>" % (self.id, self.title)
+
     def __repr__(self):
         return self.__unicode__()
 
     class Meta:
         managed = False
-        db_table = 'jurisdictions'
+        db_table = "jurisdictions"
 
 
 class Standards(models.Model):
@@ -30,7 +29,9 @@ class Standards(models.Model):
     jurisdiction = models.ForeignKey(Jurisdictions, models.DO_NOTHING)
     csp_id = models.CharField(max_length=200, blank=True, null=True)
     parent_ids = ArrayField(models.IntegerField())  # This field type is a guess.
-    education_levels = ArrayField(models.CharField(max_length=200))  # This field type is a guess.
+    education_levels = ArrayField(
+        models.CharField(max_length=200)
+    )  # This field type is a guess.
     title = models.CharField(max_length=200, blank=True, null=True)
     subject = models.CharField(max_length=200, blank=True, null=True)
     document = JSONField(blank=True, null=True)  # This field type is a guess.
@@ -44,17 +45,19 @@ class Standards(models.Model):
             return None  # root node
 
     def get_children(self):
-        return Standards.objects.filter(parent_ids=self.parent_ids+[self.id])
+        return Standards.objects.filter(parent_ids=self.parent_ids + [self.id])
 
     def get_descendants(self):
-        return Standards.objects.filter(parent_ids__contains=self.parent_ids+[self.id])
+        return Standards.objects.filter(
+            parent_ids__contains=self.parent_ids + [self.id]
+        )
 
     def __unicode__(self):
-        return '<Standards %s: %s>' % (self.id, self.title)
+        return "<Standards %s: %s>" % (self.id, self.title)
 
     def __repr__(self):
         return self.__unicode__()
 
     class Meta:
         managed = False
-        db_table = 'standards'
+        db_table = "standards"
