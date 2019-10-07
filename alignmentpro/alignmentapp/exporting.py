@@ -11,6 +11,7 @@ from .models import CurriculumDocument, HumanRelevanceJudgment
 # HIGH LEVEL API
 ################################################################################
 
+
 def export_data(dir_name, test_size):
     export_base_dir = settings.DATA_EXPORT_BASE_DIR
     if not os.path.exists(export_base_dir):
@@ -40,7 +41,6 @@ def export_data(dir_name, test_size):
     csvpath3 = os.path.join(export_dir, settings.LEARNING_OBJECTIVES_FILENAME)
     export_learning_objectives(all_learning_objectives, csvpath3)
 
-
     # PART 2: EXPORT HUMAN JUDGMENTS DATA
     ########################################################################
     judgments_test = list(HumanRelevanceJudgment.objects.filter(is_test_data=True))
@@ -59,19 +59,18 @@ def export_data(dir_name, test_size):
     csvpath5 = os.path.join(export_dir, settings.HUMAN_JUDGMENTS_TRAIN_FILENAME)
     export_human_judgments(judgments_train, csvpath5)
     # TODO: export METADATA_FILENAME = 'metadata.json'
-    print('Data export to dir', export_dir, 'comlete.')
-
+    print("Data export to dir", export_dir, "comlete.")
 
 
 # CURRICULUM DOCUMENT CSV EXPORT FORMAT
 ################################################################################
-DOCUMENT_ID_KEY = 'document_id'
-COUNTRY_KEY = 'country'
-TITLE_KEY = 'title'
-DIGITIZATION_METHOD_KEY = 'digitization_method'
-SOURCE_ID_KEY = 'source_id'
-SOURCE_URL_KEY = 'source_url'
-CREATED_KEY = 'created'
+DOCUMENT_ID_KEY = "document_id"
+COUNTRY_KEY = "country"
+TITLE_KEY = "title"
+DIGITIZATION_METHOD_KEY = "digitization_method"
+SOURCE_ID_KEY = "source_id"
+SOURCE_URL_KEY = "source_url"
+CREATED_KEY = "created"
 
 
 CURRICULUM_DOCUMENT_HEADER_V0 = [
@@ -83,6 +82,7 @@ CURRICULUM_DOCUMENT_HEADER_V0 = [
     SOURCE_URL_KEY,
     CREATED_KEY,
 ]
+
 
 def document_to_rowdict(document):
     datum = {
@@ -96,31 +96,31 @@ def document_to_rowdict(document):
     }
     return datum
 
+
 def export_documents(documents, csvfilepath):
     """
     Writes the documents data in `documents` to the CSV file at `csvfilepath`.
     """
-    with open(csvfilepath, 'w') as csv_file:
+    with open(csvfilepath, "w") as csv_file:
         csvwriter = csv.DictWriter(csv_file, CURRICULUM_DOCUMENT_HEADER_V0)
-        csvwriter.writeheader()    
+        csvwriter.writeheader()
         for document in documents:
             rowdict = document_to_rowdict(document)
             csvwriter.writerow(rowdict)
     return csvfilepath
 
 
-
 # STANDARD NODE CSV EXPORT FORMAT
 ################################################################################
-ID_KEY = 'id'
+ID_KEY = "id"
 # DOCUMENT_ID_KEY = 'document_id'
-PARENT_ID_KEY = 'parent_id'
-IDENTIFIER_KEY = 'identifier'
-KIND_KEY = 'kind'
+PARENT_ID_KEY = "parent_id"
+IDENTIFIER_KEY = "identifier"
+KIND_KEY = "kind"
 # TITLE_KEY = 'title'
-TIME_UNITS_KEY = 'time_units'
-NOTES_KEY = 'notes'
-EXTRA_FIELDS_KEY = 'extra_fields'
+TIME_UNITS_KEY = "time_units"
+NOTES_KEY = "notes"
+EXTRA_FIELDS_KEY = "extra_fields"
 
 STANDARD_NODE_HEADER_V0 = [
     ID_KEY,
@@ -133,6 +133,7 @@ STANDARD_NODE_HEADER_V0 = [
     NOTES_KEY,
     EXTRA_FIELDS_KEY,
 ]
+
 
 def node_to_rowdict(node):
     parent_node = node.get_parent()
@@ -149,26 +150,26 @@ def node_to_rowdict(node):
     }
     return datum
 
+
 def export_nodes(nodes, csvfilepath):
     """
     Writes the standard nodes data in `nodes` to the CSV file at `csvfilepath`.
     """
-    with open(csvfilepath, 'w') as csv_file:
+    with open(csvfilepath, "w") as csv_file:
         csvwriter = csv.DictWriter(csv_file, STANDARD_NODE_HEADER_V0)
-        csvwriter.writeheader()    
+        csvwriter.writeheader()
         for node in nodes:
             noderow = node_to_rowdict(node)
             csvwriter.writerow(noderow)
     return csvfilepath
 
 
-
 # LEARNING OBJECTIVE CSV EXPORT FORMAT
 ################################################################################
-STANDARD_NODE_ID_KEY = 'node_id'
+STANDARD_NODE_ID_KEY = "node_id"
 # ID_KEY = 'id'
-LEARNING_OBJECTIVE_TEXT_KEY = 'text'
-LEARNING_OBJECTIVE_KIND_KEY = 'kind'
+LEARNING_OBJECTIVE_TEXT_KEY = "text"
+LEARNING_OBJECTIVE_KIND_KEY = "kind"
 
 LEARNING_OBJECTIVE_HEADER_V0 = [
     STANDARD_NODE_ID_KEY,
@@ -176,6 +177,7 @@ LEARNING_OBJECTIVE_HEADER_V0 = [
     LEARNING_OBJECTIVE_TEXT_KEY,
     LEARNING_OBJECTIVE_KIND_KEY,
 ]
+
 
 def learning_objective_to_rowdict(learning_objective):
     datum = {
@@ -186,33 +188,33 @@ def learning_objective_to_rowdict(learning_objective):
     }
     return datum
 
+
 def export_learning_objectives(learning_objectives, csvfilepath):
     """
     Writes the learning objectives data to the CSV file at `csvfilepath`.
     """
-    with open(csvfilepath, 'w') as csv_file:
+    with open(csvfilepath, "w") as csv_file:
         csvwriter = csv.DictWriter(csv_file, LEARNING_OBJECTIVE_HEADER_V0)
-        csvwriter.writeheader()    
+        csvwriter.writeheader()
         for learning_objective in learning_objectives:
             rowdict = learning_objective_to_rowdict(learning_objective)
             csvwriter.writerow(rowdict)
     return csvfilepath
 
 
-
 # HUMAN JUDGMENT CSV EXPORT FORMAT
 ################################################################################
 # ID_KEY = 'id'
-NODE1_KEY = 'node1_id'
-NODE2_KEY = 'node2_id'
-RATING_KEY = 'rating'
-CONFIDENCE_KEY = 'confidence'
-MODE_KEY = 'mode'
+NODE1_KEY = "node1_id"
+NODE2_KEY = "node2_id"
+RATING_KEY = "rating"
+CONFIDENCE_KEY = "confidence"
+MODE_KEY = "mode"
 # UI_NAME_KEY = 'ui_name'
 # UI_VERSION_HASH_KEY = 'ui_version_hash'
 # USER_ID_KEY = 'user_id'
 # CREATED_KEY = 'created'
-# EXTRA_FIELDS_KEY = 'extra_fields', 
+# EXTRA_FIELDS_KEY = 'extra_fields',
 
 HUMAN_JUDGMENTS_HEADER_V0 = [
     ID_KEY,
@@ -223,6 +225,7 @@ HUMAN_JUDGMENTS_HEADER_V0 = [
     MODE_KEY,
     EXTRA_FIELDS_KEY,
 ]
+
 
 def human_judgment_to_rowdict(human_judgment):
     datum = {
@@ -236,13 +239,14 @@ def human_judgment_to_rowdict(human_judgment):
     }
     return datum
 
+
 def export_human_judgments(human_judgments, csvfilepath):
     """
     Writes the human judgements data to the CSV file at `csvfilepath`.
     """
-    with open(csvfilepath, 'w') as csv_file:
+    with open(csvfilepath, "w") as csv_file:
         csvwriter = csv.DictWriter(csv_file, HUMAN_JUDGMENTS_HEADER_V0)
-        csvwriter.writeheader()    
+        csvwriter.writeheader()
         for human_judgment in human_judgments:
             rowdict = human_judgment_to_rowdict(human_judgment)
             csvwriter.writerow(rowdict)

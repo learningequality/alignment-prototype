@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     "treebeard",  # for TreeAdmin views
     "alignmentapp",
     # 'commonstandardsproject',   # tmp to extract CCSS and NGSS data
-    'importing',
-    'django_extensions',
+    "importing",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -80,22 +80,22 @@ WSGI_APPLICATION = "alignmentpro.wsgi.application"
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'alignmentpro',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "alignmentpro",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
     },
-    'standards': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'standards',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
+    "standards": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "standards",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
+    },
 }
 
 DATABASE_ROUTERS = ["alignmentpro.dbrouters.DbRouter"]
@@ -145,9 +145,9 @@ REST_FRAMEWORK = {
 
 # Data export paths and constnts
 DATA_EXPORT_BASE_DIR = os.path.join("exports", "data")
-CURRICULUM_DOCUMENTS_FILENAME = 'curriculumdocuments.csv'
-STANDARD_NODES_FILENAME = 'standardnodes.csv'
-LEARNING_OBJECTIVES_FILENAME = 'learningobjectives.csv'
-HUMAN_JUDGMENTS_TRAIN_FILENAME = 'humanjudgments_train.csv'
-HUMAN_JUDGMENTS_TEST_FILENAME = 'humanjudgments_test.csv'
-METADATA_FILENAME = 'metadata.json'
+CURRICULUM_DOCUMENTS_FILENAME = "curriculumdocuments.csv"
+STANDARD_NODES_FILENAME = "standardnodes.csv"
+LEARNING_OBJECTIVES_FILENAME = "learningobjectives.csv"
+HUMAN_JUDGMENTS_TRAIN_FILENAME = "humanjudgments_train.csv"
+HUMAN_JUDGMENTS_TEST_FILENAME = "humanjudgments_test.csv"
+METADATA_FILENAME = "metadata.json"
