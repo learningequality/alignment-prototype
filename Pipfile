@@ -10,6 +10,9 @@ ipython = "*"
 django = "*"
 django-treebeard = "*"
 psycopg2-binary = "*"
+djangorestframework = "*"
+markdown = "*"
+django-filter = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.6"
