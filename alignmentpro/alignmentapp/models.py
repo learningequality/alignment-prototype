@@ -2,8 +2,9 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, UniqueConstraint
 from treebeard.mp_tree import MP_Node
+
 
 
 # CURRICULUM DOCUMENTS
@@ -73,7 +74,7 @@ class StandardNode(MP_Node):
     # id = auto-incrementing integet primary key
     # path = inherited from MP_Node, e.g. ['0001'] for root node of tree_id 0001
     document = models.ForeignKey(
-        "CurriculumDocument", related_name="roots", on_delete=models.CASCADE
+        "CurriculumDocument", related_name="nodes", on_delete=models.CASCADE
     )
     identifier = models.CharField(max_length=20)
     # source_id / source_url ?
@@ -108,6 +109,15 @@ class StandardNode(MP_Node):
         if "document" not in kwargs:
             kwargs["document"] = self.document
         return super().add_child(**kwargs)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(    # Make sure every document has at most one tree
+                name='single_root_per_document',
+                fields=["document", "depth"],
+                condition=Q(depth=1)
+            )
+        ]
 
 
 class LearningObjective(models.Model):

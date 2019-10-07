@@ -1,9 +1,9 @@
 # alignment-prototype
-Code base for a prototype for the alignment hackathon
+Code base for a prototype for the hackathon on curriculum structure alignments.
+
 
 TODOs
 -----
- - How do we ensure only one tree per document?
  - How do we make robust/forgiving/helpful errors when bad Excel formatting?
 
 
@@ -122,17 +122,17 @@ Feature vectors
 from alignmentapp.models import CurriculumDocument, StandardNode, LearningObjective
 from alignmentapp.models import MachineLearningModel, StandardNodeFeatureVector
 
-d1 = CurriculumDocument.objects.create(title='KICD Bio')
-n1 = StandardNode.add_root(title='KICD Bio standard root', document=d1)
+d3 = CurriculumDocument.objects.create(title='KICD Bio', source_id='uganda-bio-sample')
+n6 = StandardNode.add_root(title='KICD Bio standard root', document=d3)
 model1 = MachineLearningModel.objects.create(model_name="sentence_embeddings", model_version=1, git_hash='fefefe')
 
 v1data = list(i/3123 for i in range(0,1000))
-m1n1v1 = StandardNodeFeatureVector.objects.create(mlmodel=model1, node=n1, data=v1data)
+m1n1v1 = StandardNodeFeatureVector.objects.create(mlmodel=model1, node=n6, data=v1data)
 v2data = list(i/123 for i in range(0,1000))
-m1n1v1 = StandardNodeFeatureVector.objects.create(mlmodel=model1, node=n1, data=v2data)
+m1n1v1 = StandardNodeFeatureVector.objects.create(mlmodel=model1, node=n6, data=v2data)
 # TODO: test with numpy array
 
-print( n1.features.all() )
+print( n6.features.all() )
 # <QuerySet [<StandardNodeFeatureVector: StandardNodeFeatureVector object (1)>, <StandardNodeFeatureVector: StandardNodeFeatureVector object (2)>]>
 
 print( model1.feature_vectors.all() )
