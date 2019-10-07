@@ -5,6 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 ipython = "*"
+pyflakes = "*"
+django-extensions = "*"
 
 [packages]
 django = "*"
@@ -13,6 +15,7 @@ psycopg2-binary = "*"
 djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
+requests = "*"
 
 [requires]
 python_version = "3.6"
