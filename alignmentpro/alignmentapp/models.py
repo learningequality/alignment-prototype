@@ -96,7 +96,7 @@ class StandardNode(MP_Node):
         help_text="A numeric value ~= to the # hours of instruction for this unit or topic",
     )
     notes = models.TextField(
-        blank=True, blank=True, help_text="Additional notes and modification attributes."
+        blank=True, help_text="Additional notes and modification attributes."
     )
     extra_fields = JSONField(
         default=dict
@@ -164,7 +164,7 @@ class HumanRelevanceJudgment(models.Model):
         blank=True, null=True
     )  # 1.0= 100% confident, 50% depends, 0% just guessing (or null)
     extra_fields = JSONField(
-        default={}
+        default=dict
     )  # additional context and comments about verdict
 
     mode = models.CharField(max_length=30)  # (manually added  vs.  rapid feedback)
