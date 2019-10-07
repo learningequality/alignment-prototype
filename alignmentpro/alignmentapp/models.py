@@ -1,9 +1,11 @@
+
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Q
 from treebeard.mp_tree import MP_Node
+
 
 
 # CURRICULUM DOCUMENTS
@@ -55,21 +57,13 @@ class CurriculumDocument(models.Model):
 ################################################################################
 
 NODE_KINDS = [
-    (
-        "document",
-        "Curriculum document node",
-    ),  # the root node for the document (self.title == self.document.title)
-    # ('langauge', 'Language of content '),         # language subdivision
+    ("document", "Curriculum document node"), 
     ("level", "Grade level or age group"),  # level-based grouping
     ("subject", "Subject matter"),  # e.g. Math, Phyiscis, IT, etc.
-    (
-        "topic",
-        "Subject, section, or subsection",
-    ),  # structural elements (sections and subsections)
+    ("topic", "Subject, section, or subsection"),  # strucural elements
     ("unit", "Standard entry"),  # Individual standard entries with LOs
-    # ('learning_objective', see node.learning_objectives
+    # ("learning_objective", see node.learning_objectives
 ]
-
 
 class StandardNode(MP_Node):
     """
@@ -85,11 +79,12 @@ class StandardNode(MP_Node):
     # source_id / source_url ?
     kind = models.CharField(max_length=20, choices=NODE_KINDS, default="unit")
     title = models.CharField(max_length=400)
+    # the order of tree children within parent node
     sort_order = models.FloatField(default=1.0)
-    node_order_by = ["sort_order"]  # the order of children within parent node
-    # learning_objectives = reverse relation on LearningObjective.node
+    node_order_by = ["sort_order"]  
 
     # domain-specific
+    # learning_objectives = reverse relation on LearningObjective.node
     time_units = models.FloatField(
         blank=True,
         null=True,
@@ -98,9 +93,8 @@ class StandardNode(MP_Node):
     notes = models.TextField(
         blank=True, help_text="Additional notes and modification attributes."
     )
-    extra_fields = JSONField(
-        default=dict
-    ) # basic model extensibility w/o changing base API
+    # basic model extensibility w/o changing base API
+    extra_fields = JSONField(default=dict) 
 
     # Human relevance jugments on edges between nodes
     @property
@@ -127,13 +121,9 @@ class LearningObjective(models.Model):
     node = models.ForeignKey(
         "StandardNode", related_name="learning_objectives", on_delete=models.CASCADE
     )
-    text = models.CharField(
-        max_length=400, help_text="Text of the statement of the leanring objective."
-    )
-    # optional:
-    kind = models.CharField(
-        max_length=50, blank=True, null=True
-    )  # system tag, e.g. KUD:Know, KUD:Understand, KUD:Do
+    text = models.CharField(max_length=400, help_text="Text of learning objective.")
+    # optional: system tag, e.g. KUD:Know, KUD:Understand, KUD:Do
+    kind = models.CharField(max_length=50, blank=True, null=True)  
 
     def __str__(self):
         return "- {}".format(self.text)
@@ -157,24 +147,16 @@ class HumanRelevanceJudgment(models.Model):
         StandardNode, related_name="node2+", on_delete=models.CASCADE
     )
 
-    rating = (
-        models.FloatField()
-    )  # min = 0.0 (not relevant at all), max = 1.0 (highly relevant)
-    confidence = models.FloatField(
-        blank=True, null=True
-    )  # 1.0= 100% confident, 50% depends, 0% just guessing (or null)
-    extra_fields = JSONField(
-        default=dict
-    )  # additional context and comments about verdict
+    # Relevnace rating: min = 0.0 (not relevant at all), max = 1.0 (highly relevant)
+    rating = models.FloatField()
+    # Optional confidence level: 1.0= 100% sure, 50% depends, 0% just guessing
+    confidence = models.FloatField(blank=True, null=True)
+    extra_fields = JSONField(default=dict) 
 
-    mode = models.CharField(max_length=30)  # (manually added  vs.  rapid feedback)
-    ui_name = models.CharField(
-        max_length=100
-    )  # name of frontend within forntends/ ~= team name
-    ui_version_hash = models.CharField(
-        max_length=100
-    )  # hash of the js bundle of the rapid feedback UI that was used
-
+    mode = models.CharField(max_length=30)  # manually added vs. rapid feedback
+    # Save the info about the UI frontend used to provide judgment (team name)
+    ui_name = models.CharField(max_length=100)
+    ui_version_hash = models.CharField(max_length=100)
     user = models.ForeignKey(
         User, related_name="judgments", null=True, on_delete=models.SET_NULL
     )
@@ -195,12 +177,10 @@ class MachineLearningModel(models.Model):
     """
     Stores metadata for a particular instance of ML model (code and training data).
     """
-
     # id = auto-incrementing integet primary key
-    model_name = models.CharField(max_length=50)  # foldername/   /api?model=foldername
-    model_version = (
-        models.IntegerField()
-    )  # get automatically? from git somehow e.g. count # commits that affect the folder for that ML model
+    model_name = models.CharField(max_length=50)  # foldername/ = /api?model=foldername
+    # get from git somehow e.g. count # commits that affect the folder for that ML model
+    model_version = models.IntegerField()
     git_hash = models.CharField(max_length=200)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -209,7 +189,6 @@ class StandardNodeFeatureVector(models.Model):
     """
     Store arbitrary-length feature vector that represets `node` in a given `model`.
     """
-
     # id = auto-incrementing integet primary key
     mlmodel = models.ForeignKey(
         "MachineLearningModel", related_name="feature_vectors", on_delete=models.CASCADE
@@ -231,20 +210,17 @@ class StandardNodeFeatureVector(models.Model):
 
 class DataExport(models.Model):
     curriculum_data_version = models.CharField(max_length=50)
-    feedback_data_version = models.CharField(max_length=50)
+    judgments_data_version = models.CharField(max_length=50)
     created = models.DateTimeField(auto_now_add=True)
     exportdir = models.CharField(max_length=400)
 
-    # train_data = models.FileField
-    # test_data = models.FileField
+    train_data = models.FileField
+    test_data = models.FileField
 
-    # def export(self):
-    #     new_feedback_data = HumanRelevanceJudgment.filter(is_test_data=None)
-    #     for feedback_datum in new_feedback_data:
-    #         istestdata = random addignmnt from ExportPolicy
-    #         if istestdata:
-    #             feedback_datum.is_test_data = True
-    #             test_data.append(feedback_datum)
-    #         else:
-    #             feedback_datum.is_test_data = False
-    #             train_data.append(feedback_datum)
+    def export(self, test_size=0.2):
+        """
+        Exports DB data in CSV format to be used for ML training and testing.
+        """
+        from .exporting import export_data
+        dir_name = 'SNv' + self.curriculum_data_version + '_JDv' + self.judgments_data_version
+        export_data(dir_name, test_size)
