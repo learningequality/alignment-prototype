@@ -12,7 +12,7 @@ TODOs
 Install
 -------
 
-    pipenv --python python3.6 install
+    pipenv --python python3.6 install --dev
 
 
 
@@ -23,6 +23,7 @@ DB called `alignmentpro` using the following command:
 
     # make sure postgres is running
     createdb alignmentpro
+    createdb standards
 
 
 Setup
