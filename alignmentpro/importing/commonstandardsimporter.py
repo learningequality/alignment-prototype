@@ -1,4 +1,5 @@
 from commonstandardsproject.models import Jurisdictions, Standards
+from alignmentapp.models import CurriculumDocument, StandardNode
 
 
 # SHARED
@@ -140,12 +141,6 @@ CCSSM_TO_NODE_KIND_MAPPING = {
     'Component': 'learning_objective',
 }
 
-CCSSM_DOCUMENT_ATTRIBUTES = {
-    'source_id': 'CCSSM',
-    'title': 'Common Core State Standards for Mathematics',
-    'country': 'USA',
-    ''
-}
 
 
 def extract_ccssm():
@@ -162,7 +157,7 @@ def infer_ccssm_domain_identifier_from_first_child(subtree):
         split_identifier = first_child['identifier'].split('.')
         subtree['identifier'] = '.'.join(split_identifier[0:-1])
     for child in subtree['children']:
-        infer_domain_identifier_from_first_child(child)
+        infer_ccssm_domain_identifier_from_first_child(child)
 
 def transform_cssm(tree):
     # convert from {data=Standard, children=[..] } to regular dict tree
@@ -180,31 +175,57 @@ def transform_cssm(tree):
     return tree3
 
 
+CCSSM_DOCUMENT_ATTRIBUTES = {
+    'source_id': 'CCSSM',
+    'title': 'Common Core State Standards for Mathematics',
+    'country': 'USA',
+    'digitization_method': 'data_import',
+    'source_url': 'http://www.corestandards.org/Math/',
+    'is_draft': False,
+}
+
+
 def load_cssm(transformed_tree):
-    transformed_tree
     try:
-        document = CurriculumDocument.objects.get(source_id='kicd-math-sample')
+        document = CurriculumDocument.objects.get(source_id=CCSSM_DOCUMENT_ATTRIBUTES['source_id'])
         document.delete()
     except CurriculumDocument.DoesNotExist:
         pass
-    document = CurriculumDocument.objects.create(
-        source_id='kicd-math-sample'
+    document = CurriculumDocument.objects.create(**CCSSM_DOCUMENT_ATTRIBUTES)
+
+    root = StandardNode.add_root(
+        identifier=transformed_tree['identifier'],
+        title=transformed_tree['title'],
+        kind=transformed_tree['kind'],
+        document=document,
     )
+    
+    def _add_children_to_parent(parent, children):
+        for i, child in enumerate(children):
+            sort_order = i + 1
+            source_kind = child['kind']
+            if source_kind in CCSSM_TO_NODE_KIND_MAPPING:
+                kind = CCSSM_TO_NODE_KIND_MAPPING[source_kind]
+            else:
+                kind = source_kind
+            node = parent.add_child(
+                document=parent.document,
+                title=child['title'],
+                identifier=child['identifier'],
+                sort_order=sort_order,
+                kind=kind,
+            )
+            _add_children_to_parent(node, child['children'])
+    _add_children_to_parent(root, transformed_tree['children'])
 
-    # d1, _ = CurriculumDocument.objects.get_or_create(title='KICD Math', source_id='kicd-math-sample')
-    # n1 = StandardNode.add_root(title='KICD standards root', document=d1)
-    # n2 = n1.add_child(title='Math', document=n1.document)
-    # n3 = n2.add_child(title='Algebra', document=n2.document)
-
-    # CCSSM_TO_NODE_KIND_MAPPING
-
-    pass
 
 def import_ccssm():
     tree = extract_ccssm()
     transformed_tree = transform_cssm(tree)
-    print_commonstandards_tree(transformed_tree, display_len_limit=None)
+    # print_commonstandards_tree(transformed_tree, display_len_limit=None)
     load_cssm(transformed_tree)
+    print('Finished importing CCSSM')
+
 
 
 # Next Generation Science Standards
