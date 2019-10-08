@@ -4,7 +4,6 @@ from rest_framework import serializers, viewsets
 from .models import (
     CurriculumDocument,
     StandardNode,
-    LearningObjective,
     HumanRelevanceJudgment,
 )
 
@@ -53,16 +52,6 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
     queryset = StandardNode.objects.all()
     serializer_class = StandardNodeSerializer
 
-
-class LearningObjectiveSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = LearningObjective
-        fields = ["id", "node", "text", "kind"]
-
-
-class LearningObjectiveViewSet(viewsets.ModelViewSet):
-    queryset = LearningObjective.objects.all()
-    serializer_class = LearningObjectiveSerializer
 
 
 class HumanRelevanceJudgmentSerializer(serializers.HyperlinkedModelSerializer):

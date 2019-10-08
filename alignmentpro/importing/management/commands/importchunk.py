@@ -14,7 +14,7 @@ from importing.csvutils import (
     TIME_UNITS_KEY,
     NOTES_KEY,
 )
-from alignmentapp.models import CurriculumDocument, StandardNode, LearningObjective
+from alignmentapp.models import CurriculumDocument, StandardNode
 
 
 class Command(BaseCommand):
@@ -97,8 +97,8 @@ class Command(BaseCommand):
                 node = _add_row_to_parent(
                     parent, row, sort_order=node_counts[cur_level]
                 )
-                if row[LEARNING_OBJECTIVES_KEY]:
-                    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
+                #if row[LEARNING_OBJECTIVES_KEY]:
+                #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
                 nodes_breadcrumbs[cur_level] = node
 
             # going deeper (add a child to current leaf)
@@ -107,8 +107,8 @@ class Command(BaseCommand):
                 node = _add_row_to_parent(
                     parent, row, sort_order=node_counts[cur_level]
                 )
-                if row[LEARNING_OBJECTIVES_KEY]:
-                    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
+                #if row[LEARNING_OBJECTIVES_KEY]:
+                #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
                 nodes_breadcrumbs.append(node)
                 node_counts.append(1)
                 cur_level += 1
@@ -121,8 +121,8 @@ class Command(BaseCommand):
                 node = _add_row_to_parent(
                     parent, row, sort_order=node_counts[new_level]
                 )
-                if row[LEARNING_OBJECTIVES_KEY]:
-                    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
+                #if row[LEARNING_OBJECTIVES_KEY]:
+                #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
                 nodes_breadcrumbs = nodes_breadcrumbs[0:new_level] + [node]
                 node_counts = node_counts[0 : new_level + 1]
                 cur_level = new_level
@@ -143,8 +143,8 @@ def _add_row_to_parent(parent, row, sort_order=1):
     return node
 
 
-def _add_learning_objectives(node, learning_objectives_paragraph):
-    lines = learning_objectives_paragraph.splitlines()
-    for line in lines:
-        text = line.lstrip(" -\t").rstrip(" ,.")
-        LearningObjective.objects.create(node=node, text=text)
+# def _add_learning_objectives(node, learning_objectives_paragraph):
+#     lines = learning_objectives_paragraph.splitlines()
+#     for line in lines:
+#         text = line.lstrip(" -\t").rstrip(" ,.")
+#         LearningObjective.objects.create(node=node, text=text)

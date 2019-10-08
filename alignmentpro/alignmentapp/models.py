@@ -62,7 +62,7 @@ NODE_KINDS = [
     ("subject", "Subject matter"),  # e.g. Math, Phyiscis, IT, etc.
     ("topic", "Subject, section, or subsection"),  # strucural elements
     ("unit", "Standard entry"),  # Individual standard entries with LOs
-    # ("learning_objective", see node.learning_objectives
+    ("learning_objective", "Learning objective"), # Granula learning objectives
 ]
 
 
@@ -76,16 +76,15 @@ class StandardNode(MP_Node):
     document = models.ForeignKey(
         "CurriculumDocument", related_name="nodes", on_delete=models.CASCADE
     )
-    identifier = models.CharField(max_length=20)
+    identifier = models.CharField(max_length=300)
     # source_id / source_url ?
     kind = models.CharField(max_length=20, choices=NODE_KINDS, default="unit")
-    title = models.CharField(max_length=400)
+    title = models.TextField(help_text="Title or description text for this node.")
     # the order of tree children within parent node
     sort_order = models.FloatField(default=1.0)
     node_order_by = ["sort_order"]
 
     # domain-specific
-    # learning_objectives = reverse relation on LearningObjective.node
     time_units = models.FloatField(
         blank=True,
         null=True,
@@ -119,24 +118,6 @@ class StandardNode(MP_Node):
             )
         ]
 
-
-class LearningObjective(models.Model):
-    """
-    Individual learning objectives statements associated with a curriculum unit,
-    e.g., "Describe the reaction between a given metal and metal oxide"
-    or "solving quadratic equations by completing the square".    
-    """
-
-    # id = auto-incrementing integet primary key
-    node = models.ForeignKey(
-        "StandardNode", related_name="learning_objectives", on_delete=models.CASCADE
-    )
-    text = models.CharField(max_length=400, help_text="Text of learning objective.")
-    # optional: system tag, e.g. KUD:Know, KUD:Understand, KUD:Do
-    kind = models.CharField(max_length=50, blank=True, null=True)
-
-    def __str__(self):
-        return "- {}".format(self.text)
 
 
 # HUMAN JUDGMENTS

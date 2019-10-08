@@ -6,7 +6,6 @@ from treebeard.forms import movenodeform_factory
 from alignmentapp.models import (
     CurriculumDocument,
     StandardNode,
-    LearningObjective,
     HumanRelevanceJudgment,
     MachineLearningModel,
 )
@@ -17,18 +16,11 @@ class CurriculumDocumentAdmin(admin.ModelAdmin):
     model = CurriculumDocument
 
 
-class LearningObjectiveInline(admin.TabularInline):
-    model = LearningObjective
-    fields = ("text",)
-
-
 @admin.register(StandardNode)
 class StandardNodeAdmin(TreeAdmin):
     list_filter = ("document__country", "document")
-    search_fields = ["identifier", "title", "learning_objectives__text", "notes"]
+    search_fields = ["identifier", "title", "notes"]
     form = movenodeform_factory(StandardNode)
-    inlines = [LearningObjectiveInline]
-
 
 @admin.register(HumanRelevanceJudgment)
 class HumanRelevanceJudgmentAdmin(admin.ModelAdmin):

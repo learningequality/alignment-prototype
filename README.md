@@ -80,7 +80,7 @@ Sample documents, nodes, and human judgment edge
 
 
 ```python
-from alignmentapp.models import CurriculumDocument, StandardNode, LearningObjective
+from alignmentapp.models import CurriculumDocument, StandardNode
 from alignmentapp.models import HumanRelevanceJudgment
 
 d1, _ = CurriculumDocument.objects.get_or_create(title='KICD Math', source_id='kicd-math-sample')
@@ -120,7 +120,7 @@ Feature vectors
 ---------------
 
 ```python
-from alignmentapp.models import CurriculumDocument, StandardNode, LearningObjective
+from alignmentapp.models import CurriculumDocument, StandardNode
 from alignmentapp.models import MachineLearningModel, StandardNodeFeatureVector
 
 d3 = CurriculumDocument.objects.create(title='KICD Bio', source_id='uganda-bio-sample')

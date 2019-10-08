@@ -21,7 +21,6 @@ from rest_framework import routers
 from alignmentapp.api import (
     CurriculumDocumentViewSet,
     StandardNodeViewSet,
-    LearningObjectiveViewSet,
     HumanRelevanceJudgmentViewSet,
     UserViewSet,
 )
@@ -29,7 +28,6 @@ from alignmentapp.api import (
 router = routers.DefaultRouter()
 router.register(r"document", CurriculumDocumentViewSet, basename="document")
 router.register(r"node", StandardNodeViewSet, basename="node")
-router.register(r"objective", LearningObjectiveViewSet, basename="objective")
 router.register(r"judgment", HumanRelevanceJudgmentViewSet, basename="judgment")
 router.register(r"user", UserViewSet, basename="user")
 

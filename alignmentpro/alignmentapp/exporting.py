@@ -24,22 +24,17 @@ def export_data(dir_name, test_size):
     ########################################################################
     all_documents = []
     all_nodes = []
-    all_learning_objectives = []
     documents = CurriculumDocument.objects.filter(is_draft=False)
     for document in documents:
         all_documents.append(document)
         root = document.root
         nodes = [root] + list(document.root.get_descendants())
         all_nodes.extend(nodes)
-        for node in nodes:
-            all_learning_objectives.extend(list(node.learning_objectives.all()))
 
     csvpath1 = os.path.join(export_dir, settings.CURRICULUM_DOCUMENTS_FILENAME)
     export_documents(all_documents, csvpath1)
     csvpath2 = os.path.join(export_dir, settings.STANDARD_NODES_FILENAME)
     export_nodes(all_nodes, csvpath2)
-    csvpath3 = os.path.join(export_dir, settings.LEARNING_OBJECTIVES_FILENAME)
-    export_learning_objectives(all_learning_objectives, csvpath3)
 
     # PART 2: EXPORT HUMAN JUDGMENTS DATA
     ########################################################################
@@ -54,9 +49,7 @@ def export_data(dir_name, test_size):
         else:
             new_datum.is_test_data = False
             judgments_train.append(new_datum)
-    csvpath4 = os.path.join(export_dir, settings.HUMAN_JUDGMENTS_TEST_FILENAME)
-    export_human_judgments(judgments_test, csvpath4)
-    csvpath5 = os.path.join(export_dir, settings.HUMAN_JUDGMENTS_TRAIN_FILENAME)
+    csvpath5 = os.path.join(export_dir, settings.HUMAN_JUDGMENTS_FILENAME)
     export_human_judgments(judgments_train, csvpath5)
     # TODO: export METADATA_FILENAME = 'metadata.json'
     print("Data export to dir", export_dir, "comlete.")
@@ -164,42 +157,6 @@ def export_nodes(nodes, csvfilepath):
     return csvfilepath
 
 
-# LEARNING OBJECTIVE CSV EXPORT FORMAT
-################################################################################
-STANDARD_NODE_ID_KEY = "node_id"
-# ID_KEY = 'id'
-LEARNING_OBJECTIVE_TEXT_KEY = "text"
-LEARNING_OBJECTIVE_KIND_KEY = "kind"
-
-LEARNING_OBJECTIVE_HEADER_V0 = [
-    STANDARD_NODE_ID_KEY,
-    ID_KEY,
-    LEARNING_OBJECTIVE_TEXT_KEY,
-    LEARNING_OBJECTIVE_KIND_KEY,
-]
-
-
-def learning_objective_to_rowdict(learning_objective):
-    datum = {
-        STANDARD_NODE_ID_KEY: learning_objective.node_id,
-        ID_KEY: learning_objective.id,
-        LEARNING_OBJECTIVE_TEXT_KEY: learning_objective.text,
-        LEARNING_OBJECTIVE_KIND_KEY: learning_objective.kind,
-    }
-    return datum
-
-
-def export_learning_objectives(learning_objectives, csvfilepath):
-    """
-    Writes the learning objectives data to the CSV file at `csvfilepath`.
-    """
-    with open(csvfilepath, "w") as csv_file:
-        csvwriter = csv.DictWriter(csv_file, LEARNING_OBJECTIVE_HEADER_V0)
-        csvwriter.writeheader()
-        for learning_objective in learning_objectives:
-            rowdict = learning_objective_to_rowdict(learning_objective)
-            csvwriter.writerow(rowdict)
-    return csvfilepath
 
 
 # HUMAN JUDGMENT CSV EXPORT FORMAT
