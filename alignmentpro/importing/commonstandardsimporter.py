@@ -55,6 +55,19 @@ def standard_to_standardnode(standard):
             standardnode['extra_fields'][extra_prop]=doc.get(extra_prop)
     return standardnode
 
+def transform_subtree(subtree):
+    standard = subtree['data']
+    if isinstance(standard, Standards):
+        node = standard_to_standardnode(standard)
+    else:
+        node = standard
+    transformed_children = []
+    for child in subtree['children']:
+        transformed_child = transform_subtree(child)
+        transformed_children.append(transformed_child)
+    node['children'] = transformed_children
+    return node
+
 
 def print_commonstandards_tree(root, display_len_limit=None):
     print('COMMON STANDARDS TREE')
@@ -75,7 +88,21 @@ def print_commonstandards_tree(root, display_len_limit=None):
     print_subtree(root)
 
 
-
+def drop_titles(tree, titles_to_drop):
+    """
+    Walk the tree and drop any nodes whose titles are in `titles_to_drop`.
+    """
+    def _drop_titles(subtree):
+        new_children = []
+        for child in subtree['children']:
+            if child['title'] in titles_to_drop:
+                continue
+            else:
+                new_child = _drop_titles(child)
+                new_children.append(child)
+        subtree['children'] = new_children
+        return subtree
+    return _drop_titles(tree)
 
 
 
@@ -93,13 +120,32 @@ COMMON_CORE_MATH_ROOTS = [     # pairs of (Standard.id, identifier)
     ("155177", "CCSSM.6"),  # Grade 6 Common Core Mathematics
     ("156348", "CCSSM.7"),  # Grade 7 Common Core Mathematics
     ("154300", "CCSSM.8"),  # Grade 8 Common Core Mathematics
-    ("154416", "CCSSM.9-12"),  # Grades 9, 10, 11, 12 Common Core Mathematics
     ("154361", "CCSSM.HSN"),  # High School — Number and Quantity Common Core Mathematics
     ("156688", "CCSSM.HSA"),  # High School — Algebra Common Core Mathematics
     ("155892", "CCSSM.HSF"),  # High School — Functions Common Core Mathematics
     ("154902", "CCSSM.HSG"),  # High School — Geometry Common Core Mathematics
     ("157364", "CCSSM.HSS"),  # High School — Statistics and Probability Common Core Mathematics
+    # CCSSM.9-12 is redundant since High-School topics above include the same
+    # ("154416", "CCSSM.9-12"),  # Grades 9, 10, 11, 12 Common Core Mathematics
 ]
+
+CCSSM_DROP_TITLES = [
+    'Standards for Mathematical Practice',
+]
+
+CCSSM_TO_NODE_KIND_MAPPING = {
+    'Domain': 'topic',
+    'Cluster': 'topic',
+    'Standard': 'unit',
+    'Component': 'learning_objective',
+}
+
+CCSSM_DOCUMENT_ATTRIBUTES = {
+    'source_id': 'CCSSM',
+    'title': 'Common Core State Standards for Mathematics',
+    'country': 'USA',
+    ''
+}
 
 
 def extract_ccssm():
@@ -110,31 +156,48 @@ def extract_ccssm():
     )
     return tree
 
-def transform_cssm(tree):
+def infer_ccssm_domain_identifier_from_first_child(subtree):
+    if subtree['kind'] == 'Domain' and subtree['identifier'] == 'no identifier':
+        first_child = subtree['children'][0]
+        split_identifier = first_child['identifier'].split('.')
+        subtree['identifier'] = '.'.join(split_identifier[0:-1])
+    for child in subtree['children']:
+        infer_domain_identifier_from_first_child(child)
 
-    def _transform_subtree(subtree):
-        standard = subtree['data']
-        if isinstance(standard, Standards):
-            node = standard_to_standardnode(standard)
-        else:
-            node = standard
-        transformed_children = []
-        for child in subtree['children']:
-            transformed_child = _transform_subtree(child)
-            transformed_children.append(transformed_child)
-        node['children'] = transformed_children
-        return node
-    
-    tree2 = _transform_subtree(tree)
+def transform_cssm(tree):
+    # convert from {data=Standard, children=[..] } to regular dict tree
+    tree2 = transform_subtree(tree)
 
     # set grade level
     for grade_level in tree2['children']:
         grade_level['kind'] = 'level'
 
-    return tree2
+    # Drop repeating 'Standards for Mathematical Practice' (focus on Content)
+    tree3 = drop_titles(tree2, CCSSM_DROP_TITLES)
+
+    infer_ccssm_domain_identifier_from_first_child(tree3)
+
+    return tree3
 
 
 def load_cssm(transformed_tree):
+    transformed_tree
+    try:
+        document = CurriculumDocument.objects.get(source_id='kicd-math-sample')
+        document.delete()
+    except CurriculumDocument.DoesNotExist:
+        pass
+    document = CurriculumDocument.objects.create(
+        source_id='kicd-math-sample'
+    )
+
+    # d1, _ = CurriculumDocument.objects.get_or_create(title='KICD Math', source_id='kicd-math-sample')
+    # n1 = StandardNode.add_root(title='KICD standards root', document=d1)
+    # n2 = n1.add_child(title='Math', document=n1.document)
+    # n3 = n2.add_child(title='Algebra', document=n2.document)
+
+    # CCSSM_TO_NODE_KIND_MAPPING
+
     pass
 
 def import_ccssm():
