@@ -25,6 +25,8 @@ from alignmentapp.api import (
     UserViewSet,
 )
 
+from alignmentapp import views
+
 router = routers.DefaultRouter()
 router.register(r"document", CurriculumDocumentViewSet, basename="document")
 router.register(r"node", StandardNodeViewSet, basename="node")
@@ -35,4 +37,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     url(r"^api/", include(router.urls)),
     url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path('accounts/', include('allauth.urls')),
+    path('', views.Home.as_view(), name='home'),
 ]
