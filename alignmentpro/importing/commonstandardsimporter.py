@@ -141,6 +141,14 @@ CCSSM_TO_NODE_KIND_MAPPING = {
     'Component': 'learning_objective',
 }
 
+CCSSM_DOCUMENT_ATTRIBUTES = {
+    'source_id': 'CCSSM',
+    'title': 'Common Core State Standards for Mathematics',
+    'country': 'USA',
+    'digitization_method': 'data_import',
+    'source_url': 'http://www.corestandards.org/Math/',
+    'is_draft': False,
+}
 
 
 def extract_ccssm():
@@ -159,7 +167,7 @@ def infer_ccssm_domain_identifier_from_first_child(subtree):
     for child in subtree['children']:
         infer_ccssm_domain_identifier_from_first_child(child)
 
-def transform_cssm(tree):
+def transform_ccssm(tree):
     # convert from {data=Standard, children=[..] } to regular dict tree
     tree2 = transform_subtree(tree)
 
@@ -175,17 +183,8 @@ def transform_cssm(tree):
     return tree3
 
 
-CCSSM_DOCUMENT_ATTRIBUTES = {
-    'source_id': 'CCSSM',
-    'title': 'Common Core State Standards for Mathematics',
-    'country': 'USA',
-    'digitization_method': 'data_import',
-    'source_url': 'http://www.corestandards.org/Math/',
-    'is_draft': False,
-}
 
-
-def load_cssm(transformed_tree):
+def load_ccssm(transformed_tree):
     try:
         document = CurriculumDocument.objects.get(source_id=CCSSM_DOCUMENT_ATTRIBUTES['source_id'])
         document.delete()
@@ -221,10 +220,19 @@ def load_cssm(transformed_tree):
 
 def import_ccssm():
     tree = extract_ccssm()
-    transformed_tree = transform_cssm(tree)
+    transformed_tree = transform_ccssm(tree)
     # print_commonstandards_tree(transformed_tree, display_len_limit=None)
-    load_cssm(transformed_tree)
+    load_ccssm(transformed_tree)
     print('Finished importing CCSSM')
+
+
+
+
+
+
+
+
+
 
 
 
@@ -251,6 +259,99 @@ NEXT_GENERATION_SCIENCE_ROOTS = [     # pairs of (Standard.id, identifier)
     # ("507054", "NGSS.LIFE"),  #  Life Sciences Science
     # ("507073", "NGSS.PRACTICES"),  #   Science Practices
 ]
+NGSS_TO_NODE_KIND_MAPPING = {}
+
+NGSS_DOCUMENT_ATTRIBUTES = {
+    'source_id': 'NGSS',
+    'title': 'Next Generation Science Standards',
+    'country': 'USA',
+    'digitization_method': 'data_import',
+    'source_url': 'https://www.nextgenscience.org/sites/default/files/NGSS%20DCI%20Combined%2011.6.13.pdf',
+    'is_draft': False,
+}
+
+NGSS_DROP_TITLES = [
+    'Science and Engineering Practices',
+    'Crosscutting Concepts',
+]
+
+NGSS_HOIST_TITLES = [
+    'Students who demonstrate understanding can:',
+    'Disciplinary Core Ideas',
+]
+
+
+def extract_ngss():
+    tree = join_standards(
+        NEXT_GENERATION_SCIENCE_ROOTS,
+        identifier='NGSS',
+        title='Next Generation Science Standards',
+    )
+    return tree
+
+def transform_ngss(tree):
+    # convert from {data=Standard, children=[..] } to regular dict tree
+    tree2 = transform_subtree(tree)
+    tree3 = drop_titles(tree2, NGSS_DROP_TITLES)
+
+    def hoist_unnecessary_tree_nodes(subtree):
+        new_children = []
+        for child in subtree['children']:
+            if child['title'] in NGSS_HOIST_TITLES:
+                new_children.extend(child['children'])
+            else:
+                new_children.append(child)
+                hoist_unnecessary_tree_nodes(child)
+        subtree['children'] = new_children
+
+    hoist_unnecessary_tree_nodes(tree3)
+
+    return tree3
+
+
+
+def load_ngss(transformed_tree):
+    try:
+        document = CurriculumDocument.objects.get(source_id=NGSS_DOCUMENT_ATTRIBUTES['source_id'])
+        document.delete()
+    except CurriculumDocument.DoesNotExist:
+        pass
+    document = CurriculumDocument.objects.create(**NGSS_DOCUMENT_ATTRIBUTES)
+
+    root = StandardNode.add_root(
+        identifier=transformed_tree['identifier'],
+        title=transformed_tree['title'],
+        kind=transformed_tree['kind'],
+        document=document,
+    )
+
+    def _add_children_to_parent(parent, children):
+        for i, child in enumerate(children):
+            sort_order = i + 1
+            source_kind = child['kind']
+            if source_kind in NGSS_TO_NODE_KIND_MAPPING:
+                kind = NGSS_TO_NODE_KIND_MAPPING[source_kind]
+            else:
+                kind = source_kind
+            node = parent.add_child(
+                document=parent.document,
+                title=child['title'],
+                identifier=child['identifier'],
+                sort_order=sort_order,
+                kind=kind,
+            )
+            _add_children_to_parent(node, child['children'])
+    _add_children_to_parent(root, transformed_tree['children'])
+
+
+def import_ngss():
+    tree = extract_ngss()
+    transformed_tree = transform_ngss(tree)
+    print_commonstandards_tree(transformed_tree, display_len_limit=90)
+    #load_ngss(transformed_tree)
+    # print('Finished importing NGSS')
+
+
 
 
 
