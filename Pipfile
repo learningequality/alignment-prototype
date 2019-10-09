@@ -16,6 +16,8 @@ djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
 requests = "*"
+chardet = "*"
+xmltodict = "*"
 
 [requires]
 python_version = "3.6"
