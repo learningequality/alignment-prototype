@@ -47,19 +47,19 @@ class Standards(models.Model):
             return None  # root node
 
     def get_children(self):
-        return Standards.objects \
-            .filter(parent_ids=self.parent_ids + [self.id]) \
-            .order_by(RawSQL("document->>%s", ("position",)))
+        return Standards.objects.filter(
+            parent_ids=self.parent_ids + [self.id]
+        ).order_by(RawSQL("document->>%s", ("position",)))
 
     def get_descendants(self):
         return Standards.objects.filter(
             parent_ids__contains=self.parent_ids + [self.id]
         )
-    
+
     def to_dicttree(self):
         self_dict = dict(data=self, children=[])
         for child in self.get_children():
-            self_dict['children'].append(child.to_dicttree())
+            self_dict["children"].append(child.to_dicttree())
         return self_dict
 
     def __str__(self):

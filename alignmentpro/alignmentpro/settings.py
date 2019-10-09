@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "treebeard",  # for TreeAdmin views
     "alignmentapp",
     "corsheaders",
-    'commonstandardsproject',   # tmp to extract CCSS and NGSS data
+    "commonstandardsproject",  # tmp to extract CCSS and NGSS data
     "importing",
     "django_extensions",
 ]

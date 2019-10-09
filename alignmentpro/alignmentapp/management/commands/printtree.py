@@ -40,7 +40,6 @@ def get_document_header(document):
 
 
 class Command(BaseCommand):
-
     def add_arguments(self, parser):
         parser.add_argument(
             "--source_id",
@@ -66,13 +65,13 @@ class Command(BaseCommand):
             print("Please select what to print with --source_id or --country")
             documents = CurriculumDocument.objects.all()
             all_countries = set()
-            print('Possible arguments for --source_id')
+            print("Possible arguments for --source_id")
             for document in documents:
-                print('  -', document.source_id)
+                print("  -", document.source_id)
                 all_countries.add(document.country)
-            print('Possible arguments for --country')
+            print("Possible arguments for --country")
             for c in all_countries:
-                print('  >', c)
+                print("  >", c)
             sys.exit(1)
 
         if source_id:

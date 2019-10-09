@@ -13,11 +13,12 @@ from .models import Parameter, DataExport
 # HIGH LEVEL API
 ################################################################################
 
+
 def export_data(drafts=False, includetestdata=False):
     """
     Export the curriculum and human judgment data to be used for ML training.
     """
-    exportdirname = timezone.now().strftime('%Y%m%d-%H%M')
+    exportdirname = timezone.now().strftime("%Y%m%d-%H%M")
     export_base_dir = settings.DATA_EXPORT_BASE_DIR
     if not os.path.exists(export_base_dir):
         os.makedirs(export_base_dir)
@@ -50,7 +51,7 @@ def export_data(drafts=False, includetestdata=False):
     # PART 2: EXPORT HUMAN JUDGMENTS DATA
     ########################################################################
     p = Parameter.objects.get(key="test_size")
-    test_size = float(p.value)   # propotion of new jugments to be kept for test
+    test_size = float(p.value)  # propotion of new jugments to be kept for test
     judgments_test = list(HumanRelevanceJudgment.objects.filter(is_test_data=True))
     judgments_train = list(HumanRelevanceJudgment.objects.filter(is_test_data=False))
     new_feedback_data = HumanRelevanceJudgment.objects.filter(is_test_data=None)
@@ -75,7 +76,7 @@ def export_data(drafts=False, includetestdata=False):
         includetestdata=includetestdata,
         finished=finished.isoformat(),
     )
-    with open(os.path.join(exportpath, settings.METADATA_FILENAME), 'w') as json_file:
+    with open(os.path.join(exportpath, settings.METADATA_FILENAME), "w") as json_file:
         json.dump(metadata, json_file, indent=2, ensure_ascii=False)
 
     print("Data export to dir", exportpath, "comlete.")
@@ -162,6 +163,7 @@ STANDARD_NODE_HEADER_V0 = [
 
 # TODO: add dist_from_leaf
 
+
 def node_to_rowdict(node):
     parent_node = node.get_parent()
     datum = {
@@ -191,8 +193,6 @@ def export_nodes(nodes, csvfilepath):
             noderow = node_to_rowdict(node)
             csvwriter.writerow(noderow)
     return csvfilepath
-
-
 
 
 # HUMAN JUDGMENT CSV EXPORT FORMAT

@@ -1,11 +1,9 @@
-
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Q, UniqueConstraint
 from treebeard.mp_tree import MP_Node
-
 
 
 # CURRICULUM DOCUMENTS
@@ -64,7 +62,7 @@ NODE_KINDS = [
     ("topic", "Subject, section, or subsection"),  # strucural elements
     ("unit", "Standard entry"),  # Individual standard entries with LOs
     ("content", "Content"),  # Content based curriculum information
-    ("learning_objective", "Learning objective"), # Granula learning objectives
+    ("learning_objective", "Learning objective"),  # Granula learning objectives
 ]
 
 
@@ -113,13 +111,12 @@ class StandardNode(MP_Node):
 
     class Meta:
         constraints = [
-            UniqueConstraint(    # Make sure every document has at most one tree
-                name='single_root_per_document',
+            UniqueConstraint(  # Make sure every document has at most one tree
+                name="single_root_per_document",
                 fields=["document", "depth"],
-                condition=Q(depth=1)
+                condition=Q(depth=1),
             )
         ]
-
 
 
 # HUMAN JUDGMENTS
@@ -159,7 +156,9 @@ class HumanRelevanceJudgment(models.Model):
     )
 
     def __str__(self):
-        return "{} <--{}--> {}".format(repr(self.node1_id), self.rating, repr(self.node2_id))
+        return "{} <--{}--> {}".format(
+            repr(self.node1_id), self.rating, repr(self.node2_id)
+        )
 
 
 # MACHINE LEARNING
@@ -185,6 +184,7 @@ class Parameter(models.Model):
       - test_size (float-compatible str): proportion of human judgments to set
         aside for use as the testing set.
     """
+
     key = models.CharField(max_length=200, unique=True)
     value = models.CharField(max_length=200)
     created = models.DateTimeField(auto_now_add=True)
@@ -195,6 +195,7 @@ class DataExport(models.Model):
     """
     Keep track when data exports was done and which folder it was saved to.
     """
+
     exportdirname = models.CharField(max_length=400, blank=True, null=True)
     started = models.DateTimeField(auto_now_add=True)
     finished = models.DateTimeField(blank=True, null=True)

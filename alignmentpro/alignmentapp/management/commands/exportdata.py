@@ -20,7 +20,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print("Starting data export...")
         exportdir = export_data(
-            drafts=options["drafts"],
-            includetestdata=options["includetestdata"]
+            drafts=options["drafts"], includetestdata=options["includetestdata"]
         )
         print("Data exported to directory", exportdir)

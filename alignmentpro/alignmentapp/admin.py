@@ -28,6 +28,7 @@ class StandardNodeAdmin(TreeAdmin):
     search_fields = ["identifier", "title", "notes"]
     form = movenodeform_factory(StandardNode)
 
+
 @admin.register(HumanRelevanceJudgment)
 class HumanRelevanceJudgmentAdmin(admin.ModelAdmin):
     model = HumanRelevanceJudgment
@@ -36,8 +37,6 @@ class HumanRelevanceJudgmentAdmin(admin.ModelAdmin):
 @admin.register(MachineLearningModel)
 class MachineLearningModelAdmin(admin.ModelAdmin):
     model = MachineLearningModel
-
-
 
 
 @admin.register(Parameter)
