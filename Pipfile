@@ -16,6 +16,8 @@ djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
 requests = "*"
+ipython = "*"
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.6"

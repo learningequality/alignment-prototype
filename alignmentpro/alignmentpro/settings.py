@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "treebeard",  # for TreeAdmin views
     "alignmentapp",
     # 'commonstandardsproject',   # tmp to extract CCSS and NGSS data
+    "corsheaders",
     "importing",
     "django_extensions",
 ]
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -139,7 +141,9 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ]
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
 }
 
 
@@ -149,3 +153,9 @@ CURRICULUM_DOCUMENTS_FILENAME = "curriculumdocuments.csv"
 STANDARD_NODES_FILENAME = "standardnodes.csv"
 HUMAN_JUDGMENTS_FILENAME = "humanjudgments.csv"
 METADATA_FILENAME = "metadata.json"
+
+# in production, we'd want to limit this, but for hackathon purposes
+# we want to make sure everyone doing local dev can reach the API.
+# TODO: switch to whitelist once in production, via instructions at:
+# https://pypi.org/project/django-cors-headers/
+CORS_ORIGIN_ALLOW_ALL = True
