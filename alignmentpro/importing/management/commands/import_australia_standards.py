@@ -84,14 +84,16 @@ def add_standard(subject_json, parent, indent=0):
                 title = title + ": " + re.sub('<[^<]+?>', '', subject_json['dct:description']['#text'])
         else:
             title = re.sub('<[^<]+?>', '', subject_json['dct:description']['#text'])
-            # raise IOError(subject_json)
+
+        if kind == "Content description":
+            kind = "content"
 
         print("{}{}".format(" " * indent, textwrap.shorten(title, 80)))
 
         node = parent.add_child(document=parent.document,
                          title=title,
                          identifier=subject_json["@rdf:about"],
-                         kind=subject_json['asn:statementLabel']['#text']
+                         kind=kind
         )
         if 'children' in subject_json:
             for child in subject_json['children']:
@@ -146,7 +148,7 @@ class Command(BaseCommand):
                     is_draft=draft,
                 )
 
-                root = StandardNode.add_root(title=topic, document=document)
+                root = StandardNode.add_root(title=topic, kind='document', document=document)
                 topic_tree = get_topic_hierarchy(data)
                 for subject in topic_tree:
                     add_standard(subject, parent=root)
