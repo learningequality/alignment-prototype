@@ -270,7 +270,7 @@ NGSS_DOCUMENT_ATTRIBUTES = {
     'is_draft': False,
 }
 
-NGSS_DROP_TITLES = [
+NGSS_DROP_TITLES = [    # these repeat in many places in the hierarchy
     'Science and Engineering Practices',
     'Crosscutting Concepts',
 ]
@@ -294,6 +294,7 @@ def transform_ngss(tree):
     tree2 = transform_subtree(tree)
     tree3 = drop_titles(tree2, NGSS_DROP_TITLES)
 
+    # RM unnecessay intermediate nodes
     def hoist_unnecessary_tree_nodes(subtree):
         new_children = []
         for child in subtree['children']:
@@ -303,11 +304,21 @@ def transform_ngss(tree):
                 new_children.append(child)
                 hoist_unnecessary_tree_nodes(child)
         subtree['children'] = new_children
-
     hoist_unnecessary_tree_nodes(tree3)
 
-    return tree3
+    # Auto assign kinds based on depth in tree
+    for grade in tree3['children']:
+        grade['kind'] = 'level'
+        for topic in grade['children']:
+            if topic['kind'] in ['no statementLabel', 'statementLabel is None']:
+                topic['kind'] = 'topic'
+                for i, lo in enumerate(topic['children']):
+                    if lo['kind'] in ['no statementLabel', 'statementLabel is None']:
+                        lo['kind'] = 'learning_objective'
+                    if lo['identifier'] == 'no identifier':
+                        lo['identifier'] = topic['identifier'] + '.' + str(i+1)
 
+    return tree3
 
 
 def load_ngss(transformed_tree):
@@ -347,9 +358,9 @@ def load_ngss(transformed_tree):
 def import_ngss():
     tree = extract_ngss()
     transformed_tree = transform_ngss(tree)
-    print_commonstandards_tree(transformed_tree, display_len_limit=90)
-    #load_ngss(transformed_tree)
-    # print('Finished importing NGSS')
+    # print_commonstandards_tree(transformed_tree, display_len_limit=90)
+    load_ngss(transformed_tree)
+    print('Finished importing NGSS')
 
 
 
