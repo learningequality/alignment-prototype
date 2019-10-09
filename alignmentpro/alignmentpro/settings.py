@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "commonstandardsproject",  # tmp to extract CCSS and NGSS data
     "importing",
     "django_extensions",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [

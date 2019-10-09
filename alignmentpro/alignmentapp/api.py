@@ -22,6 +22,13 @@ class CurriculumDocumentSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CurriculumDocumentViewSet(viewsets.ModelViewSet):
+    """
+    API for curriculum documents.
+
+    Contains information about curriculum documents input into the system, including which country's curriculum
+    it describes and how the document was digitized.
+    """
+
     queryset = CurriculumDocument.objects.all()
     serializer_class = CurriculumDocumentSerializer
 
@@ -74,6 +81,13 @@ class StandardNodeSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class StandardNodeViewSet(viewsets.ModelViewSet):
+    """
+    API for curricular standards.
+
+    Each StandardNode corresponds to a single curricular standard found within a curriculum document.
+    Each StandardNode must contain a reference to the document it was retrieved from.
+    """
+
     queryset = StandardNode.objects.all()
     serializer_class = StandardNodeSerializer
 
@@ -109,6 +123,14 @@ class HumanRelevanceJudgmentSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class HumanRelevanceJudgmentViewSet(viewsets.ModelViewSet):
+    """
+    API for manually determined similarities between nodes.
+
+    In addition to similarties determined by machine learning algorithms, we store
+    similarities determined manually via human review. This allows us to compare
+    the similarities with those determined by the algorithms.
+    """
+
     queryset = HumanRelevanceJudgment.objects.all()
     serializer_class = HumanRelevanceJudgmentSerializer
 
@@ -126,5 +148,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """
+    API for user information.
+
+    Contains app-specific user information.
+    """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
