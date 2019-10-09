@@ -31,6 +31,7 @@ Setup
 
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate
+    ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/paremeters.json
     ./alignmentpro/manage.py createsuperuser --username admin --email a@b.c
 
     ./alignmentpro/manage.py runserver
@@ -71,6 +72,17 @@ Interactive debug
 -----------------
 
     ./alignmentpro/manage.py shell
+
+
+
+Data export
+-----------
+Use the command
+
+    ./alignmentpro/manage.py exportdata
+
+The option `--drafts` will also export draft curriculum docs, while specifying
+`--includetestdata` will include the judgments test data.
 
 
 Printing trees

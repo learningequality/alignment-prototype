@@ -1,4 +1,4 @@
-from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
@@ -60,9 +60,10 @@ class CurriculumDocument(models.Model):
 NODE_KINDS = [
     ("document", "Curriculum document node"),
     ("level", "Grade level or age group"),  # level-based grouping
-    ("subject", "Subject matter"),  # e.g. Math, Phyiscis, IT, etc.
+    ("subject", "Subject area"),  # e.g. Math, Phyiscis, IT, etc.
     ("topic", "Subject, section, or subsection"),  # strucural elements
     ("unit", "Standard entry"),  # Individual standard entries with LOs
+    ("content", "Content"),  # Content based curriculum information
     ("learning_objective", "Learning objective"), # Granula learning objectives
 ]
 
@@ -158,10 +159,10 @@ class HumanRelevanceJudgment(models.Model):
     )
 
     def __str__(self):
-        return "{} <--{}--> {}".format(repr(self.node1), self.rating, repr(self.node2))
+        return "{} <--{}--> {}".format(repr(self.node1_id), self.rating, repr(self.node2_id))
 
 
-# FEATURES CACHE
+# MACHINE LEARNING
 ################################################################################
 
 
@@ -178,44 +179,22 @@ class MachineLearningModel(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 
-class StandardNodeFeatureVector(models.Model):
+class Parameter(models.Model):
     """
-    Store arbitrary-length feature vector that represets `node` in a given `model`.
+    General-purpse key-value store. Used to store:
+      - test_size (float-compatible str): proportion of human judgments to set
+        aside for use as the testing set.
     """
-
-    # id = auto-incrementing integet primary key
-    mlmodel = models.ForeignKey(
-        "MachineLearningModel", related_name="feature_vectors", on_delete=models.CASCADE
-    )
-    node = models.ForeignKey(
-        "StandardNode", related_name="features", on_delete=models.CASCADE
-    )
-    data = ArrayField(models.FloatField())  # An arbitrary-length feature vector
-
-
-# DATA EXPORT METADATA
-################################################################################
-
-# TODO: add model for export policy
-#   is_test_proportion = models.FloatField()   # e.g. 0.15 => 0.15 prob of assigning to test dataset
-#   created = models.DateTimeField(auto_now_add=True)
-#   modified = models.DateTimeField(auto_now=True)
+    key = models.CharField(max_length=200, unique=True)
+    value = models.CharField(max_length=200)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
 
 class DataExport(models.Model):
-    curriculum_data_version = models.CharField(max_length=50)
-    judgments_data_version = models.CharField(max_length=50)
-    created = models.DateTimeField(auto_now_add=True)
-    exportdir = models.CharField(max_length=400)
-
-    train_data = models.FileField
-    test_data = models.FileField
-
-    def export(self, test_size=0.2):
-        """
-        Exports DB data in CSV format to be used for ML training and testing.
-        """
-        from .exporting import export_data
-        
-        dir_name = datetime.now().strftime('%Y%m%d-%H%M')
-        export_data(dir_name, test_size)
+    """
+    Keep track when data exports was done and which folder it was saved to.
+    """
+    exportdirname = models.CharField(max_length=400, blank=True, null=True)
+    started = models.DateTimeField(auto_now_add=True)
+    finished = models.DateTimeField(blank=True, null=True)

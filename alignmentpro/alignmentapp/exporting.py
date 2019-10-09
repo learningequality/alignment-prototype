@@ -4,40 +4,53 @@ import os
 import random
 
 from django.conf import settings
+from django.utils import timezone
 
 from .models import CurriculumDocument, HumanRelevanceJudgment
+from .models import Parameter, DataExport
 
 
 # HIGH LEVEL API
 ################################################################################
 
-
-def export_data(dir_name, test_size):
+def export_data(drafts=False, includetestdata=False):
+    """
+    Export the curriculum and human judgment data to be used for ML training.
+    """
+    exportdirname = timezone.now().strftime('%Y%m%d-%H%M')
     export_base_dir = settings.DATA_EXPORT_BASE_DIR
     if not os.path.exists(export_base_dir):
         os.makedirs(export_base_dir)
-    export_dir = os.path.join(export_base_dir, dir_name)
-    if not os.path.exists(export_dir):
-        os.makedirs(export_dir)
+    exportpath = os.path.join(export_base_dir, exportdirname)
+    if not os.path.exists(exportpath):
+        os.makedirs(exportpath)
+
+    export_metadata = DataExport.objects.create(exportdirname=exportdirname)
 
     # PART 1: EXPORT CURRICULUM DATA
     ########################################################################
+    if drafts:
+        documents = CurriculumDocument.objects.all()
+    else:
+        documents = CurriculumDocument.objects.filter(is_draft=False)
+    #
     all_documents = []
     all_nodes = []
-    documents = CurriculumDocument.objects.filter(is_draft=False)
     for document in documents:
         all_documents.append(document)
         root = document.root
         nodes = [root] + list(document.root.get_descendants())
         all_nodes.extend(nodes)
 
-    csvpath1 = os.path.join(export_dir, settings.CURRICULUM_DOCUMENTS_FILENAME)
+    csvpath1 = os.path.join(exportpath, settings.CURRICULUM_DOCUMENTS_FILENAME)
     export_documents(all_documents, csvpath1)
-    csvpath2 = os.path.join(export_dir, settings.STANDARD_NODES_FILENAME)
+    csvpath2 = os.path.join(exportpath, settings.STANDARD_NODES_FILENAME)
     export_nodes(all_nodes, csvpath2)
 
     # PART 2: EXPORT HUMAN JUDGMENTS DATA
     ########################################################################
+    p = Parameter.objects.get(key="test_size")
+    test_size = float(p.value)   # propotion of new jugments to be kept for test
     judgments_test = list(HumanRelevanceJudgment.objects.filter(is_test_data=True))
     judgments_train = list(HumanRelevanceJudgment.objects.filter(is_test_data=False))
     new_feedback_data = HumanRelevanceJudgment.objects.filter(is_test_data=None)
@@ -49,10 +62,26 @@ def export_data(dir_name, test_size):
         else:
             new_datum.is_test_data = False
             judgments_train.append(new_datum)
-    csvpath5 = os.path.join(export_dir, settings.HUMAN_JUDGMENTS_FILENAME)
+    csvpath5 = os.path.join(exportpath, settings.HUMAN_JUDGMENTS_FILENAME)
     export_human_judgments(judgments_train, csvpath5)
-    # TODO: export METADATA_FILENAME = 'metadata.json'
-    print("Data export to dir", export_dir, "comlete.")
+    if includetestdata:
+        csvpath6 = os.path.join(exportpath, settings.HUMAN_JUDGMENTS_TEST_FILENAME)
+        export_human_judgments(judgments_test, csvpath6)
+
+    finished = timezone.now()
+    metadata = dict(
+        exportdirnam=exportdirname,
+        drafts=drafts,
+        includetestdata=includetestdata,
+        finished=finished.isoformat(),
+    )
+    with open(os.path.join(exportpath, settings.METADATA_FILENAME), 'w') as json_file:
+        json.dump(metadata, json_file, indent=2, ensure_ascii=False)
+
+    print("Data export to dir", exportpath, "comlete.")
+    export_metadata.finished = finished
+    export_metadata.save()
+    return exportdirname
 
 
 # CURRICULUM DOCUMENT CSV EXPORT FORMAT
