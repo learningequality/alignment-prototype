@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
@@ -215,8 +216,6 @@ class DataExport(models.Model):
         Exports DB data in CSV format to be used for ML training and testing.
         """
         from .exporting import export_data
-
-        dir_name = (
-            "SNv" + self.curriculum_data_version + "_JDv" + self.judgments_data_version
-        )
+        
+        dir_name = datetime.now().strftime('%Y%m%d-%H%M')
         export_data(dir_name, test_size)

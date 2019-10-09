@@ -107,7 +107,9 @@ def export_documents(documents, csvfilepath):
 ################################################################################
 ID_KEY = "id"
 # DOCUMENT_ID_KEY = 'document_id'
+DEPTH_KEY = "depth"
 PARENT_ID_KEY = "parent_id"
+SORT_ORDER_KEY = "sort_order"
 IDENTIFIER_KEY = "identifier"
 KIND_KEY = "kind"
 # TITLE_KEY = 'title'
@@ -118,7 +120,9 @@ EXTRA_FIELDS_KEY = "extra_fields"
 STANDARD_NODE_HEADER_V0 = [
     ID_KEY,
     DOCUMENT_ID_KEY,
+    DEPTH_KEY,
     PARENT_ID_KEY,
+    SORT_ORDER_KEY,
     IDENTIFIER_KEY,
     KIND_KEY,
     TITLE_KEY,
@@ -127,13 +131,16 @@ STANDARD_NODE_HEADER_V0 = [
     EXTRA_FIELDS_KEY,
 ]
 
+# TODO: add dist_from_leaf
 
 def node_to_rowdict(node):
     parent_node = node.get_parent()
     datum = {
         ID_KEY: node.id,
         DOCUMENT_ID_KEY: node.document_id,
+        DEPTH_KEY: node.depth,
         PARENT_ID_KEY: parent_node.id if parent_node else None,
+        SORT_ORDER_KEY: node.sort_order,
         IDENTIFIER_KEY: node.identifier,
         KIND_KEY: node.kind,
         TITLE_KEY: node.title,
