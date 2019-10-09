@@ -16,8 +16,9 @@ djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
 requests = "*"
-chardet = "*"
 xmltodict = "*"
+ipython = "*"
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.6"

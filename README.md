@@ -31,8 +31,13 @@ Setup
 
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate
+    ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/paremeters.json
     ./alignmentpro/manage.py createsuperuser --username admin --email a@b.c
 
+    # temporary while proper curriculum data fixtures are put in place
+    ./alignmentpro/manage.py ~/Desktop/alignmentapp_tmp_fixtures.json
+
+    ./alignmentpro/manage.py runserver
 
 
 
@@ -42,7 +47,7 @@ We've prepared some sample curriculum structures in this gsheet.
 
     ./alignmentpro/manage.py importchunk \
         --source_id='sample1-uganda-biology' \
-        --title='Uganda Biloogy sample topic' \
+        --title='Uganda biology sample topic' \
         --country='Uganda' \
         --digitization_method='scan_manual' \
         --gsheet_id='1-ei7BBMOx0udbXxyLJjMPYLW0EJWg9wFUyV9ODa8m5o' \
@@ -71,6 +76,27 @@ Interactive debug
 
     ./alignmentpro/manage.py shell
 
+
+
+Data export
+-----------
+Use the command
+
+    ./alignmentpro/manage.py exportdata
+
+The option `--drafts` will also export draft curriculum docs, while specifying
+`--includetestdata` will include the judgments test data.
+
+
+Printing trees
+--------------
+Export tree by source_id
+
+    ./alignmentpro/manage.py printtree --source_id=<source_id>
+
+Use this command to export all Australia curriculum documents:
+
+    ./alignmentpro/manage.py printtree  --short_identifiers --country=Australia
 
 
 
@@ -106,13 +132,6 @@ print( n2.judgments.all() )
 
 
 
-### TODOs
-
-```python
-n.top_related(num_nodes, qssearch=None, mlmodel?)
-HumanRelevanceJudgment.objects.by_nodes([n1]) ?
-```
-
 
 
 
@@ -141,13 +160,6 @@ print( model1.feature_vectors.all() )
 
 ```
 
-
-### TODOs
-
-  - `.raw`  SQL query to get top-vectors by cosine similarity
-    http://sciencesql.blogspot.com/2016/03/calculating-cosine-similarity-between.html
-    or https://www.slideshare.net/GarySieling/word2vec-in-postgres
-    maybe https://github.com/guenthermi/postgres-word2vec
 
 
 

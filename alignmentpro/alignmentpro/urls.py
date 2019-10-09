@@ -26,10 +26,10 @@ from alignmentapp.api import (
 )
 
 router = routers.DefaultRouter()
-router.register(r"document", CurriculumDocumentViewSet, basename="document")
-router.register(r"node", StandardNodeViewSet, basename="node")
-router.register(r"judgment", HumanRelevanceJudgmentViewSet, basename="judgment")
-router.register(r"user", UserViewSet, basename="user")
+router.register(r"document", CurriculumDocumentViewSet)
+router.register(r"node", StandardNodeViewSet)
+router.register(r"judgment", HumanRelevanceJudgmentViewSet)
+router.register(r"user", UserViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
