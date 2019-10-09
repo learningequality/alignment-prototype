@@ -78,7 +78,8 @@ def add_standard(subject_json, parent, indent=0):
             return
         if 'dct:title' in subject_json:
             title = subject_json['dct:title']['#text']
-            #
+            # For achievement standards, the title is just "Achievement Standard", but the description
+            # is where the actual data is. So merge the title and description in this case.
             if title == "Achievement Standard":
                 title = title + ": " + re.sub('<[^<]+?>', '', subject_json['dct:description']['#text'])
         else:
