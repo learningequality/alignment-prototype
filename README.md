@@ -34,6 +34,9 @@ Setup
     ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/paremeters.json
     ./alignmentpro/manage.py createsuperuser --username admin --email a@b.c
 
+    # temporary while proper curriculum data fixtures are put in place
+    ./alignmentpro/manage.py ~/Desktop/alignmentapp_tmp_fixtures.json
+
     ./alignmentpro/manage.py runserver
 
 
