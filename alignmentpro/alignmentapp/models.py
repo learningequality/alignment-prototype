@@ -80,7 +80,7 @@ class StandardNode(MP_Node):
     )
     identifier = models.CharField(max_length=300)
     # source_id / source_url ?
-    kind = models.CharField(max_length=20, choices=NODE_KINDS, default="unit")
+    kind = models.CharField(max_length=100, choices=NODE_KINDS, default="unit")
     title = models.TextField(help_text="Title or description text for this node.")
     # the order of tree children within parent node
     sort_order = models.FloatField(default=1.0)
