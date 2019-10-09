@@ -2,6 +2,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
+from django.db.models.expressions import RawSQL
+
 
 class Jurisdictions(models.Model):
     # id
@@ -45,18 +47,23 @@ class Standards(models.Model):
             return None  # root node
 
     def get_children(self):
-        return Standards.objects.filter(parent_ids=self.parent_ids + [self.id])
+        return Standards.objects.filter(
+            parent_ids=self.parent_ids + [self.id]
+        ).order_by(RawSQL("document->>%s", ("position",)))
 
     def get_descendants(self):
         return Standards.objects.filter(
             parent_ids__contains=self.parent_ids + [self.id]
         )
 
-    def __unicode__(self):
-        return "<Standards %s: %s>" % (self.id, self.title)
+    def to_dicttree(self):
+        self_dict = dict(data=self, children=[])
+        for child in self.get_children():
+            self_dict["children"].append(child.to_dicttree())
+        return self_dict
 
-    def __repr__(self):
-        return self.__unicode__()
+    def __str__(self):
+        return "%s: %s" % (self.id, self.title)
 
     class Meta:
         managed = False

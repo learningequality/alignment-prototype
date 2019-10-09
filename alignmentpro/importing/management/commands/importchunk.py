@@ -97,7 +97,7 @@ class Command(BaseCommand):
                 node = _add_row_to_parent(
                     parent, row, sort_order=node_counts[cur_level]
                 )
-                #if row[LEARNING_OBJECTIVES_KEY]:
+                # if row[LEARNING_OBJECTIVES_KEY]:
                 #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
                 nodes_breadcrumbs[cur_level] = node
 
@@ -107,7 +107,7 @@ class Command(BaseCommand):
                 node = _add_row_to_parent(
                     parent, row, sort_order=node_counts[cur_level]
                 )
-                #if row[LEARNING_OBJECTIVES_KEY]:
+                # if row[LEARNING_OBJECTIVES_KEY]:
                 #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
                 nodes_breadcrumbs.append(node)
                 node_counts.append(1)
@@ -121,7 +121,7 @@ class Command(BaseCommand):
                 node = _add_row_to_parent(
                     parent, row, sort_order=node_counts[new_level]
                 )
-                #if row[LEARNING_OBJECTIVES_KEY]:
+                # if row[LEARNING_OBJECTIVES_KEY]:
                 #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
                 nodes_breadcrumbs = nodes_breadcrumbs[0:new_level] + [node]
                 node_counts = node_counts[0 : new_level + 1]

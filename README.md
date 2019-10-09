@@ -31,8 +31,10 @@ Setup
 
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate
+    ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/paremeters.json
     ./alignmentpro/manage.py createsuperuser --username admin --email a@b.c
 
+    ./alignmentpro/manage.py runserver
 
 
 
@@ -73,6 +75,27 @@ Interactive debug
 
 
 
+Data export
+-----------
+Use the command
+
+    ./alignmentpro/manage.py exportdata
+
+The option `--drafts` will also export draft curriculum docs, while specifying
+`--includetestdata` will include the judgments test data.
+
+
+Printing trees
+--------------
+Export tree by source_id
+
+    ./alignmentpro/manage.py printtree --source_id=<source_id>
+
+Use this command to export all Australia curriculum documents:
+
+    ./alignmentpro/manage.py printtree  --short_identifiers --country=Australia
+
+
 
 
 Sample documents, nodes, and human judgment edge
@@ -106,13 +129,6 @@ print( n2.judgments.all() )
 
 
 
-### TODOs
-
-```python
-n.top_related(num_nodes, qssearch=None, mlmodel?)
-HumanRelevanceJudgment.objects.by_nodes([n1]) ?
-```
-
 
 
 
@@ -141,13 +157,6 @@ print( model1.feature_vectors.all() )
 
 ```
 
-
-### TODOs
-
-  - `.raw`  SQL query to get top-vectors by cosine similarity
-    http://sciencesql.blogspot.com/2016/03/calculating-cosine-similarity-between.html
-    or https://www.slideshare.net/GarySieling/word2vec-in-postgres
-    maybe https://github.com/guenthermi/postgres-word2vec
 
 
 

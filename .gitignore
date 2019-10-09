@@ -4,8 +4,10 @@ alignmentpro/alignmentapp/migrations/
 
 # Data export dirs
 exports/data
+notebooks/exports/data
 
-
+# Imports data
+alignmentpro/importing/data
 
 # Dev notebooks
 nootebooks/
