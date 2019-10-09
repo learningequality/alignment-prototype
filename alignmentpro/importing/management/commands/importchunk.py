@@ -3,6 +3,8 @@ import sys
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
+from alignmentapp.management.commands.printtree import get_tree_as_markdown
+
 
 from importing.csvutils import load_curriculum_list
 from importing.csvutils import (
@@ -10,7 +12,6 @@ from importing.csvutils import (
     IDENTIFIER_KEY,
     KIND_KEY,
     TITLE_KEY,
-    LEARNING_OBJECTIVES_KEY,
     TIME_UNITS_KEY,
     NOTES_KEY,
 )
@@ -65,86 +66,68 @@ class Command(BaseCommand):
         country = options["country"] or "Unknown"
         draft = options["draft"]
 
-        document, created = CurriculumDocument.objects.get_or_create(
+        try:
+            document = CurriculumDocument.objects.get(source_id=source_id)
+            if document.is_draft:
+                print("Deleting old draft verison of curriculum document...")
+                document.delete()
+            else:
+                print('ERROR: document is no longer in draft state so cannot be updated.')
+                sys.exit(1)
+        except CurriculumDocument.DoesNotExist:
+            pass
+
+        document = CurriculumDocument.objects.create(
             source_id=source_id,
             title=title,
             country=country,
             digitization_method=digitization_method,
             is_draft=draft,
         )
-        if created:
-            root = StandardNode.add_root(title=title, document=document)
-        else:
-            root = document.root
+        root = StandardNode.add_root(title=title, document=document)
 
         curriculum_list = load_curriculum_list(options["gsheet_id"], options["gid"])
 
-        nodes_breadcrumbs = [root]
-        node_counts = [0]
-        cur_level = 0
+        nodes_breadcrumbs = [root, None]
+        node_counts = [None, 0]
+        cur_level = 1
         for row in curriculum_list:
-            print(
-                "Porcessing row",
-                "  " * row["level"] + "-",
-                row[IDENTIFIER_KEY],
-                row[TITLE_KEY],
-            )
+            assert len(node_counts) == cur_level+1, 'wrong node_counts'
+            assert len(nodes_breadcrumbs) == cur_level+1, 'wrong nodes_breadcrumbs'
 
-            # staying (add a child to current parent)
+            # staying at the same level
             if row["level"] == cur_level:
-                node_counts[cur_level] += 1
-                parent = nodes_breadcrumbs[cur_level - 1]
-                node = _add_row_to_parent(
-                    parent, row, sort_order=node_counts[cur_level]
-                )
-                # if row[LEARNING_OBJECTIVES_KEY]:
-                #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
-                nodes_breadcrumbs[cur_level] = node
+                pass
 
             # going deeper (add a child to current leaf)
             elif row["level"] > cur_level:
-                parent = nodes_breadcrumbs[cur_level]
-                node = _add_row_to_parent(
-                    parent, row, sort_order=node_counts[cur_level]
-                )
-                # if row[LEARNING_OBJECTIVES_KEY]:
-                #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
-                nodes_breadcrumbs.append(node)
-                node_counts.append(1)
-                cur_level += 1
+                if not (row["level"] - 1 == cur_level):
+                    print("ERR too many indentnts at \n", list(row.values()))
+                    sys.exit(1)
+                cur_level = row["level"]
+                nodes_breadcrumbs.append(None)
+                node_counts.append(0)
 
             # popping out (add a child to parent at level)
             elif row["level"] < cur_level:
-                new_level = row["level"]
-                parent = nodes_breadcrumbs[new_level - 1]
-                node_counts[new_level] += 1
-                node = _add_row_to_parent(
-                    parent, row, sort_order=node_counts[new_level]
-                )
-                # if row[LEARNING_OBJECTIVES_KEY]:
-                #    _add_learning_objectives(node, row[LEARNING_OBJECTIVES_KEY])
-                nodes_breadcrumbs = nodes_breadcrumbs[0:new_level] + [node]
-                node_counts = node_counts[0 : new_level + 1]
-                cur_level = new_level
+                cur_level = row["level"]
+                nodes_breadcrumbs = nodes_breadcrumbs[0:cur_level+1]
+                node_counts = node_counts[0:cur_level+1]
+
+            # Add the node to the appropriate location
+            parent = nodes_breadcrumbs[cur_level - 1]
+            node_counts[cur_level] += 1
+            node = parent.add_child(
+                document=parent.document,
+                title=row[TITLE_KEY],
+                identifier=row[IDENTIFIER_KEY],
+                sort_order=node_counts[cur_level],
+                kind=row[KIND_KEY],
+                time_units=float(row[TIME_UNITS_KEY]) if row[TIME_UNITS_KEY] else None,
+                notes=row[NOTES_KEY] or '',
+            )
+            nodes_breadcrumbs[cur_level] = node
 
         print("Import finished")
+        print(get_tree_as_markdown(root, {}))
 
-
-def _add_row_to_parent(parent, row, sort_order=1):
-    node = parent.add_child(
-        document=parent.document,
-        title=row[TITLE_KEY],
-        identifier=row[IDENTIFIER_KEY],
-        sort_order=sort_order,
-        kind=row[KIND_KEY],
-        time_units=float(row[TIME_UNITS_KEY]) if row[TIME_UNITS_KEY] else None,
-        notes=row[NOTES_KEY],
-    )
-    return node
-
-
-# def _add_learning_objectives(node, learning_objectives_paragraph):
-#     lines = learning_objectives_paragraph.splitlines()
-#     for line in lines:
-#         text = line.lstrip(" -\t").rstrip(" ,.")
-#         LearningObjective.objects.create(node=node, text=text)

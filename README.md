@@ -47,7 +47,7 @@ We've prepared some sample curriculum structures in this gsheet.
 
     ./alignmentpro/manage.py importchunk \
         --source_id='sample1-uganda-biology' \
-        --title='Uganda Biloogy sample topic' \
+        --title='Uganda biology sample topic' \
         --country='Uganda' \
         --digitization_method='scan_manual' \
         --gsheet_id='1-ei7BBMOx0udbXxyLJjMPYLW0EJWg9wFUyV9ODa8m5o' \

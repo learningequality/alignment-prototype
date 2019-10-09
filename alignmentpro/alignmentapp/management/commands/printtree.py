@@ -14,7 +14,7 @@ def get_tree_as_markdown(root, options):
         line = ""
         line += "   " * indent + " - "
         line += " (" + subtree.kind + ")"
-        if options["short_identifiers"]:
+        if options.get("short_identifiers", False):
             line += " [" + subtree.identifier[-7:] + "] "
         else:
             line += " [" + subtree.identifier + "] "
