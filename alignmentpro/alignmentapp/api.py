@@ -60,7 +60,19 @@ class StandardNodeSerializer(BaseStandardNodeSerializer):
         source="get_earlier_siblings", many=True
     )
     later_siblings = BaseStandardNodeSerializer(source="get_later_siblings", many=True)
+    judgments = serializers.SerializerMethodField()
     document = CurriculumDocumentSerializer()
+
+    def get_judgments(self, obj):
+        result = [
+            reverse(
+                "humanrelevancejudgment-detail",
+                args=[jud.id],
+                request=self.context["request"],
+            )
+            for jud in obj.judgments.filter(is_test_data=False)
+        ]
+        return result
 
     class Meta:
         model = StandardNode
@@ -70,6 +82,7 @@ class StandardNodeSerializer(BaseStandardNodeSerializer):
             "children",
             "earlier_siblings",
             "later_siblings",
+            "judgments",
         ]
 
 
@@ -89,6 +102,9 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
 
 
 class HumanRelevanceJudgmentSerializer(serializers.ModelSerializer):
+    node1 = BaseStandardNodeSerializer()
+    node2 = BaseStandardNodeSerializer()
+
     class Meta:
         model = HumanRelevanceJudgment
         fields = [
