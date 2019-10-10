@@ -18,6 +18,8 @@ django-filter = "*"
 requests = "*"
 ipython = "*"
 django-cors-headers = "*"
+gunicorn = "*"
+whitenoise = "*"
 
 [requires]
 python_version = "3.6"
