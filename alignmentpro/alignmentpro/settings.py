@@ -141,6 +141,8 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+ALLOWED_HOSTS = ["*"]  # In production, we serve through a file socket, so this is OK.
+
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
