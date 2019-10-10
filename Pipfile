@@ -17,6 +17,7 @@ markdown = "*"
 django-filter = "*"
 requests = "*"
 django-allauth = "*"
+xmltodict = "*"
 ipython = "*"
 django-cors-headers = "*"
 

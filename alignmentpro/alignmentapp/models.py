@@ -59,16 +59,6 @@ class CurriculumDocument(models.Model):
 # CURRICULUM DATA
 ################################################################################
 
-NODE_KINDS = [
-    ("document", "Curriculum document node"),
-    ("level", "Grade level or age group"),  # level-based grouping
-    ("subject", "Subject area"),  # e.g. Math, Phyiscis, IT, etc.
-    ("topic", "Subject, section, or subsection"),  # strucural elements
-    ("unit", "Standard entry"),  # Individual standard entries with LOs
-    ("content", "Content"),  # Content based curriculum information
-    ("learning_objective", "Learning objective"),  # Granula learning objectives
-]
-
 
 class StandardNode(MP_Node):
     """
@@ -82,8 +72,8 @@ class StandardNode(MP_Node):
     )
     identifier = models.CharField(max_length=300)
     # source_id / source_url ?
-    kind = models.CharField(max_length=100, choices=NODE_KINDS, default="unit")
-    title = models.TextField(help_text="Title or description text for this node.")
+    kind = models.CharField(max_length=100)
+    title = models.TextField(help_text="Primary text that represents this node.")
     # the order of tree children within parent node
     sort_order = models.FloatField(default=1.0)
     node_order_by = ["sort_order"]
@@ -95,7 +85,8 @@ class StandardNode(MP_Node):
         help_text="A numeric value ~= to the # hours of instruction for this unit or topic",
     )
     notes = models.TextField(
-        blank=True, help_text="Additional notes and modification attributes."
+        blank=True,
+        help_text="Additional notes, description, and supporting text from the source.",
     )
     # basic model extensibility w/o changing base API
     extra_fields = JSONField(default=dict)
@@ -112,6 +103,12 @@ class StandardNode(MP_Node):
         if "document" not in kwargs:
             kwargs["document"] = self.document
         return super().add_child(**kwargs)
+
+    def get_earlier_siblings(self):
+        return self.get_siblings().filter(sort_order__lt=self.sort_order)
+
+    def get_later_siblings(self):
+        return self.get_siblings().filter(sort_order__gt=self.sort_order)
 
     class Meta:
         constraints = [
