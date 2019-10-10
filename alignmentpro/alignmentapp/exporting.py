@@ -4,6 +4,7 @@ import os
 import random
 
 from django.conf import settings
+from django.db import transaction
 from django.utils import timezone
 
 from .models import CurriculumDocument, HumanRelevanceJudgment, StandardNode
@@ -55,14 +56,17 @@ def export_data(drafts=False, includetestdata=False):
     judgments_test = list(HumanRelevanceJudgment.objects.filter(is_test_data=True))
     judgments_train = list(HumanRelevanceJudgment.objects.filter(is_test_data=False))
     new_feedback_data = HumanRelevanceJudgment.objects.filter(is_test_data=None)
-    for new_datum in new_feedback_data:
-        is_test_data = random.random() < test_size
-        if is_test_data:
-            new_datum.is_test_data = True
-            judgments_test.append(new_datum)
-        else:
-            new_datum.is_test_data = False
-            judgments_train.append(new_datum)
+
+    with transaction.atomic():
+        for new_datum in new_feedback_data:
+            is_test_data = random.random() < test_size
+            if is_test_data:
+                new_datum.is_test_data = True
+                judgments_test.append(new_datum)
+            else:
+                new_datum.is_test_data = False
+                judgments_train.append(new_datum)
+            new_datum.save()
     csvpath5 = os.path.join(exportpath, settings.HUMAN_JUDGMENTS_FILENAME)
     export_human_judgments(judgments_train, csvpath5)
     if includetestdata:
@@ -79,7 +83,7 @@ def export_data(drafts=False, includetestdata=False):
     with open(os.path.join(exportpath, settings.METADATA_FILENAME), "w") as json_file:
         json.dump(metadata, json_file, indent=2, ensure_ascii=False)
 
-    print("Data export to dir", exportpath, "comlete.")
+    print("Data export to dir", exportpath, "complete.")
     export_metadata.finished = finished
     export_metadata.save()
     return exportdirname
