@@ -15,6 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = "alignmentpro.urls"
@@ -91,17 +93,17 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "alignmentpro",
-        "USER": "",
-        "PASSWORD": "",
-        "HOST": "localhost",
+        "USER": os.getenv('DB_USER') or "",
+        "PASSWORD": os.getenv('DB_PASS') or "",
+        "HOST": os.getenv('DB_HOST') or "localhost",
         "PORT": "",
     },
     "standards": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "standards",
-        "USER": "",
-        "PASSWORD": "",
-        "HOST": "localhost",
+        "USER": os.getenv('DB_USER') or "",
+        "PASSWORD": os.getenv('DB_PASS') or "",
+        "HOST": os.getenv('DB_HOST') or "localhost",
         "PORT": "",
     },
 }
