@@ -6,7 +6,6 @@ from django.db.models import Q, UniqueConstraint
 from treebeard.mp_tree import MP_Node
 
 
-
 # CURRICULUM DOCUMENTS
 ################################################################################
 
@@ -62,7 +61,7 @@ NODE_KINDS = [
     ("subject", "Subject matter"),  # e.g. Math, Phyiscis, IT, etc.
     ("topic", "Subject, section, or subsection"),  # strucural elements
     ("unit", "Standard entry"),  # Individual standard entries with LOs
-    ("learning_objective", "Learning objective"), # Granula learning objectives
+    ("learning_objective", "Learning objective"),  # Granular learning objectives
 ]
 
 
@@ -109,15 +108,20 @@ class StandardNode(MP_Node):
             kwargs["document"] = self.document
         return super().add_child(**kwargs)
 
+    def get_earlier_siblings(self):
+        return self.get_siblings().filter(sort_order__lt=self.sort_order)
+
+    def get_later_siblings(self):
+        return self.get_siblings().filter(sort_order__gt=self.sort_order)
+
     class Meta:
         constraints = [
-            UniqueConstraint(    # Make sure every document has at most one tree
-                name='single_root_per_document',
+            UniqueConstraint(  # Make sure every document has at most one tree
+                name="single_root_per_document",
                 fields=["document", "depth"],
-                condition=Q(depth=1)
+                condition=Q(depth=1),
             )
         ]
-
 
 
 # HUMAN JUDGMENTS
