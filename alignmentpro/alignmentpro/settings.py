@@ -37,14 +37,21 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.sites",
     "django.contrib.staticfiles",
     "rest_framework",
+    'rest_framework.authtoken',
     "treebeard",  # for TreeAdmin views
     "alignmentapp",
     "corsheaders",
     "commonstandardsproject",  # tmp to extract CCSS and NGSS data
     "importing",
     "django_extensions",
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.github'
 ]
 
 MIDDLEWARE = [
@@ -117,6 +124,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SITE_ID = 1
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -144,8 +157,12 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 20,
+    "PAGE_SIZE": 10,
 }
 
 
@@ -162,3 +179,6 @@ METADATA_FILENAME = "metadata.json"
 # TODO: switch to whitelist once in production, via instructions at:
 # https://pypi.org/project/django-cors-headers/
 CORS_ORIGIN_ALLOW_ALL = True
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
