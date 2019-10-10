@@ -6,7 +6,7 @@ import random
 from django.conf import settings
 from django.utils import timezone
 
-from .models import CurriculumDocument, HumanRelevanceJudgment
+from .models import CurriculumDocument, HumanRelevanceJudgment, StandardNode
 from .models import Parameter, DataExport
 
 
@@ -138,6 +138,7 @@ def export_documents(documents, csvfilepath):
 ID_KEY = "id"
 # DOCUMENT_ID_KEY = 'document_id'
 DEPTH_KEY = "depth"
+DIST_FROM_LEAF_KEY = "dist_from_leaf"
 PARENT_ID_KEY = "parent_id"
 SORT_ORDER_KEY = "sort_order"
 IDENTIFIER_KEY = "identifier"
@@ -151,6 +152,7 @@ STANDARD_NODE_HEADER_V0 = [
     ID_KEY,
     DOCUMENT_ID_KEY,
     DEPTH_KEY,
+    DIST_FROM_LEAF_KEY,
     PARENT_ID_KEY,
     SORT_ORDER_KEY,
     IDENTIFIER_KEY,
@@ -162,6 +164,16 @@ STANDARD_NODE_HEADER_V0 = [
 ]
 
 # TODO: add dist_from_leaf
+def dist_from_furthest_leaf(node):
+    descendant_data = StandardNode.get_annotated_list(node)
+    max_child_level = 0
+    for desc in descendant_data:
+        item, data = desc
+        level = data['level']
+        if level > max_child_level:
+            max_child_level = level
+
+    return max_child_level
 
 
 def node_to_rowdict(node):
@@ -170,6 +182,7 @@ def node_to_rowdict(node):
         ID_KEY: node.id,
         DOCUMENT_ID_KEY: node.document_id,
         DEPTH_KEY: node.depth,
+        DIST_FROM_LEAF_KEY: dist_from_furthest_leaf(node),
         PARENT_ID_KEY: parent_node.id if parent_node else None,
         SORT_ORDER_KEY: node.sort_order,
         IDENTIFIER_KEY: node.identifier,
