@@ -102,8 +102,8 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
 
 
 class HumanRelevanceJudgmentSerializer(serializers.ModelSerializer):
-    node1 = BaseStandardNodeSerializer()
-    node2 = BaseStandardNodeSerializer()
+    node1 = serializers.PrimaryKeyRelatedField(queryset=StandardNode.objects.all())
+    node2 = serializers.PrimaryKeyRelatedField(queryset=StandardNode.objects.all())
 
     class Meta:
         model = HumanRelevanceJudgment
