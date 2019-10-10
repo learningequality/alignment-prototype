@@ -1,0 +1,12 @@
+[
+  {
+    "model": "alignmentapp.parameter",
+    "pk": 1,
+    "fields": {
+      "key": "test_size",
+      "value": "0.05",
+      "created": "2019-10-09T05:34:14.333Z",
+      "modified": "2019-10-09T05:34:14.333Z"
+    }
+  }
+]

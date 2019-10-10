@@ -19,11 +19,11 @@ def load_curriculum_list(gsheet_id, gid):
 
     curriculum_list = []
     for row in raw_curriculum_list:
-        if row[DEPTH_KEY] and row[IDENTIFIER_KEY]:
+        if row[DEPTH_KEY]:
             row["level"] = len(row[DEPTH_KEY])
             curriculum_list.append(row)
         else:
-            print("Skipping row", row.values())
+            print("Skipping row", list(row.values()))
     return curriculum_list
 
 
@@ -34,7 +34,6 @@ DEPTH_KEY = "Depth"
 IDENTIFIER_KEY = "Identifier"
 KIND_KEY = "Kind"
 TITLE_KEY = "Title"
-LEARNING_OBJECTIVES_KEY = "Learning objectives"
 TIME_UNITS_KEY = "Units of time"
 NOTES_KEY = "Notes and modification attributes"
 
@@ -43,7 +42,6 @@ SPREADSHEET_HEADER_V0 = [
     IDENTIFIER_KEY,
     KIND_KEY,
     TITLE_KEY,
-    LEARNING_OBJECTIVES_KEY,
     TIME_UNITS_KEY,
     NOTES_KEY,
 ]
