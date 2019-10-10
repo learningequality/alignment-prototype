@@ -1,8 +1,12 @@
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Q, UniqueConstraint
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 from treebeard.mp_tree import MP_Node
 
 
@@ -199,3 +203,12 @@ class DataExport(models.Model):
     exportdirname = models.CharField(max_length=400, blank=True, null=True)
     started = models.DateTimeField(auto_now_add=True)
     finished = models.DateTimeField(blank=True, null=True)
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    """
+    Make sure we auto-create an auth token for the user qwhenever a new user is created.
+    """
+    if created:
+        Token.objects.create(user=instance)
