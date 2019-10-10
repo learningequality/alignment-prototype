@@ -90,9 +90,15 @@ def add_standard(subject_json, parent, indent=0):
 
         print("{}{}".format(" " * indent, textwrap.shorten(title, 80)))
 
+        all_identifiers = set()
+        statement_notation_el = subject_json.get('dct:statementNotation', None)
+        if statement_notation_el:
+            identifier = statement_notation_el['#text']
+        else:
+            identifier = subject_json["@rdf:about"].split('/')[-1]  # use suffix of the URI
         node = parent.add_child(document=parent.document,
                          title=title,
-                         identifier=subject_json["@rdf:about"],
+                         identifier=identifier,
                          kind=kind
         )
         if 'children' in subject_json:
