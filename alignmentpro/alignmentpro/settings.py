@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "treebeard",  # for TreeAdmin views
     "alignmentapp",
-    # 'commonstandardsproject',   # tmp to extract CCSS and NGSS data
     "corsheaders",
+    "commonstandardsproject",  # tmp to extract CCSS and NGSS data
     "importing",
     "django_extensions",
 ]
@@ -148,10 +148,11 @@ REST_FRAMEWORK = {
 
 
 # Data export paths and constnts
-DATA_EXPORT_BASE_DIR = os.path.join("exports", "data")
+DATA_EXPORT_BASE_DIR = os.path.join(BASE_DIR, "..", "exports", "data")
 CURRICULUM_DOCUMENTS_FILENAME = "curriculumdocuments.csv"
 STANDARD_NODES_FILENAME = "standardnodes.csv"
 HUMAN_JUDGMENTS_FILENAME = "humanjudgments.csv"
+HUMAN_JUDGMENTS_TEST_FILENAME = "humanjudgments_test.csv"
 METADATA_FILENAME = "metadata.json"
 
 # in production, we'd want to limit this, but for hackathon purposes
