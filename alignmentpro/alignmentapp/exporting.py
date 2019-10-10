@@ -75,7 +75,7 @@ def export_data(drafts=False, includetestdata=False):
 
     finished = timezone.now()
     metadata = dict(
-        exportdirnam=exportdirname,
+        exportdirname=exportdirname,
         drafts=drafts,
         includetestdata=includetestdata,
         finished=finished.isoformat(),
@@ -222,7 +222,7 @@ CONFIDENCE_KEY = "confidence"
 MODE_KEY = "mode"
 # UI_NAME_KEY = 'ui_name'
 # UI_VERSION_HASH_KEY = 'ui_version_hash'
-# USER_ID_KEY = 'user_id'
+USER_ID_KEY = 'user_id'
 # CREATED_KEY = 'created'
 # EXTRA_FIELDS_KEY = 'extra_fields',
 
@@ -233,6 +233,7 @@ HUMAN_JUDGMENTS_HEADER_V0 = [
     RATING_KEY,
     CONFIDENCE_KEY,
     MODE_KEY,
+    USER_ID_KEY,
     EXTRA_FIELDS_KEY,
 ]
 
@@ -245,6 +246,7 @@ def human_judgment_to_rowdict(human_judgment):
         RATING_KEY: human_judgment.rating,
         CONFIDENCE_KEY: human_judgment.confidence,
         MODE_KEY: human_judgment.mode,
+        USER_ID_KEY: human_judgment.user_id,
         EXTRA_FIELDS_KEY: json.dumps(human_judgment.extra_fields),
     }
     return datum
