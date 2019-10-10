@@ -16,6 +16,8 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, "..", 'files')
+MEDIA_URL = '/files/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -164,7 +166,9 @@ CURRICULUM_DOCS_FIXTURES_DIR = os.path.join(BASE_DIR, "..", "imports", "curricul
 
 
 # Data export paths and constnts
-DATA_EXPORT_BASE_DIR = os.path.join(BASE_DIR, "..", "exports", "data")
+DATA_EXPORT_DIR = os.path.join("exports", "data")
+DATA_EXPORT_BASE_DIR = os.path.join(MEDIA_ROOT, DATA_EXPORT_DIR)
+DATA_EXPORT_URL = "{}{}".format(MEDIA_URL, DATA_EXPORT_DIR)
 CURRICULUM_DOCUMENTS_FILENAME = "curriculumdocuments.csv"
 STANDARD_NODES_FILENAME = "standardnodes.csv"
 HUMAN_JUDGMENTS_FILENAME = "humanjudgments.csv"

@@ -84,6 +84,7 @@ def export_data(drafts=False, includetestdata=False):
         json.dump(metadata, json_file, indent=2, ensure_ascii=False)
 
     print("Data export to dir", exportpath, "complete.")
+    print("Data base URL: {}/{}".format(settings.DATA_EXPORT_URL, exportdirname))
     export_metadata.finished = finished
     export_metadata.save()
     return exportdirname
