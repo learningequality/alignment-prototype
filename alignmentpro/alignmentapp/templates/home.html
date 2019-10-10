@@ -1,12 +1,5 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Semi-Automated Curriculum Hackathon 2019</h1>
-    {% if user.is_authenticated %}
-    <p>Welcome {{ user.username }} !!!</p>
-    <p><a href="{% url 'logout' %}">Logout</a></p>
-    {% else %}
-    <p><a href="{% url 'login' %}">Login</a></p>
-    <p><a href="{% url 'register' %}">Register</a></p>
-    {% endif %}
+    <p>You may be looking for <a href="https://hackathon.learningequality.org">https://hackathon.learningequality.org</a></p>
 {% endblock %}
