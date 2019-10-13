@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
@@ -8,6 +7,39 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from treebeard.mp_tree import MP_Node
+
+
+BACKGROUNDS = [
+    ('instructional_designer', 'Instructional Designer'),
+    ('curriculum', 'Curriculum Alignment Expert'),
+    ('content_expert', "OER Expert"),
+    ('teacher', 'Teacher/Coach'),
+    ('designer', 'Designer or Frontend Developer'),
+    ('developer', 'Technologist and/or Developer'),
+    ('data_science', 'Machine Learning and Data Science'),
+    ('metadata', 'Metadata'),
+    ('other', 'Other')
+]
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    background = models.CharField(max_length=50, choices=BACKGROUNDS, help_text="What is your background experience?")
+    subject_areas = models.ManyToManyField(
+        to='alignmentapp.SubjectArea',
+        related_name='user_profiles',
+        blank=True,
+    )
+
+    def __str__(self):
+        return "Profile for {}".format(self.user.username)
+
+
+class SubjectArea(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
 
 
 # CURRICULUM DOCUMENTS
@@ -149,7 +181,7 @@ class HumanRelevanceJudgment(models.Model):
     ui_name = models.CharField(max_length=100)
     ui_version_hash = models.CharField(max_length=100)
     user = models.ForeignKey(
-        User, related_name="judgments", null=True, on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL, related_name="judgments", null=True, on_delete=models.SET_NULL
     )
     created = models.DateTimeField(auto_now_add=True)
     is_test_data = models.BooleanField(

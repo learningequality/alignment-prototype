@@ -3,6 +3,24 @@
 <head>
   <meta charset="utf-8">
   <title>{% block title %}Hackathon Backend{% endblock %}</title>
+    <style>
+        body {
+            font-family: Avenir,Helvetica,Arial,sans-serif;
+        }
+        .helptext {
+            color: grey;
+            font-size: small;
+        }
+        #id_subject_areas {
+            list-style-type: none;
+        }
+        .registration_form ul {
+            font-size: small;
+        }
+        .errorlist {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     {% block content %}

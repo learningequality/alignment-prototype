@@ -1,0 +1,72 @@
+[
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 1,
+    "fields": {
+      "name": "Arts"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 2,
+    "fields": {
+      "name": "Mathematics"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 3,
+    "fields": {
+      "name": "Physics"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 4,
+    "fields": {
+      "name": "Chemistry"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 5,
+    "fields": {
+      "name": "Biology"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 6,
+    "fields": {
+      "name": "Computers and Technology"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 7,
+    "fields": {
+      "name": "Engineering"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 8,
+    "fields": {
+      "name": "Music"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 9,
+    "fields": {
+      "name": "Languages"
+    }
+  },
+  {
+    "model": "alignmentapp.subjectarea",
+    "pk": 10,
+    "fields": {
+      "name": "Business"
+    }
+  }
+]
