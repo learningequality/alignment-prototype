@@ -29,7 +29,16 @@ def register(request):
         if uc_form.is_valid() and up_form.is_valid():
             user = uc_form.save()
             user_profile = up_form.save(commit=False)
+
+            # Because the user hasn't signed in, we need to manually add the user
+            # to the UserProfile object.
             user_profile.user = user
+            user_profile.save()
+
+            # Needed to commit the save above to have the UserProfile created
+            # before updating subject_areas, so one more save needed...
+            for area in up_form.cleaned_data['subject_areas']:
+                user_profile.subject_areas.add(area)
             user_profile.save()
             return redirect('https://hackathon.learningequality.org')
 
