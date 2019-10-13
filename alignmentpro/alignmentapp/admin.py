@@ -10,6 +10,8 @@ from alignmentapp.models import (
     MachineLearningModel,
     Parameter,
     DataExport,
+    SubjectArea,
+    UserProfile
 )
 
 
@@ -47,3 +49,11 @@ class ParameterAdmin(admin.ModelAdmin):
 @admin.register(DataExport)
 class DataExportAdmin(admin.ModelAdmin):
     model = DataExport
+
+@admin.register(SubjectArea)
+class SubjectAreaAdmin(admin.ModelAdmin):
+    model = SubjectArea
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    model = UserProfile

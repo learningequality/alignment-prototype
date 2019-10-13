@@ -5,6 +5,8 @@ from django.shortcuts import redirect, render
 from django.views import View
 from rest_framework.authtoken.models import Token
 
+from .forms import UserProfileForm
+
 
 class HomeView(View):
 
@@ -22,12 +24,17 @@ class HomeView(View):
 
 def register(request):
     if request.method == 'POST':
-        f = UserCreationForm(request.POST)
-        if f.is_valid():
-            f.save()
+        uc_form = UserCreationForm(request.POST)
+        up_form = UserProfileForm(request.POST)
+        if uc_form.is_valid() and up_form.is_valid():
+            user = uc_form.save()
+            user_profile = up_form.save(commit=False)
+            user_profile.user = user
+            user_profile.save()
             return redirect('https://hackathon.learningequality.org')
 
     else:
-        f = UserCreationForm()
+        uc_form = UserCreationForm()
+        up_form = UserProfileForm()
 
-    return render(request, 'register.html', {'form': f})
+    return render(request, 'register.html', {'registration_form': uc_form, 'survey_form': up_form})
