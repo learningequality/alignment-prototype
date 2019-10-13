@@ -96,7 +96,7 @@ class Command(BaseCommand):
         root_node = json.loads(open(filename).read(), encoding='utf-8')
 
         source_id = "khan_academy_us"
-        topic = "Khan Academy Standards-based Curriculum"
+        topic = "Khan Academy Curriculum"
         country = "USA"
         digitization_method = "data_import"
         draft = True
