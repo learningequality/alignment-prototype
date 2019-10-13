@@ -12,19 +12,20 @@ data_dir = os.path.abspath(os.path.join(this_dir, '..', '..', 'data'))
 
 
 def get_node(data, parent=None, user=None):
-    kind = 'Topic'
-    ignore = False
-    if 'kind' in data:
-        if kind == 'video':
-            kind = 'Tutorial'
-        elif data['kind'] != 'topic':
-            kind = data['kind']
+
+    kind = data['kind']
+
+    if kind == 'video':
+        # Don't make a standard node for videos
+        return None
 
     if kind == 'exercise' and parent and user:
         if len(data['tags']) == 0:
             # print("Exercise {} doesn't have a standard associated with it".format(data))
             return None
-        parent.extra_fields['standards'] = data['tags']
+        exercise_slugs = parent.extra_fields.get('exercise_slugs', [])
+        exercise_slugs.append( data['slug'] )
+        parent.extra_fields['exercise_slugs'] = exercise_slugs
         parent.save()
         standard = data['tags'][0]
         # The KA standard name uses a slightly different structure than the CCSSM docs,
@@ -56,7 +57,8 @@ def get_node(data, parent=None, user=None):
     node = parent.add_child(document=parent.document,
                             title=data['title'],
                             identifier=identifier,
-                            kind=kind
+                            kind=kind,
+                            notes=data.get('description', ''),
                             )
 
     return node
@@ -64,31 +66,38 @@ def get_node(data, parent=None, user=None):
 def get_node_data_recursive(data, level=0, parent=None, user=None):
     if level >= 5:
         return
-    kind = 'level'
-    if 'kind' in data:
-        kind = data['kind']
 
+    kind = data['kind']
     # Use KA's own type structure
-    if level == 1:
+    if level == 0:
         data['kind'] = 'Domain'
-    elif level == 2:
+    elif level == 1:
         data['kind'] = 'Subject'
+        print('Processing Subject=', data['title'])
+    elif level == 2:
+        data['kind'] = 'Topic'
+    elif level == 3:
+        data['kind'] = 'Tutorial'
 
-    node = get_node(data, parent, user)
-
-    if node and 'children' in data:
-        for child in data['children']:
-            get_node_data_recursive(child, level+1, node, user)
+    if 'India' in data['title'] or 'Eureka' in data['title'] or 'ICSE' in data['title']:
+        print('skipping', data['title'])
+        return
+    else:
+        node = get_node(data, parent, user)
+        if node and 'children' in data:
+            for child in data['children']:
+                get_node_data_recursive(child, level+1, node, user)
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        print("Importing Khan Academy topic tree from khan_academy_ricecooker_tree.json...")
         filename = os.path.join(data_dir, 'khan_academy_ricecooker_tree.json')
         root_node = json.loads(open(filename).read(), encoding='utf-8')
 
         source_id = "khan_academy_us"
         topic = "Khan Academy Standards-based Curriculum"
-        country = "America"
+        country = "USA"
         digitization_method = "data_import"
         draft = True
 
@@ -111,5 +120,6 @@ class Command(BaseCommand):
             digitization_method=digitization_method,
             is_draft=draft,
         )
-        root = StandardNode.add_root(title=topic, kind='document', document=document)
-        get_node_data_recursive(root_node, parent=root, user=ka_user)
+        root = StandardNode.add_root(title=topic, identifier='KA-en', kind='channel', document=document)
+        for domain in root_node['children']:
+            get_node_data_recursive(domain, parent=root, user=ka_user)
