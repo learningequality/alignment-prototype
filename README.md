@@ -32,6 +32,8 @@ Setup
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate
     ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/paremeters.json
+    ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/subject_areas.json
+
     ./alignmentpro/manage.py createsuperuser --username admin --email a@b.c
 
     # temporary while proper curriculum data fixtures are put in place

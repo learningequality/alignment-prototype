@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
@@ -8,11 +7,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from treebeard.mp_tree import MP_Node
-
-
-from django.db import models
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 
 
 BACKGROUNDS = [
@@ -29,8 +23,8 @@ BACKGROUNDS = [
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user')
-    background = models.CharField(max_length=50, choices=BACKGROUNDS)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    background = models.CharField(max_length=50, choices=BACKGROUNDS, help_text="What is your background experience?")
     subject_areas = models.ManyToManyField(
         to='alignmentapp.SubjectArea',
         related_name='user_profiles',

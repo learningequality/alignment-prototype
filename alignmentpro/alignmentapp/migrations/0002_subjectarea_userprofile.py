@@ -24,9 +24,9 @@ class Migration(migrations.Migration):
             name='UserProfile',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('background', models.CharField(choices=[('content_expert', 'Curriculum, education, and/or OER expert'), ('teacher', 'Teacher/coach'), ('designer', 'Designer or Frontend Developer'), ('developer', 'Technologist and/or Developer'), ('data_science', 'Machine Learning and Data Science'), ('metadata', 'Metadata'), ('other', 'Other')], max_length=50)),
+                ('background', models.CharField(choices=[('instructional_designer', 'Instructional Designer'), ('curriculum', 'Curriculum Alignment Expert'), ('content_expert', 'OER Expert'), ('teacher', 'Teacher/Coach'), ('designer', 'Designer or Frontend Developer'), ('developer', 'Technologist and/or Developer'), ('data_science', 'Machine Learning and Data Science'), ('metadata', 'Metadata'), ('other', 'Other')], help_text='What is your background experience?', max_length=50)),
                 ('subject_areas', models.ManyToManyField(related_name='user_profiles', to='alignmentapp.SubjectArea', blank=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='user', to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]
