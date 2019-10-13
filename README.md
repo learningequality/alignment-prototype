@@ -31,13 +31,16 @@ Setup
 
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate
+
     ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/paremeters.json
     ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/subject_areas.json
+    ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/admin_user.json
 
-    ./alignmentpro/manage.py createsuperuser --username admin --email a@b.c
-
-    # temporary while proper curriculum data fixtures are put in place
-    ./alignmentpro/manage.py ~/Desktop/alignmentapp_tmp_fixtures.json
+    ./alignmentpro/manage.py loaddata imports/curriculumdocuments/CCSSM.json
+    ./alignmentpro/manage.py loaddata imports/curriculumdocuments/NGSS.json
+    ./alignmentpro/manage.py loaddata imports/curriculumdocuments/Australia.json
+    ./alignmentpro/manage.py loaddata imports/curriculumdocuments/khan_academy_us.json
+    ./alignmentpro/manage.py loaddata imports/curriculumdocuments/CA-CTE.json
 
     ./alignmentpro/manage.py runserver
 
