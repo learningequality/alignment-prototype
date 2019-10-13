@@ -1,0 +1,20 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$150000$FGDCKJkyLjeB$ThUa3hzzEHkNYHKNGKTM3kb9YNMyArFUdNIWD8hhTPc=",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "Hackathon",
+      "last_name": "Admin",
+      "email": "design2align@learningequality.org",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2019-10-13T20:42:15.618Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]
