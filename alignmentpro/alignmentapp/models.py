@@ -16,8 +16,8 @@ from django.db.models.signals import post_save
 
 
 BACKGROUNDS = [
-    ('instructional_designer', 'Instructional Designer')
-    ('curriculum', 'Curriculum Alignment Expert')
+    ('instructional_designer', 'Instructional Designer'),
+    ('curriculum', 'Curriculum Alignment Expert'),
     ('content_expert', "OER Expert"),
     ('teacher', 'Teacher/Coach'),
     ('designer', 'Designer or Frontend Developer'),
@@ -34,7 +34,11 @@ class UserProfile(models.Model):
     subject_areas = models.ManyToManyField(
         to='alignmentapp.SubjectArea',
         related_name='user_profiles',
+        blank=True,
     )
+
+    def __str__(self):
+        return "Profile for {}".format(self.user.username)
 
 
 class SubjectArea(models.Model):
