@@ -19,6 +19,8 @@ def get_tree_as_markdown(root, options):
         else:
             line += " [" + subtree.identifier + "] "
         line += subtree.title + " "
+        if subtree.notes:
+            line += 'notes= ' + str(subtree.notes.replace('\n', ' '))
         if subtree.extra_fields:
             line += str(subtree.extra_fields)
         lines.append(line)
