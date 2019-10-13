@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     "treebeard",  # for TreeAdmin views
     "alignmentapp",
     "corsheaders",
-    "commonstandardsproject",  # tmp to extract CCSS and NGSS data
+    # "commonstandardsproject",  # was only needed to extract CCSS and NGSS data
     "importing",
     "django_extensions",
     'allauth',
@@ -110,7 +110,7 @@ DATABASES = {
     },
 }
 
-DATABASE_ROUTERS = ["alignmentpro.dbrouters.DbRouter"]
+# DATABASE_ROUTERS = ["alignmentpro.dbrouters.DbRouter"]
 
 
 # Password validation

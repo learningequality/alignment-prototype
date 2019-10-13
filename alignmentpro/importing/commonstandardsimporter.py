@@ -44,7 +44,7 @@ def standard_to_standardnode(standard):
     if identifier is None:
         identifier = "identifier is None"
     standardnode = dict(kind=kind, identifier=identifier, title=title, extra_fields={})
-    extra_props = ["listId", "title"]
+    extra_props = ["listId", "title", "subject"]
     for extra_prop in extra_props:
         if doc.get(extra_prop):
             standardnode["extra_fields"][extra_prop] = doc.get(extra_prop)
@@ -104,6 +104,16 @@ def drop_titles(tree, titles_to_drop):
 
     return _drop_titles(tree)
 
+# RM unnecessay intermediate nodes
+def hoist_unnecessary_tree_nodes(subtree, hoist_titles):
+    new_children = []
+    for child in subtree["children"]:
+        if child["title"] in hoist_titles:
+            new_children.extend(child["children"])
+        else:
+            new_children.append(child)
+            hoist_unnecessary_tree_nodes(child, hoist_titles=hoist_titles)
+    subtree["children"] = new_children
 
 # Common Core State Standards for Mathematics
 ################################################################################
@@ -291,18 +301,7 @@ def transform_ngss(tree):
     tree2 = transform_subtree(tree)
     tree3 = drop_titles(tree2, NGSS_DROP_TITLES)
 
-    # RM unnecessay intermediate nodes
-    def hoist_unnecessary_tree_nodes(subtree):
-        new_children = []
-        for child in subtree["children"]:
-            if child["title"] in NGSS_HOIST_TITLES:
-                new_children.extend(child["children"])
-            else:
-                new_children.append(child)
-                hoist_unnecessary_tree_nodes(child)
-        subtree["children"] = new_children
-
-    hoist_unnecessary_tree_nodes(tree3)
+    hoist_unnecessary_tree_nodes(tree3, hoist_titles=NGSS_HOIST_TITLES)
 
     # Auto assign kinds based on depth in tree
     for grade in tree3["children"]:
@@ -364,60 +363,113 @@ def import_ngss():
     print("Finished importing NGSS")
 
 
-# Common Core English/Language Arts
+
+
+# CALIFORNIA VOCATIONAL
 ################################################################################
 
-COMMON_CORE_JURISDICTION_ID = 62
-COMMON_CORE_LANGUAGE = [
-    # ("157732", ""),  #  Kindergarten Arte Lenguaje en Español
-    # ("157494", ""),  #  Primer Grado Arte Lenguaje en Español
-    # ("157623", ""),  #  Segundo Grado Arte Lenguaje en Español
-    (
-        "156027",
-        " Grade K Common Core English/Language Arts",
-    ),  #  Grade K Common Core English/Language Arts
-    (
-        "155249",
-        " Grade 1 Common Core English/Language Arts",
-    ),  #  Grade 1 Common Core English/Language Arts
-    (
-        "155027",
-        " Grade 2 Common Core English/Language Arts",
-    ),  #  Grade 2 Common Core English/Language Arts
-    (
-        "156181",
-        " Grade 3 Common Core English/Language Arts",
-    ),  #  Grade 3 Common Core English/Language Arts
-    (
-        "155412",
-        " Grade 4 Common Core English/Language Arts",
-    ),  #  Grade 4 Common Core English/Language Arts
-    (
-        "156478",
-        " Grade 5 Common Core English/Language Arts",
-    ),  #  Grade 5 Common Core English/Language Arts
-    (
-        "156951",
-        " Grade 6 Common Core English/Language Arts",
-    ),  #  Grade 6 Common Core English/Language Arts
-    (
-        "156747",
-        " Grade 7 Common Core English/Language Arts",
-    ),  #  Grade 7 Common Core English/Language Arts
-    (
-        "157158",
-        " Grade 8 Common Core English/Language Arts",
-    ),  #  Grade 8 Common Core English/Language Arts
-    (
-        "154699",
-        " Grades 9, 10 Common Core English/Language Arts",
-    ),  #  Grades 9, 10 Common Core English/Language Arts
-    (
-        "155575",
-        " Grades 11, 12 Common Core English/Language Arts",
-    ),  #  Grades 11, 12 Common Core English/Language Arts
-    # ("157454", " 6-8 English Language Arts - History/Social Studies"),  #  6-8 English Language Arts - History/Social Studies
-    # ("157469", " 6-8 English Language Arts - Writing (History/Social Studies, Science, & Technical Subjects)"),  #  6-8 English Language Arts - Writing (History/Social Studies, Science, & Technical Subjects)
-    # ("157438", " 6-8  English Language Arts - Science and Technical Subjects"),  #  6-8  English Language Arts - Science and Technical Subjects
-    # ("157423", " Grade 9-10 English Language Arts - Science and Technical Subjects"),  #  Grade 9-10 English Language Arts - Science and Technical Subjects
+CALIFORNIA_JURISDICTION_ID = 49
+CALIFORNIA_VOCATIONAL_ROOTS = [  # pairs of (Standard.id, identifier)
+    # ("116094", "49-116094"),  # Agriculture and Natural Resources
+    # ("113743", "49-113743"),  #CTE: Arts, Media, and Entertainment
+    # ("116651", "49-116651"),  #CTE: Building and Construction Trades
+    ("121067", "bizfinance"),  # CTE: Business and Finance
+    # ("115293", "49-115293"),  #CTE: Education, Child Development, and Family Services
+    # ("118232", "49-118232"),  #CTE: Energy, Environment, and Utilities
+    # ("121690", "49-121690"),  #CTE: Engineering and Architecture
+    # ("117571", "49-117571"),  #CTE: Fashion and Interior Design
+    # ("122209", "49-122209"),  #CTE: Health Science and Medical Technology
+    # ("123466", "49-123466"),  #CTE: Hospitality, Tourism, and Recreation
+    ("124793", "infocomtech"),  # CTE: Information and Communication Technologies
+    # ("124144", "49-124144"),  #CTE: Manufacturing and Product Development
+    # ("122879", "49-122879"),  #CTE: Marketing, Sales, and Service
+    # ("125540", "49-125540"),  #CTE: Public Services
+    # ("123188", "49-123188"),  #CTE: Transportation
 ]
+
+CALIFORNIA_VOCATIONAL_HOIST_TITLES = [
+    "Knowledge and Performance",
+    "Pathway Standards",
+]
+
+CALIFORNIA_VOCATIONAL_DOCUMENT_ATTRIBUTES = {
+    "source_id": "CA-CTE",
+    "title": "California Career Technical Education",
+    "country": "USA",
+    "digitization_method": "data_import",
+    "source_url": "https://www.cde.ca.gov/ci/ct/",
+    "is_draft": False,
+}
+
+def import_california():
+    j = Jurisdictions.objects.get(id=CALIFORNIA_JURISDICTION_ID)
+    root_tuples = CALIFORNIA_VOCATIONAL_ROOTS
+    tree = join_standards(
+        root_tuples,
+        identifier="CTE",
+        title="California Career Technical Education",
+    )
+
+    transformed_tree = transform_subtree(tree)
+
+    # drop empty folders
+    transformed_tree = drop_titles(transformed_tree, ['Academics'])
+
+    # set subjects
+    for child in transformed_tree['children']:
+        child['title'] = child['extra_fields']['subject']
+
+    # set some identifiers
+    def _set_identifier_from_listId(subtree):
+        if subtree['identifier'] == 'no identifier' and 'listId' in subtree['extra_fields']:
+            subtree['identifier'] = subtree['extra_fields']['listId']
+        for child in subtree['children']:
+            _set_identifier_from_listId(child)
+    _set_identifier_from_listId(transformed_tree)
+
+    # hoist non-useful headings
+    hoist_unnecessary_tree_nodes(transformed_tree, hoist_titles=CALIFORNIA_VOCATIONAL_HOIST_TITLES)
+
+    # set kinds
+    for subject in transformed_tree['children']:
+        if subject['kind'] == 'no statementLabel':
+            subject['kind'] = 'subject'
+        for topic in subject['children']:
+            if topic['kind'] == 'no statementLabel':
+                topic['kind'] = 'topic'
+
+    print_commonstandards_tree(transformed_tree, display_len_limit=90)
+    # return transformed_tree
+
+    try:
+        document = CurriculumDocument.objects.get(
+            source_id=CALIFORNIA_VOCATIONAL_DOCUMENT_ATTRIBUTES["source_id"]
+        )
+        document.delete()
+    except CurriculumDocument.DoesNotExist:
+        pass
+    document = CurriculumDocument.objects.create(**CALIFORNIA_VOCATIONAL_DOCUMENT_ATTRIBUTES)
+
+    root = StandardNode.add_root(
+        identifier=transformed_tree["identifier"],
+        title=transformed_tree["title"],
+        kind=transformed_tree["kind"],
+        document=document,
+    )
+
+    def _add_children_to_parent(parent, children):
+        for i, child in enumerate(children):
+            sort_order = i + 1
+            node = parent.add_child(
+                document=parent.document,
+                title=child["title"],
+                identifier=child["identifier"],
+                sort_order=sort_order,
+                kind=child["kind"],
+            )
+            _add_children_to_parent(node, child["children"])
+
+    _add_children_to_parent(root, transformed_tree["children"])
+    print("Finished importing California vocational standards")
+
+
