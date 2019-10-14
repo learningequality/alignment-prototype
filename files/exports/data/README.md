@@ -47,10 +47,10 @@ The individual elements of a curriculum structure.
   - `sort_order`: used to specify ordering of the nodes within the parent node
   - `identifier` (str): a short identifier or standard node, e.g. CCSS.Math.Content.K.OA.A.4.
     Not guaranteed to be present or unique for all standard nodes.
-  - `kind` (str):
-  - `title` (str):
+  - `kind` (str): indicates the type of node (e.g. level, subject area, topic, learning objective, etc.)
+  - `title` (str): the main text description for this standard node
   - `time_units` (float): a numeric value ~= to the # hours of instruction for this unit or topic
-  - `notes`: additional notes, description, and supporting text from the source
+  - `notes`: additional notes, description, and secondary text about this node
   - `extra_fields` (JSON): can contain arbitrary extra information available for this node
 
 
@@ -66,7 +66,6 @@ Similarity judgments are undirected.
   - `mode` (str): indicates the how the human judgment was collected "rapid_feedback" vs. "manual_review" etc.
   - `user_id`: FK to the `userprofiles.id`
   - `extra_fields` (JSON): any additional data stored by the human judgement API (e.g. comments)
-
 
 
 ### userprofiles.csv

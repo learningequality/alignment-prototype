@@ -2,6 +2,36 @@
 Code base for a prototype for the hackathon on curriculum structure alignments.
 
 
+
+Operations
+----------
+These steps should work for any of the users with sudo rights on the server,
+including  `aron`, `ivan`, `jamie`, `kevin`, `kevino`, and `richard`.
+
+
+### Deploy
+
+    ssh 35.235.65.36
+        sudo su
+            cd /projects/alignment-prototype/
+            git pull
+            systemctl restart gunicorn
+
+
+### Export data
+
+    ssh 35.235.65.36
+        sudo su kevino
+            cd /projects/alignment-prototype/
+            pipenv run alignmentpro/manage.py exportdata
+
+
+
+
+
+
+
+
 TODOs
 -----
  - How do we make robust/forgiving/helpful errors when bad Excel formatting?
