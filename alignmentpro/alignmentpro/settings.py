@@ -173,6 +173,7 @@ CURRICULUM_DOCUMENTS_FILENAME = "curriculumdocuments.csv"
 STANDARD_NODES_FILENAME = "standardnodes.csv"
 HUMAN_JUDGMENTS_FILENAME = "humanjudgments.csv"
 HUMAN_JUDGMENTS_TEST_FILENAME = "humanjudgments_test.csv"
+USERPROFILES_FILENAME = "userprofiles.csv"
 METADATA_FILENAME = "metadata.json"
 
 # in production, we'd want to limit this, but for hackathon purposes
