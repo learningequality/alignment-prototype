@@ -2,6 +2,7 @@ import csv
 import json
 import os
 import random
+import subprocess
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -82,6 +83,12 @@ def export_data(drafts=False, includetestdata=False):
     all_users = User.objects.filter(id__in=all_user_ids)
     csvpath7 = os.path.join(exportpath, settings.USERPROFILES_FILENAME)
     export_userprofiles(all_users, csvpath7)
+
+    # update latest symlink
+    latestpath = os.path.join(export_base_dir, 'latest')
+    if os.path.exists(latestpath):
+        os.remove(latestpath)
+    subprocess.run(["ln", "-s", exportpath, latestpath])
 
     finished = timezone.now()
     metadata = dict(
