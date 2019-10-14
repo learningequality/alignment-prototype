@@ -302,7 +302,7 @@ def user_to_rowdict(user):
     except User.profile.RelatedObjectDoesNotExist:
         # create UserProfile if it doesn't exist (e.g. for admin user...)
         profile = UserProfile.objects.create(user=user, background='other')
-    subject_areas_str = ';'.join([sa.name for sa in user.profile.subject_areas.all()])
+    subject_areas_str = ','.join([sa.name for sa in user.profile.subject_areas.all()])
     datum = {
         ID_KEY: user.id,
         BACKGROUND_KEY: user.profile.background,

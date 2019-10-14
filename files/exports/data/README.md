@@ -73,5 +73,5 @@ Info about the background and content knowledge of the users that provided human
 
   - `id`: the user id
   - `background`: what is the professional background of the user
-  - `subject_areas`: semicolon-separated list of areas of expertise (e.g. Chemistry, Biology, etc.)
+  - `subject_areas`: comma-separated list of areas of expertise (e.g. Chemistry, Biology, etc.)
 
