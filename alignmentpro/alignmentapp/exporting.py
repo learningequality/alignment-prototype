@@ -4,11 +4,13 @@ import os
 import random
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils import timezone
 
+
 from .models import CurriculumDocument, HumanRelevanceJudgment, StandardNode
-from .models import Parameter, DataExport
+from .models import Parameter, DataExport, UserProfile
 
 
 # HIGH LEVEL API
@@ -67,11 +69,19 @@ def export_data(drafts=False, includetestdata=False):
                 new_datum.is_test_data = False
                 judgments_train.append(new_datum)
             new_datum.save()
+    #
+    all_user_ids = set()
     csvpath5 = os.path.join(exportpath, settings.HUMAN_JUDGMENTS_FILENAME)
-    export_human_judgments(judgments_train, csvpath5)
+    user_ids_train = export_human_judgments(judgments_train, csvpath5)
+    all_user_ids.update(user_ids_train)
     if includetestdata:
         csvpath6 = os.path.join(exportpath, settings.HUMAN_JUDGMENTS_TEST_FILENAME)
-        export_human_judgments(judgments_test, csvpath6)
+        user_ids_test = export_human_judgments(judgments_test, csvpath6)
+        all_user_ids.update(user_ids_test)
+
+    all_users = User.objects.filter(id__in=all_user_ids)
+    csvpath7 = os.path.join(exportpath, settings.USERPROFILES_FILENAME)
+    export_userprofiles(all_users, csvpath7)
 
     finished = timezone.now()
     metadata = dict(
@@ -135,7 +145,6 @@ def export_documents(documents, csvfilepath):
         for document in documents:
             rowdict = document_to_rowdict(document)
             csvwriter.writerow(rowdict)
-    return csvfilepath
 
 
 # STANDARD NODE CSV EXPORT FORMAT
@@ -210,7 +219,6 @@ def export_nodes(nodes, csvfilepath):
         for node in nodes:
             noderow = node_to_rowdict(node)
             csvwriter.writerow(noderow)
-    return csvfilepath
 
 
 # HUMAN JUDGMENT CSV EXPORT FORMAT
@@ -257,10 +265,52 @@ def export_human_judgments(human_judgments, csvfilepath):
     """
     Writes the human judgements data to the CSV file at `csvfilepath`.
     """
+    user_ids = set()
     with open(csvfilepath, "w") as csv_file:
         csvwriter = csv.DictWriter(csv_file, HUMAN_JUDGMENTS_HEADER_V0)
         csvwriter.writeheader()
         for human_judgment in human_judgments:
             rowdict = human_judgment_to_rowdict(human_judgment)
+            user_ids.add(human_judgment.user_id)
             csvwriter.writerow(rowdict)
-    return csvfilepath
+    return user_ids
+
+
+# USERS CSV EXPORT FORMAT
+################################################################################
+# ID_KEY = 'id'
+BACKGROUND_KEY = "background"
+SUBJECT_AREAS_KEY = "subject_areas"
+
+USERPROFILES_HEADER_V0 = [
+    ID_KEY,
+    BACKGROUND_KEY,
+    SUBJECT_AREAS_KEY,
+]
+
+
+def user_to_rowdict(user):
+    try:
+        profile = user.profile
+    except User.profile.RelatedObjectDoesNotExist:
+        # create UserProfile if it doesn't exist (e.g. for admin user...)
+        profile = UserProfile.objects.create(user=user, background='other')
+    subject_areas_str = ';'.join([sa.name for sa in user.profile.subject_areas.all()])
+    datum = {
+        ID_KEY: user.id,
+        BACKGROUND_KEY: user.profile.background,
+        SUBJECT_AREAS_KEY: subject_areas_str,
+    }
+    return datum
+
+
+def export_userprofiles(users, csvfilepath):
+    """
+    Writes the user profile data to the CSV file at `csvfilepath`.
+    """
+    with open(csvfilepath, "w") as csv_file:
+        csvwriter = csv.DictWriter(csv_file, USERPROFILES_HEADER_V0)
+        csvwriter.writeheader()
+        for user in users:
+            rowdict = user_to_rowdict(user)
+            csvwriter.writerow(rowdict)

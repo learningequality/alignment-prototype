@@ -4,6 +4,7 @@ alignmentpro/commonstandardsproject/migrations/
 
 # Data export dirs
 exports/data
+files/exports/data
 notebooks/exports/data
 
 # Imports data
