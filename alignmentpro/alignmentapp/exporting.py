@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils import timezone
-
+from django.utils.timezone import localtime
 
 from .models import CurriculumDocument, HumanRelevanceJudgment, StandardNode
 from .models import Parameter, DataExport, UserProfile
@@ -22,7 +22,7 @@ def export_data(drafts=False, includetestdata=False):
     """
     Export the curriculum and human judgment data to be used for ML training.
     """
-    exportdirname = timezone.now().strftime("%Y%m%d-%H%M")
+    exportdirname = timezone.localtime().strftime("%Y%m%d-%H%M")
     export_base_dir = settings.DATA_EXPORT_BASE_DIR
     if not os.path.exists(export_base_dir):
         os.makedirs(export_base_dir)
@@ -95,7 +95,7 @@ def export_data(drafts=False, includetestdata=False):
         exportdirname=exportdirname,
         drafts=drafts,
         includetestdata=includetestdata,
-        finished=finished.isoformat(),
+        finished=localtime(finished).isoformat(),
     )
     with open(os.path.join(exportpath, settings.METADATA_FILENAME), "w") as json_file:
         json.dump(metadata, json_file, indent=2, ensure_ascii=False)
