@@ -163,6 +163,7 @@ REST_FRAMEWORK = {
 
 # Data fixturees dir
 CURRICULUM_DOCS_FIXTURES_DIR = os.path.join(BASE_DIR, "..", "imports", "curriculumdocuments")
+CURRICULUM_DOCS_CSVS_DIR = os.path.join(BASE_DIR, "..", "imports", "gsheetscsvs")
 
 
 # Data export paths and constnts

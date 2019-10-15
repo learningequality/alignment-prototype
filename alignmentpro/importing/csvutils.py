@@ -3,6 +3,8 @@ import json
 import os
 import requests
 
+from django.conf import settings
+
 
 # HIGH LEVEL API
 ################################################################################
@@ -14,7 +16,11 @@ def load_curriculum_list(gsheet_id, gid):
     Returns list of dicts for further processing.
     """
     filename = "{}_{}.csv".format(gsheet_id, gid)
-    csvfilepath = save_gsheet_to_local_csv(gsheet_id, gid, csvfilepath=filename)
+
+    if not os.path.exists(settings.CURRICULUM_DOCS_CSVS_DIR):
+        os.makedirs(settings.CURRICULUM_DOCS_CSVS_DIR)
+    filepath = os.path.join(settings.CURRICULUM_DOCS_CSVS_DIR, filename)
+    csvfilepath = save_gsheet_to_local_csv(gsheet_id, gid, csvfilepath=filepath)
     raw_curriculum_list = load_curriculum_csv(csvfilepath)
 
     curriculum_list = []

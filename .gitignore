@@ -7,8 +7,11 @@ exports/data
 files/exports/data
 notebooks/exports/data
 
+
 # Imports data
 alignmentpro/importing/data
+imports/gsheetscsvs
+
 
 # Dev notebooks
 nootebooks/
