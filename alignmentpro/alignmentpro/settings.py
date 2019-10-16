@@ -169,6 +169,7 @@ CURRICULUM_DOCS_CSVS_DIR = os.path.join(BASE_DIR, "..", "imports", "gsheetscsvs"
 # Data export paths and constnts
 DATA_EXPORT_DIR = os.path.join("exports", "data")
 DATA_EXPORT_BASE_DIR = os.path.join(MEDIA_ROOT, DATA_EXPORT_DIR)
+MODELS_BASE_DIR = os.path.join(MEDIA_ROOT, 'models')
 DATA_EXPORT_URL = "{}{}".format(MEDIA_URL, DATA_EXPORT_DIR)
 CURRICULUM_DOCUMENTS_FILENAME = "curriculumdocuments.csv"
 STANDARD_NODES_FILENAME = "standardnodes.csv"
