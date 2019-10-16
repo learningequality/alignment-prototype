@@ -108,14 +108,20 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
             if scheduler == "fullyrandom":
                 queryset = queryset.order_by("?")[:2]
             elif scheduler == "random":
-                gamma = self.request.query_params.get("gamma", 2.0)
-                queryset = prob_weighted_random(queryset, model_name='baseline', gamma=gamma)
+                gamma = float(self.request.query_params.get("gamma", 2.0))
+                queryset = prob_weighted_random(
+                    queryset, model_name="baseline", gamma=gamma
+                )
             else:
                 raise APIException("Unknown scheduler!")
         else:
             return super().list(request)
-        serializer = StandardNodeSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
+        serializer = StandardNodeSerializer(
+            queryset, many=True, context={"request": request}
+        )
+        return Response(
+            {"count": 2, "next": None, "previous": None, "results": serializer.data}
+        )
 
 
 class HumanRelevanceJudgmentSerializer(serializers.ModelSerializer):
