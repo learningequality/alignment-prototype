@@ -225,6 +225,9 @@ class TrainedModelViewSet(viewsets.ViewSet):
                 if os.path.isfile(full_file_name):
                     shutil.copy(full_file_name, os.path.join(exportpath, ".."))
 
+            with open(os.path.join(exportpath, "..", "dirty"), "w") as f:
+                f.write("dirty")
+
             return response.Response(data, status=201)
         else:
             data = serializer.data
