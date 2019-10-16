@@ -32,7 +32,7 @@ def prob_weighted_random(queryset, model_name="baseline", gamma=1.0):
     rowi = relevance_matrix[ir, :].flatten()  # select
     rowi[rowi < 0] = 0  # set all negative valuses zero
     rowi[
-        nodes.document_id == nodes.document_id[j]
+        nodes.document_id == nodes.document_id[ir]
     ] = 0  # set all from same document to 0
     rowi[rowi > 0.99] = 0  # set duplicates to zero
     rowi[ir] = 0  # set self to zero
