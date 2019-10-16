@@ -28,7 +28,8 @@ def prob_weighted_random(queryset, model_name='baseline', gamma=1.0):
     # choose a random row
     ir = np.random.choice(n)        # choose a ranrom row index
     rowi = relevance_matrix[ir,:]   # select 
-    rowi[rowi>0] = 0                # set all negative valuses zero
+    rowi[rowi<0] = 0                # set all negative valuses zero
+    rowi[rowi>0.99] = 0             # set duplicates to zero
     rowi[ir]=0                      # set self to zero
     rowi_asp = rowi**gamma/sum(rowi**gamma)
 
