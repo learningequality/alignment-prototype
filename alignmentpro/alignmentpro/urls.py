@@ -26,6 +26,7 @@ from alignmentapp.api import (
     StandardNodeViewSet,
     HumanRelevanceJudgmentViewSet,
     UserViewSet,
+    TrainedModelViewSet,
 )
 
 from alignmentapp import views
@@ -35,13 +36,14 @@ router.register(r"document", CurriculumDocumentViewSet)
 router.register(r"node", StandardNodeViewSet)
 router.register(r"judgment", HumanRelevanceJudgmentViewSet)
 router.register(r"user", UserViewSet)
+router.register(r"model", TrainedModelViewSet, basename="model")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    url(r'^api-token-auth/', rest_auth_views.obtain_auth_token),
-    url(r'^register/$', views.register, name='register'),
+    url(r"^api-token-auth/", rest_auth_views.obtain_auth_token),
+    url(r"^register/$", views.register, name="register"),
     url(r"^api/", include(router.urls)),
     url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('', views.HomeView.as_view(), name='home'),
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("", views.HomeView.as_view(), name="home"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
