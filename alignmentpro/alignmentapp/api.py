@@ -12,8 +12,10 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import serializers, viewsets, status, response
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from .models import CurriculumDocument, StandardNode, HumanRelevanceJudgment
+from .schedulers import prob_weighted_random
 
 
 class CurriculumDocumentSerializer(serializers.ModelSerializer):
@@ -99,15 +101,21 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
     queryset = StandardNode.objects.all()
     serializer_class = StandardNodeSerializer
 
-    def get_queryset(self):
+    def list(self, request):
         queryset = self.queryset
         scheduler = self.request.query_params.get("scheduler", None)
         if scheduler:
-            if scheduler == "random":
+            if scheduler == "fullyrandom":
                 queryset = queryset.order_by("?")[:2]
+            elif scheduler == "random":
+                gamma = self.request.query_params.get("gamma", 2.0)
+                queryset = prob_weighted_random(queryset, model_name='baseline', gamma=gamma)
             else:
                 raise APIException("Unknown scheduler!")
-        return queryset
+        else:
+            return super().list(request)
+        serializer = StandardNodeSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
 class HumanRelevanceJudgmentSerializer(serializers.ModelSerializer):
