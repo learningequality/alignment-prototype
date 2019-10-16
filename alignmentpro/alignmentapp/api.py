@@ -1,8 +1,17 @@
+import json
+import os
+import re
+import shutil
+import urllib.request
+
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.conf.urls import url, include
-from rest_framework import serializers, viewsets
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import serializers, viewsets, status, response
 from rest_framework.exceptions import APIException
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.reverse import reverse
 from .models import CurriculumDocument, StandardNode, HumanRelevanceJudgment
 
@@ -148,3 +157,89 @@ class UserSerializer(serializers.ModelSerializer):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class TrainedModelSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    notebook_url = serializers.URLField(max_length=200)
+    team_members = serializers.CharField(max_length=200)
+    file = serializers.FileField(max_length=200, allow_empty_file=False, use_url=False)
+    folder_url = serializers.SerializerMethodField()
+
+    def get_folder_url(self, data):
+        return "http://alignmentapp.learningequality.org/files/models/" + data["name"]
+
+
+class TrainedModelViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    serializer_class = TrainedModelSerializer
+
+    def list(self, request):
+        base_dir = os.path.join(settings.MEDIA_ROOT, "models")
+        model_dirs = os.listdir(base_dir)
+        data = []
+        for name in model_dirs:
+            with open(os.path.join(base_dir, name, "metadata.json")) as f:
+                data.append(json.load(f))
+        serializer = TrainedModelSerializer(data=data, many=True)
+        serializer.is_valid()
+        return response.Response(serializer.data, status=200)
+
+    @csrf_exempt
+    def create(self, request):
+        serializer = TrainedModelSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+
+            # save the file
+            file = request.FILES["file"]
+            export_base_dir = os.path.join(settings.MEDIA_ROOT, "models", data["name"])
+            exportdirname = timezone.localtime().strftime("%Y%m%d-%H%M%S")
+            exportpath = os.path.join(export_base_dir, exportdirname)
+            if not os.path.exists(exportpath):
+                os.makedirs(exportpath)
+            with open(os.path.join(exportpath, file.name), "wb+") as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+            data["file"] = None
+
+            # download the notebook
+            NOTEBOOK_URL_PATTERN = "https://colab.research.google.com/drive/([^#]+)"
+            match = re.match(NOTEBOOK_URL_PATTERN, data["notebook_url"])
+            if not match:
+                raise Exception("Not a valid notebook URL")
+            notebook_id = match.group(1)
+            download_url = "https://drive.google.com/uc?id=" + notebook_id
+            urllib.request.urlretrieve(
+                download_url, os.path.join(exportpath, "model.ipynb")
+            )
+
+            # create the metadata.json file
+            with open(os.path.join(exportpath, "metadata.json"), "w") as f:
+                json.dump(data, f)
+
+            # copy the contents of the timestamped folder into parent folder
+            src_files = os.listdir(exportpath)
+            for file_name in src_files:
+                full_file_name = os.path.join(exportpath, file_name)
+                if os.path.isfile(full_file_name):
+                    shutil.copy(full_file_name, os.path.join(exportpath, ".."))
+
+            with open(os.path.join(exportpath, "..", "dirty"), "w") as f:
+                f.write("dirty")
+
+            return response.Response(data, status=201)
+        else:
+            data = serializer.data
+            data["file"] = None
+            return response.Response(data, status=400)
+
+    # def retrieve(self, request, pk=None):
+    # base_dir = os.path.join(settings.MEDIA_ROOT, "models")
+    # model_dirs = os.listdir(base_dir)
+    # data = []
+    # for name in model_dirs:
+    #     with open(os.path.join(base_dir, name, "metadata.json")) as f:
+    #         data.append(json.load(f))
+    # serializer = TrainedModelSerializer(data=[], many=True)
+    # return response.Response(data, status=200)

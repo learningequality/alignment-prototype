@@ -198,19 +198,6 @@ class HumanRelevanceJudgment(models.Model):
 ################################################################################
 
 
-class MachineLearningModel(models.Model):
-    """
-    Stores metadata for a particular instance of ML model (code and training data).
-    """
-
-    # id = auto-incrementing integet primary key
-    model_name = models.CharField(max_length=50)  # foldername/ = /api?model=foldername
-    # get from git somehow e.g. count # commits that affect the folder for that ML model
-    model_version = models.IntegerField()
-    git_hash = models.CharField(max_length=200)
-    created = models.DateTimeField(auto_now_add=True)
-
-
 class Parameter(models.Model):
     """
     General-purpse key-value store. Used to store:
