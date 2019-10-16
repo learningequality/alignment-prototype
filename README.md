@@ -166,40 +166,6 @@ print( n2.judgments.all() )
 ```
 
 
-
-
-
-
-Feature vectors
----------------
-
-```python
-from alignmentapp.models import CurriculumDocument, StandardNode
-from alignmentapp.models import MachineLearningModel, StandardNodeFeatureVector
-
-d3 = CurriculumDocument.objects.create(title='KICD Bio', source_id='uganda-bio-sample')
-n6 = StandardNode.add_root(title='KICD Bio standard root', document=d3)
-model1 = MachineLearningModel.objects.create(model_name="sentence_embeddings", model_version=1, git_hash='fefefe')
-
-v1data = list(i/3123 for i in range(0,1000))
-m1n1v1 = StandardNodeFeatureVector.objects.create(mlmodel=model1, node=n6, data=v1data)
-v2data = list(i/123 for i in range(0,1000))
-m1n1v1 = StandardNodeFeatureVector.objects.create(mlmodel=model1, node=n6, data=v2data)
-# TODO: test with numpy array
-
-print( n6.features.all() )
-# <QuerySet [<StandardNodeFeatureVector: StandardNodeFeatureVector object (1)>, <StandardNodeFeatureVector: StandardNodeFeatureVector object (2)>]>
-
-print( model1.feature_vectors.all() )
-#  <QuerySet [<StandardNodeFeatureVector: StandardNodeFeatureVector object (1)>, <StandardNodeFeatureVector: StandardNodeFeatureVector object (2)>]>
-
-```
-
-
-
-
-
-
 Clean start
 -----------
 
