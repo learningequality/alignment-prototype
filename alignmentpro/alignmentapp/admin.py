@@ -7,11 +7,10 @@ from alignmentapp.models import (
     CurriculumDocument,
     StandardNode,
     HumanRelevanceJudgment,
-    MachineLearningModel,
     Parameter,
     DataExport,
     SubjectArea,
-    UserProfile
+    UserProfile,
 )
 
 
@@ -36,11 +35,6 @@ class HumanRelevanceJudgmentAdmin(admin.ModelAdmin):
     model = HumanRelevanceJudgment
 
 
-@admin.register(MachineLearningModel)
-class MachineLearningModelAdmin(admin.ModelAdmin):
-    model = MachineLearningModel
-
-
 @admin.register(Parameter)
 class ParameterAdmin(admin.ModelAdmin):
     model = Parameter
@@ -50,9 +44,11 @@ class ParameterAdmin(admin.ModelAdmin):
 class DataExportAdmin(admin.ModelAdmin):
     model = DataExport
 
+
 @admin.register(SubjectArea)
 class SubjectAreaAdmin(admin.ModelAdmin):
     model = SubjectArea
+
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
