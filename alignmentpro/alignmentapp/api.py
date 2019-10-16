@@ -109,7 +109,7 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
                 queryset = queryset.order_by("?")[:2]
             elif scheduler == "random":
                 gamma = float(self.request.query_params.get("gamma", 2.0))
-                queryset = prob_weighted_random(
+                relevance, queryset = prob_weighted_random(
                     queryset, model_name="baseline", gamma=gamma
                 )
             else:
@@ -120,7 +120,13 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
             queryset, many=True, context={"request": request}
         )
         return Response(
-            {"count": 2, "next": None, "previous": None, "results": serializer.data}
+            {
+                "count": 2,
+                "next": None,
+                "previous": None,
+                "relevance": relevance,
+                "results": serializer.data,
+            }
         )
 
 
