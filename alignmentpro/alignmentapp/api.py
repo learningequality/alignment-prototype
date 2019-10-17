@@ -7,10 +7,11 @@ import urllib.request
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.conf.urls import url, include
+from django.db.models import Count
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import serializers, viewsets, status, response
+from rest_framework import serializers, viewsets, views, status, response
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
@@ -294,3 +295,15 @@ class TrainedModelViewSet(viewsets.ViewSet):
     #         data.append(json.load(f))
     # serializer = TrainedModelSerializer(data=[], many=True)
     # return response.Response(data, status=200)
+
+
+class LeaderboardView(views.APIView):
+    queryset = User.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        return Response(
+            User.objects.all()
+            .annotate(number_of_judgments=Count("judgments"))
+            .order_by("-number_of_judgments")
+            .values("username", "number_of_judgments")
+        )
