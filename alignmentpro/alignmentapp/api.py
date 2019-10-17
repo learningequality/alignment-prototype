@@ -9,6 +9,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers, viewsets, status, response
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
@@ -115,9 +116,11 @@ class StandardNodeSerializer(BaseStandardNodeSerializer):
 class StandardNodeViewSet(viewsets.ModelViewSet):
     queryset = StandardNode.objects.all()
     serializer_class = StandardNodeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["document", "depth"]
 
     def list(self, request):
-        queryset = self.queryset
+        queryset = self.get_queryset()
         params = self.request.query_params
         scheduler = params.get("scheduler", None)
         if scheduler:
