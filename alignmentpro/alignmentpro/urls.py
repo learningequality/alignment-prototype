@@ -27,6 +27,7 @@ from alignmentapp.api import (
     HumanRelevanceJudgmentViewSet,
     UserViewSet,
     TrainedModelViewSet,
+    LeaderboardView,
 )
 
 from alignmentapp import views
@@ -42,7 +43,13 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     url(r"^api-token-auth/", rest_auth_views.obtain_auth_token),
     url(r"^register/$", views.register, name="register"),
-    url(r"^api/", include(router.urls)),
+    url(
+        r"^api/",
+        include(
+            router.urls
+            + [path("leaderboard", LeaderboardView.as_view(), name="leaderboard")]
+        ),
+    ),
     url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("", views.HomeView.as_view(), name="home"),
