@@ -19,6 +19,9 @@ from .schedulers import prob_weighted_random
 
 
 class CurriculumDocumentSerializer(serializers.ModelSerializer):
+    root_node_id = serializers.SerializerMethodField()
+    root_node_url = serializers.SerializerMethodField()
+
     class Meta:
         model = CurriculumDocument
         fields = [
@@ -30,7 +33,18 @@ class CurriculumDocumentSerializer(serializers.ModelSerializer):
             "digitization_method",
             "source_url",
             "created",
+            "root_node_id",
+            "root_node_url",
         ]
+
+    def get_root_node_id(self, obj):
+        return StandardNode.objects.get(depth=1, document_id=obj.id).id
+
+    def get_root_node_url(self, obj):
+        root_node_id = self.get_root_node_id(obj)
+        return "http://alignmentapp.learningequality.org/api/node/{}".format(
+            root_node_id
+        )
 
 
 class CurriculumDocumentViewSet(viewsets.ModelViewSet):
@@ -55,6 +69,7 @@ BASE_NODE_FIELDS = [
     "time_units",
     "notes",
     "extra_fields",
+    "numchild",
 ]
 
 
@@ -103,14 +118,25 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         queryset = self.queryset
-        scheduler = self.request.query_params.get("scheduler", None)
+        params = self.request.query_params
+        scheduler = params.get("scheduler", None)
         if scheduler:
             if scheduler == "fullyrandom":
                 queryset = queryset.order_by("?")[:2]
             elif scheduler == "random":
-                gamma = float(self.request.query_params.get("gamma", 2.0))
-                relevance, queryset = prob_weighted_random(
-                    queryset, model_name="baseline", gamma=gamma
+                gamma = float(params.get("gamma", 20.0))
+                left_root_id = int(params.get("left_root_id", 0)) or None
+                right_root_id = int(params.get("right_root_id", 0)) or None
+                allow_same_doc = bool(params.get("allow_same_doc", False))
+                include_nonleaf_nodes = bool(params.get("include_nonleaf_nodes", False))
+                relevance, probability, distribution, queryset = prob_weighted_random(
+                    queryset,
+                    model_name="baseline",
+                    gamma=gamma,
+                    left_root_id=left_root_id,
+                    right_root_id=right_root_id,
+                    allow_same_doc=allow_same_doc,
+                    include_nonleaf_nodes=include_nonleaf_nodes,
                 )
             else:
                 raise APIException("Unknown scheduler!")
@@ -125,6 +151,8 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
                 "next": None,
                 "previous": None,
                 "relevance": relevance,
+                "probability": probability,
+                "distribution": distribution,
                 "results": serializer.data,
             }
         )
