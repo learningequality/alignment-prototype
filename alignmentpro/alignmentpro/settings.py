@@ -96,17 +96,17 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "alignmentpro",
-        "USER": os.getenv('DB_USER') or "",
-        "PASSWORD": os.getenv('DB_PASS') or "",
-        "HOST": os.getenv('DB_HOST') or "localhost",
+        "USER": os.getenv("DB_USER") or "postgres",
+        "PASSWORD": os.getenv("DB_PASS") or "password",
+        "HOST": os.getenv("DB_HOST") or "localhost",
         "PORT": "",
     },
     "standards": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "standards",
-        "USER": os.getenv('DB_USER') or "",
-        "PASSWORD": os.getenv('DB_PASS') or "",
-        "HOST": os.getenv('DB_HOST') or "localhost",
+        "USER": os.getenv("DB_USER") or "postgres",
+        "PASSWORD": os.getenv("DB_PASS") or "password",
+        "HOST": os.getenv("DB_HOST") or "localhost",
         "PORT": "",
     },
 }

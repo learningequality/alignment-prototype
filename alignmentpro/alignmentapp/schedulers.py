@@ -41,12 +41,14 @@ def prob_weighted_random(
     assert relevance_matrix.shape[1] == n, "relevance_matrix has wrong shape"
 
     queryset = queryset.filter(id__in=node_id_lookup)
+    left_queryset = queryset
+    right_queryset = queryset
 
     if not include_nonleaf_nodes:
-        queryset = queryset.filter(numchild=0)
+        left_queryset = left_queryset.filter(numchild=0)
+        right_queryset = right_queryset.filter(numchild=0)
 
     # filter down and choose a random left-hand side node
-    left_queryset = queryset
     if left_root_id is not None:
         left_ancestor_root = queryset.get(id=left_root_id)
         left_queryset = left_queryset.filter(path__startswith=left_ancestor_root.path)
@@ -57,7 +59,6 @@ def prob_weighted_random(
     leftnode = queryset.get(id=leftid)
 
     # filter down the right-hand side queryset
-    right_queryset = queryset
     if not allow_same_doc:
         right_queryset = right_queryset.exclude(document_id=leftnode.document_id)
     if right_root_id is not None:
