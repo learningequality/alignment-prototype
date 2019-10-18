@@ -39,7 +39,7 @@ router.register(r"node", StandardNodeViewSet)
 router.register(r"judgment", HumanRelevanceJudgmentViewSet)
 router.register(r"user", UserViewSet)
 router.register(r"model", TrainedModelViewSet, basename="model")
-router.register(r"recommend", StandardNodeRecommendationViewSet)
+router.register(r"recommend", StandardNodeRecommendationViewSet, basename="recommend")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
