@@ -114,6 +114,7 @@ We've prepared some sample curriculum structures in this gsheet.
         --gid='1069644580'
 
 
+
 ### New digitized curriculua
 
     ./alignmentpro/manage.py importchunk \
@@ -124,7 +125,13 @@ We've prepared some sample curriculum structures in this gsheet.
         --gsheet_id='1mYcNjUvDUuk0QPjHlf1r81PjUGPZKxPk82-2mVNAye0' \
         --gid='0'
 
-
+    ./alignmentpro/manage.py importchunk \
+        --source_id='zambia-english-5to7' \
+        --title='Zambia English syllabus and competencies' \
+        --country='Zambia' \
+        --digitization_method='scan_manual' \
+        --gsheet_id='1mYcNjUvDUuk0QPjHlf1r81PjUGPZKxPk82-2mVNAye0' \
+        --gid='2026133498'
 
 
 
