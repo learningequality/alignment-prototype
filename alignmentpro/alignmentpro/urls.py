@@ -28,6 +28,7 @@ from alignmentapp.api import (
     UserViewSet,
     TrainedModelViewSet,
     LeaderboardView,
+    StandardNodeRecommendationViewSet,
 )
 
 from alignmentapp import views
@@ -38,6 +39,7 @@ router.register(r"node", StandardNodeViewSet)
 router.register(r"judgment", HumanRelevanceJudgmentViewSet)
 router.register(r"user", UserViewSet)
 router.register(r"model", TrainedModelViewSet, basename="model")
+router.register(r"recommend", StandardNodeRecommendationViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

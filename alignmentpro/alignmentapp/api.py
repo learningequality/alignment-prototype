@@ -18,6 +18,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from .models import CurriculumDocument, StandardNode, HumanRelevanceJudgment
 from .schedulers import prob_weighted_random
+from .recommenders import recommend_top_ranked
 
 
 class CurriculumDocumentSerializer(serializers.ModelSerializer):
@@ -306,4 +307,55 @@ class LeaderboardView(views.APIView):
             .annotate(number_of_judgments=Count("judgments"))
             .order_by("-number_of_judgments")
             .values("username", "number_of_judgments")
+        )
+
+
+class StandardNodeRecommendationSerializer(BaseStandardNodeSerializer):
+    ancestors = BaseStandardNodeSerializer(source="get_ancestors", many=True)
+    document = CurriculumDocumentSerializer()
+    # relevance = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StandardNode
+        fields = BASE_NODE_FIELDS + ["document", "ancestors"]
+
+    # def get_relevance(self, obj):
+    #     return obj.relevance
+
+
+class StandardNodeRecommendationViewSet(viewsets.ModelViewSet):
+    queryset = StandardNode.objects.all()
+    serializer_class = StandardNodeRecommendationSerializer
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        params = self.request.query_params
+        target = params.get("target")
+        assert target, "Needs a target param with node ID"
+        threshold = params.get("threshold")
+        count = params.get("count", None if threshold else 10)
+        model = params.get("model", "baseline")
+        target_node = StandardNode.objects.get(id=int(target))
+        relevances, results = recommend_top_ranked(
+            queryset=queryset,
+            target_node=target_node,
+            threshold=threshold,
+            count=count,
+            model=model,
+        )
+        serializer = StandardNodeRecommendationSerializer(
+            results, many=True, context={"request": request}
+        )
+
+        return Response(
+            {
+                "count": len(results),
+                "next": None,
+                "previous": None,
+                "target_node": StandardNodeRecommendationSerializer(
+                    target_node, context={"request": request}
+                ).data,
+                "relevances": relevances,
+                "results": serializer.data,
+            }
         )

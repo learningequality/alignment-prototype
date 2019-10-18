@@ -16,10 +16,13 @@ class Command(BaseCommand):
         base_dir = os.path.join(settings.MEDIA_ROOT, "models")
         model_dirs = os.listdir(base_dir)
         for name in model_dirs:
+            print("Preparing to run model {}...".format(name))
             model_path = os.path.join(base_dir, name)
             dirty_path = os.path.join(model_path, "dirty")
             if not os.path.exists(dirty_path):
+                print("No updates, skipping.")
                 continue
+            print("Location:", model_path)
             with open(os.path.join(model_path, "model.ipynb")) as f:
                 nb = nbformat.read(f, as_version=4)
             ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
