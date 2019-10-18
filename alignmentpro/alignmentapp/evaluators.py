@@ -21,8 +21,8 @@ def ranking(model):
     ).fillna("")
 
     return {
-        # "training": ranking_for_judgments(model, judgments),
-        "testing": ranking_for_judgments(model, judgments_test)
+        "training": ranking_for_judgments(model, judgments),
+        "testing": ranking_for_judgments(model, judgments_test),
     }
 
 
@@ -101,8 +101,6 @@ def ranking_for_judgments(model, judgments):
         "avg_percentiles_negative": np.mean(percentiles_negative),
         "avg_percentiles_moderate": np.mean(percentiles_moderate),
         "avg_percentiles_positive": np.mean(percentiles_positive),
-        "avg_number_above_known_positive": (1 - (np.mean(percentiles_positive) / 100))
-        * len(node_id_lookup),
         "mean_best_rank": np.mean(best_ranks),
         "mean_worst_rank": np.mean(worst_ranks),
     }
