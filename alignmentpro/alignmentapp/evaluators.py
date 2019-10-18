@@ -36,15 +36,20 @@ def ranking_for_judgments(model, judgments):
     """
 
     modeldirpath = os.path.join(settings.MODELS_BASE_DIR, model)
+    baselinemodeldirpath = os.path.join(settings.MODELS_BASE_DIR, "baseline")
 
     # load the index
+    # node_id_lookup = np.load(os.path.join(modeldirpath, "index.npy"))
     node_id_lookup = np.load(os.path.join(modeldirpath, "index.npy"))
 
     # load the matrix
-    relevance_matrix = np.load(os.path.join(modeldirpath, "relevance.npy"))
+    # relevance_matrix = np.load(os.path.join(modeldirpath, "relevance.npy"))
+
+    embeddings = np.load(os.path.join(modeldirpath, "embeddings.npy"))
+    relevance_matrix = np.inner(embeddings, embeddings)
 
     # load the pickled DataFrame of nodes
-    nodes = pd.read_pickle(os.path.join(modeldirpath, "nodes.pk"))
+    nodes = pd.read_pickle(os.path.join(baselinemodeldirpath, "nodes.pk"))
 
     percentiles_negative = []
     percentiles_moderate = []
