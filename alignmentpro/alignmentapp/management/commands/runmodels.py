@@ -23,8 +23,13 @@ class Command(BaseCommand):
                 print("No updates, skipping.")
                 continue
             print("Location:", model_path)
-            with open(os.path.join(model_path, "model.ipynb")) as f:
-                nb = nbformat.read(f, as_version=4)
-            ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
-            ep.preprocess(nb, {"metadata": {"path": model_path}})
-            os.unlink(dirty_path)
+            try:
+                with open(os.path.join(model_path, "model.ipynb")) as f:
+                    nb = nbformat.read(f, as_version=4)
+                ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
+                ep.preprocess(nb, {"metadata": {"path": model_path}})
+                os.unlink(dirty_path)
+            except Exception as e:
+                print(e)
+                print("ERROR running", name)
+                continue
