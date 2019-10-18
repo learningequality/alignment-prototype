@@ -218,9 +218,20 @@ class TrainedModelSerializer(serializers.Serializer):
     team_members = serializers.CharField(max_length=200)
     file = serializers.FileField(max_length=200, allow_empty_file=False, use_url=False)
     folder_url = serializers.SerializerMethodField()
+    scores = serializers.SerializerMethodField()
 
     def get_folder_url(self, data):
         return "http://alignmentapp.learningequality.org/files/models/" + data["name"]
+
+    def get_scores(self, data):
+        scores_path = os.path.join(
+            settings.MEDIA_ROOT, "models", data["name"], "scores.json"
+        )
+        if os.path.exists(scores_path):
+            with open(scores_path) as f:
+                return json.load(f)
+        else:
+            return {}
 
 
 class TrainedModelViewSet(viewsets.ViewSet):
@@ -280,6 +291,10 @@ class TrainedModelViewSet(viewsets.ViewSet):
 
             with open(os.path.join(exportpath, "..", "dirty"), "w") as f:
                 f.write("dirty")
+
+            scores_path = os.path.join(exportpath, "..", "scores.json")
+            if os.path.exists(scores_path):
+                os.unlink(scores_path)
 
             return response.Response(data, status=201)
         else:
