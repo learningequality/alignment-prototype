@@ -125,6 +125,10 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         params = self.request.query_params
         scheduler = params.get("scheduler", None)
+        left = params.get("left", None)
+        right = params.get("right", None)
+        relevance, probability, distribution = -1, -1, -1
+
         if scheduler:
             if scheduler == "fullyrandom":
                 queryset = queryset.order_by("?")[:2]
@@ -145,11 +149,14 @@ class StandardNodeViewSet(viewsets.ModelViewSet):
                 )
             else:
                 raise APIException("Unknown scheduler!")
+        elif left and right:
+            queryset = queryset.filter(id=left) | queryset.filter(id=right)
         else:
             return super().list(request)
         serializer = StandardNodeSerializer(
             queryset, many=True, context={"request": request}
         )
+
         return Response(
             {
                 "count": 2,
