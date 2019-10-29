@@ -147,7 +147,7 @@ class DocumentSection(MP_Node):
                 # convert line breaks to new paragraphs to ease cleanup.
                 self.text = "<p>{}</p>".format(text.replace("\r", "").replace("\n", "</p><p>") )
 
-        super(DocumentSection, self).save(*args, **kwargs)
+                super(DocumentSection, self).save(*args, **kwargs)
 
     class Meta:
         constraints = [
