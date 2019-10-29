@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -40,7 +41,7 @@ def register(request):
             for area in up_form.cleaned_data['subject_areas']:
                 user_profile.subject_areas.add(area)
             user_profile.save()
-            return redirect('https://hackathon.learningequality.org')
+            return redirect('/')
 
     else:
         uc_form = UserCreationForm()

@@ -12,11 +12,17 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers, viewsets, views, status, response
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view
+from rest_framework.decorators import authentication_classes
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from .models import CurriculumDocument, StandardNode, HumanRelevanceJudgment
+from .models import CurriculumDocument, DocumentSection, StandardNode, HumanRelevanceJudgment
 from .schedulers import prob_weighted_random
 from .recommenders import recommend_top_ranked
 
@@ -41,7 +47,10 @@ class CurriculumDocumentSerializer(serializers.ModelSerializer):
         ]
 
     def get_root_node_id(self, obj):
-        return StandardNode.objects.get(depth=1, document_id=obj.id).id
+        try:
+            return StandardNode.objects.get(depth=1, document_id=obj.id).id
+        except:
+            return None
 
     def get_root_node_url(self, obj):
         root_node_id = self.get_root_node_id(obj)
@@ -374,3 +383,36 @@ class StandardNodeRecommendationViewSet(viewsets.ModelViewSet):
                 "results": serializer.data,
             }
         )
+
+
+@api_view(['GET', 'POST'])
+@authentication_classes((TokenAuthentication, SessionAuthentication,))
+@permission_classes((IsAuthenticated,))
+def review_section(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        section = DocumentSection.objects.get(pk=data['section_id'])
+        section.text = data['section_text']
+        section.reviewed_by = request.user
+        # TODO: Add a 'Finalize' button to the UI, so that if they need to stop, they can
+        # save and come back to finish later. We may also want to only allow finalizing after a review.
+        if 'finalize' in data and data['finalize']:
+            section.is_draft = False
+            # TODO: Add UserAction points for this.
+        section.save()
+
+    else:
+        section = DocumentSection.get_section_for_review()
+        if not section:
+            return Response({'error': 'No document sections currently available for review. Please check back again later.'})
+    image_url = "{}scans/{}/{}".format(settings.MEDIA_URL, section.get_section_dir(), section.name + '_chunk001_lowres.png')
+    text = section.text
+    if not "<p>" in text:
+        text = "<p>" + section.text.replace("\n", "</p><p>") + "</p>"
+    vars = {
+        'section_id': section.pk,
+        'image_url': image_url,
+        'section_text': text
+    }
+
+    return Response(vars)

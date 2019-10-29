@@ -2,6 +2,15 @@
 Pipfile.lock
 alignmentpro/commonstandardsproject/migrations/
 
+
+
+# Frontend
+node_modules
+alignmentpro/alignmentapp/static/bundles
+webpack-stats.json
+yarn.lock
+
+
 # Data export dirs
 exports/data
 files/exports/data

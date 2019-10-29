@@ -29,6 +29,7 @@ from alignmentapp.api import (
     TrainedModelViewSet,
     LeaderboardView,
     StandardNodeRecommendationViewSet,
+    review_section
 )
 
 from alignmentapp import views
@@ -49,7 +50,9 @@ urlpatterns = [
         r"^api/",
         include(
             router.urls
-            + [path("leaderboard", LeaderboardView.as_view(), name="leaderboard")]
+            + [path("leaderboard", LeaderboardView.as_view(), name="leaderboard"),
+               path("section-review/", review_section, name="review_section"),
+               ]
         ),
     ),
     url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),

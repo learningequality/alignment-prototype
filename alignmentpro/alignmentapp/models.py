@@ -1,3 +1,6 @@
+import os
+import zipfile
+
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
@@ -87,6 +90,73 @@ class CurriculumDocument(models.Model):
     def __str__(self):
         return "{}: {} ({})".format(self.country, self.title, self.source_id)
 
+
+class DocumentSection(MP_Node):
+    document = models.ForeignKey(
+        "CurriculumDocument", related_name="chunks", on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=100)
+    section_zip = models.FileField(null=True, blank=True)
+    num_chunks = models.IntegerField(default=0)
+    text = models.TextField(null=True, blank=True)
+    reviewed_by = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='section_reviews')
+    is_draft = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_section_for_review(cls):
+        # make sure we return an item that has a file associated with it, and has not had a review session yet.
+        return cls.objects.filter(reviewed_by=None).exclude(section_zip='').exclude(section_zip=None).first()
+
+    def get_section_dir(self):
+        """
+        Gets the directory to store files in based on the document's hierarchy.
+
+        :return: String path to directory if this node has a section_zip file, None otherwise.
+        """
+        if self.section_zip:
+            dir_names = [os.path.splitext(self.section_zip.name)[0]]
+            parent = self.get_parent()
+            while parent:
+                dir_names.insert(0, parent.name)
+                parent = parent.get_parent()
+            if self.document:
+                dir_names.insert(0, self.document.source_id)
+            rel_path = os.path.sep.join(dir_names)
+            return rel_path
+
+        return None
+
+    def save(self, *args, **kwargs):
+        super(DocumentSection, self).save(*args, **kwargs)  # pre-save to process self.section_zip
+        if self.section_zip:
+            rel_path = self.get_section_dir()
+            full_path = os.path.join(settings.SCANS_ROOT, rel_path)
+            text_path = os.path.join(full_path, '{}_combined.txt'.format(self.name))
+            if not os.path.exists(text_path):
+                os.makedirs(full_path, exist_ok=True)
+
+                zip = zipfile.ZipFile(self.section_zip.path)
+                zip.extractall(full_path)
+                zip.close()
+
+            if not self.text or len(self.text) == 0:
+                text = open(text_path, 'r', encoding='utf-8').read()
+                # convert line breaks to new paragraphs to ease cleanup.
+                self.text = "<p>{}</p>".format(text.replace("\r", "").replace("\n", "</p><p>") )
+
+                super(DocumentSection, self).save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(  # Make sure every document has at most one tree
+                name="document_section_single_root",
+                fields=["document", "depth"],
+                condition=Q(depth=1),
+            )
+        ]
 
 # CURRICULUM DATA
 ################################################################################
@@ -220,6 +290,65 @@ class DataExport(models.Model):
     started = models.DateTimeField(auto_now_add=True)
     finished = models.DateTimeField(blank=True, null=True)
 
+
+# CAMPAIGNS
+################################################################################
+
+class Campaign(models.Model):
+    """
+    Campaigns set a particular goal, such as adding human judgments or doing curriculum document cleanup.
+    While we may eventually want to have more sophisticated tracking, in this initial version, a
+    campaign will have a start and end date, a target number of actions to complete, and both a base point
+    value along with a completion reward.
+
+    Example:
+        "Add 500 new human judgments to the database. Points: 5 per judgment, Completion bonus: 100 points"
+
+    Current progress can be calculated by checking all `UserActions` in the database that match the campaign and
+    happened between `start` and `end` time, then dividing the count by the `target_num`.
+
+    Leaderboards can be shown by adding up the points of each user who participated in the campaign.
+    """
+    title = models.CharField(max_length=200)
+    type = models.CharField(max_length=100)
+    target_num = models.IntegerField()
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    completed = models.BooleanField(default=False)
+    point_value = models.IntegerField()
+    completion_points = models.IntegerField()
+
+    def handle_campaign_completed(self):
+        self.completed = True
+        self.save()
+        # TODO: add completion_bonus UserAction valued at self.completion_points to all users who contributed
+
+    def get_campaign_progress(self):
+        actions = UserActions.objects.filter(Q(campaign=self) | Q(type=self.type))
+        if actions.count() >= self.target_num and not self.completed:
+            self.handle_campaign_completed()
+        percent = actions.count() / self.target_num
+        return max(percent, 1) * 100
+
+
+class UserActions(models.Model):
+    """
+    A user action is a record of an action performed by a user that awards points.
+    While actions can be connected to campaigns, not all actions must be part of a campaign.
+    (e.g. we could award points for registration, or filling out the profile, etc.)
+
+    Action should be a string ID for a specific action performed, e.g. profile_completed, and we should
+    keep a record of all possible actions and their point values. (In the db?)
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="actions", on_delete=models.CASCADE)
+    # if a campaign gets deleted at some point, make sure people don't wake up to missing points!
+    campaign = models.ForeignKey('Campaign', null=True, blank=True, related_name="actions", on_delete=models.SET_NULL)
+    action = models.CharField(max_length=100)
+    points = models.IntegerField()
+
+
+# SIGNALS
+################################################################################
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):

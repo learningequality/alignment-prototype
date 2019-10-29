@@ -11,6 +11,7 @@ from alignmentapp.models import (
     DataExport,
     SubjectArea,
     UserProfile,
+    DocumentSection
 )
 
 
@@ -53,3 +54,11 @@ class SubjectAreaAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     model = UserProfile
+
+
+@admin.register(DocumentSection)
+class DocumentSectionAdmin(TreeAdmin):
+    model = DocumentSection
+    list_filter = ("document__country", "document")
+    search_fields = ["name"]
+    form = movenodeform_factory(DocumentSection)
