@@ -62,7 +62,7 @@ Setup
 ### Frontend 
 
     yarn install
-    npm run build
+    yarn run build
 
 ### Backend
 
