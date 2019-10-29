@@ -117,6 +117,8 @@ We've prepared some sample curriculum structures in this gsheet.
 
 ### New digitized curriculua
 
+#### Thursday 
+
     ./alignmentpro/manage.py importchunk \
         --source_id='zambia-math-5to7' \
         --title='Zambia mathematics syllabus and competencies' \
@@ -132,6 +134,27 @@ We've prepared some sample curriculum structures in this gsheet.
         --digitization_method='scan_manual' \
         --gsheet_id='1mYcNjUvDUuk0QPjHlf1r81PjUGPZKxPk82-2mVNAye0' \
         --gid='2026133498'
+
+
+#### Friday
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='gov.uk.math' \
+        --title='United Kingdom Mathematics Curriculum' \
+        --country='UK' \
+        --digitization_method='website_scrape' \
+        --gsheet_id='1ezLBFXjZuMhHNEHyocytnf2fF4O9p9qyCDpYdXS1Z_U' \
+        --gid='366599359'
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='gov.uk.science' \
+        --title='United Kingdom Science Curriculum' \
+        --country='UK' \
+        --digitization_method='website_scrape' \
+        --gsheet_id='1JQ8ia-C1Z61IoLDVavFbZBwba4cHrXnD3MnAdo63zJk' \
+        --gid='1013147316'
+
+
 
 
 
