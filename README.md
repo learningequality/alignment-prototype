@@ -59,8 +59,17 @@ DB called `alignmentpro` using the following command:
 Setup
 -----
 
-    ./alignmentpro/manage.py makemigrations alignmentapp
+### Frontend 
+
+    yarn install
+    npm run build
+
+### Backend
+
+    ./alignmentpro/manage.py makemigrations alignmentapp  # in case some not commited
     ./alignmentpro/manage.py migrate
+
+### Load data fixutres
 
     ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/paremeters.json
     ./alignmentpro/manage.py loaddata alignmentpro/alignmentapp/fixtures/subject_areas.json

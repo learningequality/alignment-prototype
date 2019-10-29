@@ -108,7 +108,7 @@ class DocumentSection(MP_Node):
     @classmethod
     def get_section_for_review(cls):
         # make sure we return an item that has a file associated with it, and has not had a review session yet.
-        return cls.objects.filter(Q(reviewed_by=None) & ~Q(section_zip__in=['',None])).first()
+        return cls.objects.filter(reviewed_by=None).exclude(section_zip='').exclude(section_zip=None).first()
 
     def get_section_dir(self):
         """
@@ -130,6 +130,7 @@ class DocumentSection(MP_Node):
         return None
 
     def save(self, *args, **kwargs):
+        super(DocumentSection, self).save(*args, **kwargs)  # pre-save to process self.section_zip
         if self.section_zip:
             rel_path = self.get_section_dir()
             full_path = os.path.join(settings.SCANS_ROOT, rel_path)
