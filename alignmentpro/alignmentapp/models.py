@@ -91,12 +91,21 @@ class CurriculumDocument(models.Model):
         return "{}: {} ({})".format(self.country, self.title, self.source_id)
 
 
+def overwriting_file_upload_name(section, filename):
+    """
+    Ensure section_zip files uploaded preserve their original name.
+    """
+    path = os.path.join(settings.UPLOADS_ROOT, filename)
+    if os.path.exists(path):
+        os.remove(path)
+    return path
+
 class DocumentSection(MP_Node):
     document = models.ForeignKey(
         "CurriculumDocument", related_name="chunks", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
-    section_zip = models.FileField(null=True, blank=True)
+    section_zip = models.FileField(null=True, blank=True, upload_to=overwriting_file_upload_name)
     num_chunks = models.IntegerField(default=0)
     text = models.TextField(null=True, blank=True)
     reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='section_reviews')
@@ -117,7 +126,7 @@ class DocumentSection(MP_Node):
         :return: String path to directory if this node has a section_zip file, None otherwise.
         """
         if self.section_zip:
-            dir_names = [os.path.splitext(self.section_zip.name)[0]]
+            dir_names = [self.name]
             parent = self.get_parent()
             while parent:
                 dir_names.insert(0, parent.name)
