@@ -99,7 +99,7 @@ class DocumentSection(MP_Node):
     section_zip = models.FileField(null=True, blank=True)
     num_chunks = models.IntegerField(default=0)
     text = models.TextField(null=True, blank=True)
-    reviewed_by = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='section_reviews')
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='section_reviews')
     is_draft = models.BooleanField(default=True)
 
     def __str__(self):
