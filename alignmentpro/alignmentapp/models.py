@@ -126,7 +126,7 @@ class DocumentSection(MP_Node):
         :return: String path to directory if this node has a section_zip file, None otherwise.
         """
         if self.section_zip:
-            dir_names = [os.path.splitext(self.section_zip.name)[0]]
+            dir_names = [self.name]
             parent = self.get_parent()
             while parent:
                 dir_names.insert(0, parent.name)
