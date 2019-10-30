@@ -389,6 +389,13 @@ class StandardNodeRecommendationViewSet(viewsets.ModelViewSet):
 @authentication_classes((TokenAuthentication, SessionAuthentication,))
 @permission_classes((IsAuthenticated,))
 def review_section(request):
+    """
+    Backend http://localhost:8000/api/section-review/ for the Thursday hacksession
+    for frontend see http://localhost:8000/#/curriculum_review  
+    POST to this URL to save human review edits for a section  
+    GET this URL to load the next available topic (is_draft=True + reviewed_by=None)
+    """
+    # POST
     if request.method == 'POST':
         data = json.loads(request.body)
         section = DocumentSection.objects.get(pk=data['section_id'])
@@ -401,9 +408,15 @@ def review_section(request):
             # TODO: Add UserAction points for this.
         section.save()
 
+    # GET
     else:
-        section = DocumentSection.get_section_for_review()
-        if not section:
+        user = request.user
+        # First check if user already has a section they are currently reviewing
+        section = user.section_reviews.filter(is_draft=True).first()
+        if section is None:
+            # Otherwise assign next available section
+            section = DocumentSection.get_section_for_review()
+        if section is None:
             return Response({'error': 'No document sections currently available for review. Please check back again later.'})
     image_url = "{}scans/{}/{}".format(settings.MEDIA_URL, section.get_section_dir(), section.name + '_chunk001_lowres.png')
     text = section.text
