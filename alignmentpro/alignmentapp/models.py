@@ -24,6 +24,11 @@ BACKGROUNDS = [
     ('other', 'Other')
 ]
 
+ACTIONS = [
+    ('reviewed_section', 'Reviewed Curriculum Document Section'),
+    ('submitted_judgment', 'Submitted Human Judgment')
+]
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
@@ -333,14 +338,14 @@ class Campaign(models.Model):
         # TODO: add completion_bonus UserAction valued at self.completion_points to all users who contributed
 
     def get_campaign_progress(self):
-        actions = UserActions.objects.filter(Q(campaign=self) | Q(type=self.type))
+        actions = UserAction.objects.filter(Q(campaign=self) | Q(type=self.type))
         if actions.count() >= self.target_num and not self.completed:
             self.handle_campaign_completed()
         percent = actions.count() / self.target_num
         return max(percent, 1) * 100
 
 
-class UserActions(models.Model):
+class UserAction(models.Model):
     """
     A user action is a record of an action performed by a user that awards points.
     While actions can be connected to campaigns, not all actions must be part of a campaign.
@@ -354,6 +359,10 @@ class UserActions(models.Model):
     campaign = models.ForeignKey('Campaign', null=True, blank=True, related_name="actions", on_delete=models.SET_NULL)
     action = models.CharField(max_length=100)
     points = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "{}: {} ({} points, {})".format(self.user.username, self.action, self.points, self.timestamp)
 
 
 # SIGNALS

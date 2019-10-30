@@ -29,7 +29,8 @@ from alignmentapp.api import (
     TrainedModelViewSet,
     LeaderboardView,
     StandardNodeRecommendationViewSet,
-    review_section
+    review_section,
+    get_user_points
 )
 
 from alignmentapp import views
@@ -52,6 +53,7 @@ urlpatterns = [
             router.urls
             + [path("leaderboard", LeaderboardView.as_view(), name="leaderboard"),
                path("section-review/", review_section, name="review_section"),
+               path("user-points/", get_user_points, name="user_points"),
                ]
         ),
     ),
