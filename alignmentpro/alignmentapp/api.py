@@ -406,8 +406,9 @@ def review_section(request):
         if 'finalize' in data and data['finalize']:
             section.is_draft = False
             # TODO: Add UserAction points for this.
+        # TODO: Add a 'Abandon/Cancel' button to the UI so that users users can
+        # put back section into available pile for another user to continue
         if 'abandon' in data and data['abandon']:
-            # TODO: Add UserAction points for this.
             section.reviewed_by = None
         section.save()
 
