@@ -24,6 +24,11 @@ BACKGROUNDS = [
     ('other', 'Other')
 ]
 
+ACTIONS = [
+    ('reviewed_section', 'Reviewed Curriculum Document Section'),
+    ('submitted_judgment', 'Submitted Human Judgment')
+]
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
@@ -99,7 +104,7 @@ class DocumentSection(MP_Node):
     section_zip = models.FileField(null=True, blank=True)
     num_chunks = models.IntegerField(default=0)
     text = models.TextField(null=True, blank=True)
-    reviewed_by = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='section_reviews')
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, related_name="section_reviews", on_delete=models.CASCADE)
     is_draft = models.BooleanField(default=True)
 
     def __str__(self):
@@ -331,7 +336,7 @@ class Campaign(models.Model):
         return max(percent, 1) * 100
 
 
-class UserActions(models.Model):
+class UserAction(models.Model):
     """
     A user action is a record of an action performed by a user that awards points.
     While actions can be connected to campaigns, not all actions must be part of a campaign.
@@ -345,6 +350,10 @@ class UserActions(models.Model):
     campaign = models.ForeignKey('Campaign', null=True, blank=True, related_name="actions", on_delete=models.SET_NULL)
     action = models.CharField(max_length=100)
     points = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "{}: {} ({} points, {})".format(self.user.username, self.action, self.points, self.timestamp)
 
 
 # SIGNALS

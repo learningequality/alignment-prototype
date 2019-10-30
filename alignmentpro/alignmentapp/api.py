@@ -7,7 +7,8 @@ import urllib.request
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.conf.urls import url, include
-from django.db.models import Count
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
@@ -22,7 +23,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from .models import CurriculumDocument, DocumentSection, StandardNode, HumanRelevanceJudgment
+from .models import CurriculumDocument, DocumentSection, StandardNode, HumanRelevanceJudgment, UserAction
 from .schedulers import prob_weighted_random
 from .recommenders import recommend_top_ranked
 
@@ -220,6 +221,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return User.objects.all()
+        return self.queryset.filter(pk=self.request.user.pk)
+
 
 class TrainedModelSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
@@ -398,6 +404,7 @@ def review_section(request):
         # save and come back to finish later. We may also want to only allow finalizing after a review.
         if 'finalize' in data and data['finalize']:
             section.is_draft = False
+            UserAction.objects.create(user=request.user, action='reviewed_section', points=5)
             # TODO: Add UserAction points for this.
         section.save()
 
@@ -416,3 +423,13 @@ def review_section(request):
     }
 
     return Response(vars)
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication, SessionAuthentication,))
+@permission_classes((IsAuthenticated,))
+def get_user_points(request):
+    points = UserAction.objects.filter(user=request.user).aggregate(Sum('points'))['points__sum']
+    if points is None:
+        points = 0
+
+    return Response({'points': points})

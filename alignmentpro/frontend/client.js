@@ -7,7 +7,11 @@ export const baseUrl = "";
 
 export function login(username, password) {
   return axios
-    .post(`${baseUrl}/api-token-auth/`, { username, password }, {headers: {'X-CSRFToken': get_cookie('csrftoken')}})
+    .post(
+      `${baseUrl}/api-token-auth/`,
+      { username, password },
+      { headers: { "X-CSRFToken": get_cookie("csrftoken") } }
+    )
     .then(response => {
       session.username = username;
       session.token = response.data.token;
@@ -155,22 +159,41 @@ class ModelResource extends Resource {
 }
 export const modelResource = new ModelResource("model");
 
-class CurriculumDocReviewResource extends Resource {
-    getRandomDocTopicForReview() {
-      return axios.get(`${this.baseUrl}`, this.config).then(response => {
-        return response.data;
-      });
-    }
-
-    submitReview(section_id, section_text) {
-      return axios.post(
-        this.baseUrl, {
-          section_id: section_id,
-          section_text: section_text
-        },
-        this.config
-      );
-    }
+class UserResource extends Resource {
+  getUser() {
+    return axios.get(`${this.baseUrl}`, this.config).then(response => {
+      return response.data;
+    });
+  }
 }
 
-export const curriculumDocReviewResource = new CurriculumDocReviewResource("section-review");
+export const userResource = new UserResource("user-points");
+
+class CurriculumDocReviewResource extends Resource {
+  getRandomDocTopicForReview() {
+    return axios.get(`${this.baseUrl}`, this.config).then(response => {
+      return response.data;
+    });
+  }
+
+  submitReview(section_id, section_text, final) {
+    let finalize = false;
+    // final can be undefined, so make sure we have an explicit true / false in the JSON.
+    if (final) {
+      finalize = true;
+    }
+    return axios.post(
+      this.baseUrl,
+      {
+        section_id: section_id,
+        section_text: section_text,
+        finalize: finalize
+      },
+      this.config
+    );
+  }
+}
+
+export const curriculumDocReviewResource = new CurriculumDocReviewResource(
+  "section-review"
+);

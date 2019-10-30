@@ -10,6 +10,7 @@ from alignmentapp.models import (
     Parameter,
     DataExport,
     SubjectArea,
+    UserAction,
     UserProfile,
     DocumentSection
 )
@@ -54,6 +55,11 @@ class SubjectAreaAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     model = UserProfile
+
+
+@admin.register(UserAction)
+class UserActionAdmin(admin.ModelAdmin):
+    model = UserAction
 
 
 @admin.register(DocumentSection)
