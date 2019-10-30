@@ -421,13 +421,26 @@ def review_section(request):
             section = DocumentSection.get_section_for_review()
         if section is None:
             return Response({'error': 'No document sections currently available for review. Please check back again later.'})
+
+    # first chunk image (API v0 Oct29)
     image_url = "{}scans/{}/{}".format(settings.MEDIA_URL, section.get_section_dir(), section.name + '_chunk001_lowres.png')
+
+    # all chunks images (API v1 > Oct30)
+    rel_path = section.get_section_dir()
+    full_path = os.path.join(settings.SCANS_ROOT, rel_path)
+    lowres_chunk_filanames = [f for f in os.listdir(full_path) if 'lowres' in f]
+    image_urls = []
+    for lowres_chunk_filaname in lowres_chunk_filanames:
+        image_url = "{}scans/{}/{}".format(settings.MEDIA_URL, section.get_section_dir(), lowres_chunk_filaname)
+        image_urls.append(image_url)
+
     text = section.text
     if not "<p>" in text:
         text = "<p>" + section.text.replace("\n", "</p><p>") + "</p>"
     vars = {
         'section_id': section.pk,
-        'image_url': image_url,
+        'image_url': image_url,   # still available, but deprecated
+        'image_urls': image_urls, # list of URLs of chunk images in this section
         'section_text': text
     }
 
