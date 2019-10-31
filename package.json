@@ -19,6 +19,7 @@
     "country-code-lookup": "^0.0.14",
     "get-cookie": "^0.0.4",
     "material-design-icons": "^3.0.1",
+    "numeral": "^2.0.6",
     "tinymce": "^5.1.1",
     "vega": "^5.7.2",
     "vega-embed": "^6.0.0",

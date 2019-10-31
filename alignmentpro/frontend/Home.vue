@@ -1,25 +1,73 @@
 <template>
   <v-content class="home">
-    <div>
-      <h1>Semi-Automated Curriculum Alignment Tools</h1>
-      <h3>You currently have {{ points }} points.</h3>
-      <router-link to="/judgment"
-        >Add Curriculum Alignment Judgments</router-link
-      >
-      <router-link to="/curriculum_review"
-        >Review Scanned Curriculum Documents</router-link
-      >
-      <router-link to="/visualization">View Recommendations</router-link>
-    </div>
+    <v-container fluid>
+      <v-layout justify-center row wrap fill-height>
+        <v-flex xs12 style="text-align: center; padding-top: 50px;">
+          <h1>Semi-Automated Curriculum Alignment Tools</h1>
+          <br /><br />
+          <h3>You currently have {{ points }} points</h3>
+          <br />
+          <div style="width: 600px; max-width: 100%; margin: 0 auto;">
+            <p>
+              <v-btn
+                block
+                round
+                large
+                depressed
+                color="blue"
+                to="/curriculum_review"
+                class="white--text"
+              >
+                Review scanned curriculum documents
+              </v-btn>
+            </p>
+            <p>
+              <v-btn
+                block
+                round
+                large
+                depressed
+                color="blue"
+                to="/judgment"
+                class="white--text"
+              >
+                Add curriculum alignment judgments
+              </v-btn>
+            </p>
+            <p>
+              <v-btn
+                block
+                round
+                large
+                depressed
+                color="blue"
+                to="/visualization"
+                class="white--text"
+              >
+                View recommendations
+              </v-btn>
+            </p>
+            <br /><br />
+            <v-divider />
+            <br />
+            <Leaderboard />
+          </div>
+        </v-flex>
+      </v-layout>
+    </v-container>
   </v-content>
 </template>
 
 <script>
 import { userResource } from "./client";
+import Leaderboard from "./Leaderboard";
 
 export default {
   name: "Home",
   computed: {},
+  components: {
+    Leaderboard
+  },
   created() {
     this.getUserPoints();
   },
@@ -44,3 +92,11 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.v-btn {
+  text-transform: none;
+  font-weight: normal !important;
+  font-size: 16pt;
+}
+</style>
