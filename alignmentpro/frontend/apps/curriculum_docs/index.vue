@@ -6,7 +6,7 @@
         {{ error }}
       </v-alert>
       <v-layout row wrap v-else>
-        <v-flex xs12>
+        <v-flex xs9>
           <v-breadcrumbs :items="path">
             <template v-slot:divider>
               <v-icon>chevron_right</v-icon>
@@ -19,6 +19,26 @@
               </div>
             </template>
           </v-breadcrumbs>
+        </v-flex>
+        <v-flex xs3 style="text-align: right;">
+          <v-btn
+            color="blue"
+            large
+            depressed
+            round
+            outline
+            @click="submitDraftReview"
+            >Save</v-btn
+          >
+          <v-btn
+            dark
+            color="blue"
+            large
+            depressed
+            round
+            @click="submitFinalReview"
+            >Finalize</v-btn
+          >
         </v-flex>
         <v-flex xs12 sm6 md4>
           <img :src="image_url" style="max-width:100%; max-height:100%" />
@@ -83,26 +103,6 @@
             ></Editor>
           </v-container>
         </v-flex>
-        <v-flex xs12 style="text-align: right;">
-          <v-btn
-            color="blue"
-            large
-            depressed
-            round
-            outline
-            @click="submitDraftReview"
-            >Save</v-btn
-          >
-          <v-btn
-            dark
-            color="blue"
-            large
-            depressed
-            round
-            @click="submitFinalReview"
-            >Finalize</v-btn
-          >
-        </v-flex>
       </v-layout>
     </v-content>
     <v-dialog v-model="dialog" width="500">
@@ -128,6 +128,38 @@
           <v-spacer></v-spacer>
           <v-btn dark depressed color="blue" @click="dialog = false">
             Got it!
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="finished" width="500">
+      <v-card>
+        <v-card-text>
+
+          <div style="text-align: center;">
+            <div>
+              <img
+                style="width: 150px; margin-right: 20px; vertical-align: bottom;"
+                src="../judgment/evaluation/robot.png"
+              />
+              <div
+                style="font-size: 20pt; font-family: Courier; display: inline-block; width: 200px; text-align: center;"
+              >
+                <em>Munch, munch.</em> More data, yum! Thank you!
+              </div>
+            </div>
+            <br /><br /><br />
+
+            <h1>Way to go!</h1>
+            <br />
+            <h2>
+              You got <b>{{ points }} points</b> for your hard work!
+            </h2>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn dark depressed color="blue" @click="finished = false">
+            Okay!
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -178,7 +210,9 @@ export default {
       curriculum: null,
       ancestors: [],
       loading: false,
-      dialog: false
+      dialog: false,
+      points: null,
+      finished: false,
     };
   },
   methods: {
@@ -206,11 +240,22 @@ export default {
       this.submitReview(true);
     },
     submitReview(final) {
+      let self = this;
       curriculumDocReviewResource.submitReview(
         this.section_id,
         this.section_text,
         final
-      );
+      ).then(response => {
+        if (response.data.success && response.data.points && response.data.points > 0) {
+          self.finished = true;
+          self.points = response.data.points;
+
+          this.$confetti.start();
+          setTimeout(() => {
+            this.$confetti.stop();
+          }, 4000);
+        }
+      });
     }
   }
 };

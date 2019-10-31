@@ -409,16 +409,21 @@ def review_section(request):
         section.reviewed_by = request.user
         # TODO: Add a 'Finalize' button to the UI, so that if they need to stop, they can
         # save and come back to finish later. We may also want to only allow finalizing after a review.
+        points = 5
+        resp_data = {
+            'success': True
+        }
         if 'finalize' in data and data['finalize']:
             section.is_draft = False
-            UserAction.objects.create(user=request.user, action='reviewed_section', points=5)
+            UserAction.objects.create(user=request.user, action='reviewed_section', points=points)
+            resp_data['points'] = 5
             # TODO: Add UserAction points for this.
         # TODO: Add a 'Abandon/Cancel' button to the UI so that users users can
         # put back section into available pile for another user to continue
         if 'abandon' in data and data['abandon']:
             section.reviewed_by = None
         section.save()
-
+        return Response(resp_data)
     # GET
     else:
         user = request.user
