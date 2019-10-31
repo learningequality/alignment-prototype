@@ -397,8 +397,8 @@ class StandardNodeRecommendationViewSet(viewsets.ModelViewSet):
 def review_section(request):
     """
     Backend http://localhost:8000/api/section-review/ for the Thursday hacksession
-    for frontend see http://localhost:8000/#/curriculum_review  
-    POST to this URL to save human review edits for a section  
+    for frontend see http://localhost:8000/#/curriculum_review
+    POST to this URL to save human review edits for a section
     GET this URL to load the next available topic (is_draft=True + reviewed_by=None)
     """
     # POST
@@ -445,11 +445,18 @@ def review_section(request):
     text = section.text
     if not "<p>" in text:
         text = "<p>" + section.text.replace("\n", "</p><p>") + "</p>"
+
     vars = {
+        'document': {
+            'title': section.document.title,
+            'country': section.document.country
+        },
         'section_id': section.pk,
         'image_url': image_url,   # still available, but deprecated
         'image_urls': image_urls, # list of URLs of chunk images in this section
-        'section_text': text
+        'section_text': text,
+        'section_name': section.name,
+        'ancestors': section.get_ancestors().values_list('name', flat=True)
     }
 
     return Response(vars)

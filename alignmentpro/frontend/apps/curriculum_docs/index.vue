@@ -1,40 +1,152 @@
 <template>
-  <v-container>
+  <v-container fluid style="background-color: #edf4f8;">
     <v-content>
-      <div v-if="error">
-        <p>{{ error }}</p>
-      </div>
-      <div v-else>
-        <input type="hidden" name="section_id" :value="section_id" />
-        <div style="height: 30px; width: 100vw; align: right">
-          <v-btn color="primary" @click="submitDraftReview">Save</v-btn>
-          <v-btn color="primary" @click="submitFinalReview">Finalize</v-btn>
-        </div>
-        <div style="overflow: scroll">
-          <div style="width: 48%; float: left">
-            <img :src="image_url" style="max-width:100%; max-height:100%" />
-          </div>
-          <div style="width: 48%; height:95vh; float: right">
+      <v-progress-circular v-if="loading" indeterminate color="grey" />
+      <v-alert v-else-if="error" :value="true" color="warning" outline>
+        {{ error }}
+      </v-alert>
+      <v-layout row wrap v-else>
+        <v-flex xs12>
+          <v-breadcrumbs :items="path">
+            <template v-slot:divider>
+              <v-icon>chevron_right</v-icon>
+            </template>
+            <template v-slot:item="props">
+              <div class="breadcrumb">
+                <Flag v-if="props.item.country" :country="props.item.country" />
+                &nbsp;
+                {{ props.item.text }}
+              </div>
+            </template>
+          </v-breadcrumbs>
+        </v-flex>
+        <v-flex xs12 sm6 md4>
+          <img :src="image_url" style="max-width:100%; max-height:100%" />
+        </v-flex>
+        <v-flex xs12 sm6 md8>
+          <v-container fluid>
+            <h3>
+              Please mark up the following text according to the following
+              rules:
+            </h3>
+            <ul>
+              <li>
+                Topics
+                <v-tooltip top max-width="300px">
+                  <template v-slot:activator="{ on }">
+                    <v-icon class="help-icon" color="blue" small dark v-on="on"
+                      >info_outline</v-icon
+                    >
+                  </template>
+                  <span
+                    >Under a given subject area, a topic is a subfield within
+                    which a given learning objective falls; what the learning
+                    objective is "about" (e.g. algebra)</span
+                  >
+                </v-tooltip>
+                should be <b>bolded</b>
+              </li>
+              <li>
+                Learning objectives
+                <v-tooltip top max-width="300px">
+                  <template v-slot:activator="{ on }">
+                    <v-icon class="help-icon" color="blue" small dark v-on="on"
+                      >info_outline</v-icon
+                    >
+                  </template>
+                  <span
+                    >This is what the student should know, understand, or be
+                    able to do at the end of the activity/class/semester.
+                    Learning objectives should always be framed as tasks with
+                    verb statements, not noun phrases (e.g. "Seek and give
+                    factual information")</span
+                  >
+                </v-tooltip>
+                should be <em>italicized</em>
+              </li>
+              <li>
+                Make sure each topic and learning objective is on its own line
+              </li>
+              <li>
+                Please correct any spelling errors
+              </li>
+            </ul>
+            <v-btn flat color="blue" @click="dialog = true">See Example</v-btn>
+            <br />
+            <v-divider />
+            <br />
+            <input type="hidden" name="section_id" :value="section_id" />
             <Editor
               id="texteditor"
               :init="editorInit"
               v-model="section_text"
             ></Editor>
-          </div>
-        </div>
-      </div>
+          </v-container>
+        </v-flex>
+        <v-flex xs12 style="text-align: right;">
+          <v-btn
+            color="blue"
+            large
+            depressed
+            round
+            outline
+            @click="submitDraftReview"
+            >Save</v-btn
+          >
+          <v-btn
+            dark
+            color="blue"
+            large
+            depressed
+            round
+            @click="submitFinalReview"
+            >Finalize</v-btn
+          >
+        </v-flex>
+      </v-layout>
     </v-content>
+    <v-dialog v-model="dialog" width="500">
+      <v-card>
+        <v-card-text>
+          <p class="example-header">Before</p>
+          <div class="example-text">
+            <p>
+              Algebra: Learner should be able to add numbers together, subtract
+              numbers, and multiply numbers
+            </p>
+          </div>
+          <br />
+          <p class="example-header">After</p>
+          <div class="example-text">
+            <p><b>Algebra</b></p>
+            <p><i>Add numbers together</i></p>
+            <p><i>Subtract numbers</i></p>
+            <p><i>Multiply numbers</i></p>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn dark depressed color="blue" @click="dialog = false">
+            Got it!
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
+import _ from "lodash";
 import Editor from "@tinymce/tinymce-vue";
 
+import Flag from "../judgment/evaluation/Flag";
 import { curriculumDocReviewResource } from "../../client";
+
 export default {
   name: "CurriculumDocs",
   components: {
-    Editor: Editor
+    Editor,
+    Flag
   },
   created() {
     this.getSectionToReview();
@@ -42,11 +154,19 @@ export default {
   computed: {
     editorInit() {
       return {
-        height: "100%",
+        height: "400px",
         menubar: false,
         plugins: "lists",
-        toolbar: "bold italic | bullist | undo redo"
+        toolbar: "bold italic | undo redo"
       };
+    },
+    path() {
+      let list = _.map(this.ancestors, a => {
+        return { text: a, country: null };
+      });
+      return [
+        { country: this.curriculum.country, text: this.curriculum.title }
+      ].concat(list);
     }
   },
   data() {
@@ -54,20 +174,28 @@ export default {
       error: null,
       image_url: "",
       section_id: null,
-      section_text: ""
+      section_text: "",
+      curriculum: null,
+      ancestors: [],
+      loading: false,
+      dialog: false
     };
   },
   methods: {
     getSectionToReview() {
+      this.loading = true;
       curriculumDocReviewResource
         .getRandomDocTopicForReview()
         .then(section_data => {
+          this.loading = false;
           if (section_data["error"]) {
             this.error = section_data["error"];
           } else {
             this.image_url = section_data["image_url"];
             this.section_id = section_data["section_id"];
             this.section_text = section_data["section_text"];
+            this.curriculum = section_data["document"];
+            this.ancestors = section_data["ancestors"];
           }
         });
     },
@@ -87,3 +215,30 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.breadcrumb {
+  font-size: 14pt;
+}
+
+.help-icon {
+  cursor: pointer;
+}
+
+ul {
+  font-size: 12pt;
+}
+
+.example-header {
+  margin-bottom: 5px;
+}
+
+.v-card__text {
+  font-size: 12pt;
+}
+
+.example-text {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+</style>
