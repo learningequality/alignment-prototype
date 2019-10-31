@@ -2,7 +2,7 @@
   <v-layout justify-center wrap>
     <v-flex xs12>
       <h2>Leaderboard</h2>
-      <br /><br />
+      <br />
     </v-flex>
     <p v-if="loading">
       <v-progress-circular indeterminate color="grey" />
