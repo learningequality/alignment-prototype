@@ -1,9 +1,17 @@
 <template>
   <v-layout justify-center wrap>
-    <h2>Leaderboard</h2>
-    <br /><br />
-    <v-progress-circular v-if="loading" indeterminate color="grey" />
+    <v-flex xs12>
+      <h2>Leaderboard</h2>
+      <br /><br />
+    </v-flex>
+    <p v-if="loading">
+      <v-progress-circular indeterminate color="grey" />
+    </p>
     <v-card v-else style="width: 700px; max-width: 100%; margin: 0 auto;">
+      <p v-if="firstPlace" class="first-place">
+        🎉&nbsp;&nbsp;{{ firstPlace.username }} is in the lead with
+        <b>{{ firstPlace.number_of_judgments | formatNumber }}</b> points!
+      </p>
       <v-list two-line>
         <v-list-tile
           v-for="(item, index) in leaderboardCondensed"
@@ -42,7 +50,7 @@ export default {
   name: "Leaderboard",
   data() {
     return {
-      loading: false,
+      loading: true,
       leaderboard: [],
       leaderboardRange: 2
     };
@@ -56,6 +64,9 @@ export default {
     }
   },
   computed: {
+    firstPlace() {
+      return this.leaderboard[0];
+    },
     currentUser() {
       if (this.leaderboard.length)
         return this.leaderboard[this.currentStanding];
@@ -65,31 +76,20 @@ export default {
       let names = _.map(this.leaderboard, l => l.username);
       return _.indexOf(names, sessionData.username);
     },
-    higherRanks() {
-      return _.reverse(
-        this.leaderboard.slice(
-          this.currentStanding - this.leaderboardRange,
-          this.currentStanding
-        )
-      );
-    },
-    lowerRanks() {
-      return _.reverse(
-        this.leaderboard.slice(
-          this.currentStanding + 1,
-          this.currentStanding + this.leaderboardRange
-        )
-      );
-    },
     leaderboardCondensed() {
-      return this.higherRanks.concat(this.currentUser).concat(this.lowerRanks);
+      let start = Math.max(0, this.currentStanding - this.leaderboardRange - 1);
+      let end = Math.min(
+        this.leaderboard.length,
+        this.currentStanding + this.leaderboardRange + 1
+      );
+      return this.leaderboard.slice(start, end);
     }
   },
   methods: {
     getLeaderboard() {
-      this.loadingLeaderboard = true;
+      this.loading = true;
       leaderboardResource.getLeaderboard().then(results => {
-        this.loadingLeaderboard = false;
+        this.loading = false;
         this.leaderboard = results;
       });
     }
@@ -137,5 +137,11 @@ div[role="listitem"].user .rank {
   color: gray;
   font-weight: bold;
   font-size: 16pt;
+}
+
+.first-place {
+  font-size: 16pt;
+  font-weight: normal;
+  margin-top: 10px;
 }
 </style>

@@ -1,8 +1,31 @@
 <template>
   <v-app id="app">
     <v-toolbar app clipped-left>
-      <router-link to="/">Home</router-link>
-      <router-link to="/logout">Logout</router-link>
+      <v-btn flat icon to="/">
+        <v-icon>home</v-icon>
+      </v-btn>
+      <v-spacer />
+      <v-toolbar-items v-if="username">
+        <div style="padding-top: 20px; font-size: 12pt;">
+          Hello, {{ username }}
+        </div>
+
+        <v-menu>
+          <template v-slot:activator="{ on }">
+            <v-toolbar-title v-on="on">
+              <v-btn icon large>
+                <v-icon>more_vert</v-icon>
+              </v-btn>
+            </v-toolbar-title>
+          </template>
+
+          <v-list>
+            <v-list-tile to="/logout">
+              <v-list-tile-title>Logout</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+      </v-toolbar-items>
     </v-toolbar>
     <transition name="fade" mode="out-in">
       <router-view />
@@ -12,12 +35,16 @@
 
 <script>
 import routes from "vue-auto-routing";
+import sessionData from "./session";
 
 export default {
   name: "App",
   computed: {
     routes() {
       return routes;
+    },
+    username() {
+      return sessionData.username;
     }
   }
 };
@@ -36,12 +63,6 @@ export default {
   }
   a {
     font-weight: bold;
-    color: #42b983;
-    display: block;
-    padding: 5px;
-    &.router-link-exact-active {
-      color: #2c3e50;
-    }
   }
 
   .fade-enter-active,
