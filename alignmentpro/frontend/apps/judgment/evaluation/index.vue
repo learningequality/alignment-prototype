@@ -215,10 +215,6 @@ export default {
 </script>
 
 <style scoped>
-.v-content {
-  background-color: #edf4f8;
-}
-
 .v-window {
   height: 100%;
 }

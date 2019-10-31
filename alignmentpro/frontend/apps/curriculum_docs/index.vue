@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid style="background-color: #edf4f8;">
+  <v-container fluid>
     <v-content>
       <v-progress-circular v-if="loading" indeterminate color="grey" />
       <v-alert v-else-if="error" :value="true" color="warning" outline>
