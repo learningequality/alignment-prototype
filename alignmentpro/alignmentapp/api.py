@@ -458,7 +458,7 @@ def review_section(request):
         },
         'section_id': section.pk,
         'image_url': image_url,   # still available, but deprecated
-        'image_urls': image_urls, # list of URLs of chunk images in this section
+        'image_urls': sorted(image_urls), # list of URLs of chunk images in this section
         'section_text': text,
         'section_name': section.name,
         'ancestors': section.get_ancestors().values_list('name', flat=True)

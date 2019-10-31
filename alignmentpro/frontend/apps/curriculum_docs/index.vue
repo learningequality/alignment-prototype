@@ -21,7 +21,9 @@
           </v-breadcrumbs>
         </v-flex>
         <v-flex xs12 sm6 md4>
-          <img :src="image_url" style="max-width:100%; max-height:100%" />
+          <div v-for="image_url in image_urls" :key="image_url">
+            <img :src="image_url" style="max-width:100%; max-height:100%" />
+          </div>
         </v-flex>
         <v-flex xs12 sm6 md8>
           <v-container fluid>
@@ -226,11 +228,11 @@ export default {
           if (section_data["error"]) {
             this.error = section_data["error"];
           } else {
-            this.image_url = section_data["image_url"];
             this.section_id = section_data["section_id"];
             this.section_text = section_data["section_text"];
             this.curriculum = section_data["document"];
             this.ancestors = section_data["ancestors"];
+            this.image_urls = section_data["image_urls"];
           }
         });
     },
