@@ -16,9 +16,10 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.getenv("STATICFILES_DIR") or os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'files')
 SCANS_ROOT = os.path.join(MEDIA_ROOT, 'scans')
+UPLOADS_ROOT = os.path.join(MEDIA_ROOT, 'uploads')
 MEDIA_URL = '/files/'
 
 # Quick-start development settings - unsuitable for production

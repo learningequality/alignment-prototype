@@ -7,7 +7,8 @@ import urllib.request
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.conf.urls import url, include
-from django.db.models import Count
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
@@ -22,7 +23,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from .models import CurriculumDocument, DocumentSection, StandardNode, HumanRelevanceJudgment
+from .models import CurriculumDocument, DocumentSection, StandardNode, HumanRelevanceJudgment, UserAction
 from .schedulers import prob_weighted_random
 from .recommenders import recommend_top_ranked
 
@@ -220,6 +221,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return User.objects.all()
+        return self.queryset.filter(pk=self.request.user.pk)
+
 
 class TrainedModelSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
@@ -389,6 +395,13 @@ class StandardNodeRecommendationViewSet(viewsets.ModelViewSet):
 @authentication_classes((TokenAuthentication, SessionAuthentication,))
 @permission_classes((IsAuthenticated,))
 def review_section(request):
+    """
+    Backend http://localhost:8000/api/section-review/ for the Thursday hacksession
+    for frontend see http://localhost:8000/#/curriculum_review
+    POST to this URL to save human review edits for a section
+    GET this URL to load the next available topic (is_draft=True + reviewed_by=None)
+    """
+    # POST
     if request.method == 'POST':
         data = json.loads(request.body)
         section = DocumentSection.objects.get(pk=data['section_id'])
@@ -398,14 +411,37 @@ def review_section(request):
         # save and come back to finish later. We may also want to only allow finalizing after a review.
         if 'finalize' in data and data['finalize']:
             section.is_draft = False
+            UserAction.objects.create(user=request.user, action='reviewed_section', points=5)
             # TODO: Add UserAction points for this.
+        # TODO: Add a 'Abandon/Cancel' button to the UI so that users users can
+        # put back section into available pile for another user to continue
+        if 'abandon' in data and data['abandon']:
+            section.reviewed_by = None
         section.save()
 
+    # GET
     else:
-        section = DocumentSection.get_section_for_review()
-        if not section:
+        user = request.user
+        # First check if user already has a section they are currently reviewing
+        section = user.section_reviews.filter(is_draft=True).first()
+        if section is None:
+            # Otherwise assign next available section
+            section = DocumentSection.get_section_for_review()
+        if section is None:
             return Response({'error': 'No document sections currently available for review. Please check back again later.'})
+
+    # first chunk image (API v0 Oct29)
     image_url = "{}scans/{}/{}".format(settings.MEDIA_URL, section.get_section_dir(), section.name + '_chunk001_lowres.png')
+
+    # all chunks images (API v1 > Oct30)
+    rel_path = section.get_section_dir()
+    full_path = os.path.join(settings.SCANS_ROOT, rel_path)
+    lowres_chunk_filanames = [f for f in os.listdir(full_path) if 'lowres' in f]
+    image_urls = []
+    for lowres_chunk_filaname in lowres_chunk_filanames:
+        image_url = "{}scans/{}/{}".format(settings.MEDIA_URL, section.get_section_dir(), lowres_chunk_filaname)
+        image_urls.append(image_url)
+
     text = section.text
     if not "<p>" in text:
         text = "<p>" + section.text.replace("\n", "</p><p>") + "</p>"
@@ -416,10 +452,21 @@ def review_section(request):
             'country': section.document.country
         },
         'section_id': section.pk,
-        'image_url': image_url,
+        'image_url': image_url,   # still available, but deprecated
+        'image_urls': image_urls, # list of URLs of chunk images in this section
         'section_text': text,
         'section_name': section.name,
         'ancestors': section.get_ancestors().values_list('name', flat=True)
     }
 
     return Response(vars)
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication, SessionAuthentication,))
+@permission_classes((IsAuthenticated,))
+def get_user_points(request):
+    points = UserAction.objects.filter(user=request.user).aggregate(Sum('points'))['points__sum']
+    if points is None:
+        points = 0
+
+    return Response({'points': points})

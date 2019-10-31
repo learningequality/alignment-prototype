@@ -144,6 +144,19 @@ Use this command to export all Australia curriculum documents:
 
 
 
+Importing chunkedscans folder hierarchy
+---------------------------------------
+Assuming the folder `files/chunkedscans/KICDvolumeII_KICD secondary curriculum volume II`
+contains the sample topic chunks, use the following command to import them into DB:
+
+    ./alignmentpro/manage.py importsectionzips --sourcedir='files/chunkedscans/KICDvolumeII_KICD secondary curriculum volume II'
+
+This will create a document with source id `KICDvolumeII` and title `KICD secondary curriculum volume II`,
+add a root `DocumentSection` with the same name as the document `KICD secondary curriculum volume II`,
+then recursively create `DocumentSection` for each of the subfolders.
+NOTE: this script only works for the filenames of the KICD curriculum.
+
+
 
 Sample documents, nodes, and human judgment edge
 ------------------------------------------------

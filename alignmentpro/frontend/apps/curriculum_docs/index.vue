@@ -84,8 +84,23 @@
           </v-container>
         </v-flex>
         <v-flex xs12 style="text-align: right;">
-          <v-btn dark large depressed color="blue" @click="submitReview"
+          <v-btn
+            color="blue"
+            large
+            depressed
+            round
+            outline
+            @click="submitDraftReview"
             >Save</v-btn
+          >
+          <v-btn
+            dark
+            color="blue"
+            large
+            depressed
+            round
+            @click="submitFinalReview"
+            >Finalize</v-btn
           >
         </v-flex>
       </v-layout>
@@ -184,10 +199,17 @@ export default {
           }
         });
     },
-    submitReview() {
+    submitDraftReview() {
+      this.submitReview();
+    },
+    submitFinalReview() {
+      this.submitReview(true);
+    },
+    submitReview(final) {
       curriculumDocReviewResource.submitReview(
         this.section_id,
-        this.section_text
+        this.section_text,
+        final
       );
     }
   }

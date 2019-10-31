@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "yarn run frontend-server",
+    "django-server": "cd alignmentpro && python manage.py runserver",
+    "migrate": "cd alignmentpro && python manage.py migrate",
+    "frontend-server": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "dist": "yarn install && yarn run build",
