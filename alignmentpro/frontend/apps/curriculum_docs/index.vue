@@ -6,7 +6,7 @@
         {{ error }}
       </v-alert>
       <v-layout row wrap v-else>
-        <v-flex xs9>
+        <v-flex xs12>
           <v-breadcrumbs :items="path">
             <template v-slot:divider>
               <v-icon>chevron_right</v-icon>
@@ -19,26 +19,6 @@
               </div>
             </template>
           </v-breadcrumbs>
-        </v-flex>
-        <v-flex xs3 style="text-align: right;">
-          <v-btn
-            color="blue"
-            large
-            depressed
-            round
-            outline
-            @click="submitDraftReview"
-            >Save</v-btn
-          >
-          <v-btn
-            dark
-            color="blue"
-            large
-            depressed
-            round
-            @click="submitFinalReview"
-            >Finalize</v-btn
-          >
         </v-flex>
         <v-flex xs12 sm6 md4>
           <img :src="image_url" style="max-width:100%; max-height:100%" />
@@ -101,6 +81,27 @@
               :init="editorInit"
               v-model="section_text"
             ></Editor>
+            <br />
+            <div style="text-align: right;">
+              <v-btn
+                color="blue"
+                large
+                depressed
+                round
+                outline
+                @click="submitDraftReview"
+                >Save</v-btn
+              >
+              <v-btn
+                dark
+                color="blue"
+                large
+                depressed
+                round
+                @click="submitFinalReview"
+                >Finalize
+              </v-btn>
+            </div>
           </v-container>
         </v-flex>
       </v-layout>
@@ -135,7 +136,6 @@
     <v-dialog v-model="finished" width="500">
       <v-card>
         <v-card-text>
-
           <div style="text-align: center;">
             <div>
               <img
@@ -155,6 +155,7 @@
             <h2>
               You got <b>{{ points }} points</b> for your hard work!
             </h2>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -212,7 +213,7 @@ export default {
       loading: false,
       dialog: false,
       points: null,
-      finished: false,
+      finished: false
     };
   },
   methods: {
@@ -241,21 +242,23 @@ export default {
     },
     submitReview(final) {
       let self = this;
-      curriculumDocReviewResource.submitReview(
-        this.section_id,
-        this.section_text,
-        final
-      ).then(response => {
-        if (response.data.success && response.data.points && response.data.points > 0) {
-          self.finished = true;
-          self.points = response.data.points;
+      curriculumDocReviewResource
+        .submitReview(this.section_id, this.section_text, final)
+        .then(response => {
+          if (
+            response.data.success &&
+            response.data.points &&
+            response.data.points > 0
+          ) {
+            self.finished = true;
+            self.points = response.data.points;
 
-          this.$confetti.start();
-          setTimeout(() => {
-            this.$confetti.stop();
-          }, 4000);
-        }
-      });
+            this.$confetti.start();
+            setTimeout(() => {
+              this.$confetti.stop();
+            }, 4000);
+          }
+        });
     }
   }
 };
