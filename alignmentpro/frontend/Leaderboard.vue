@@ -12,15 +12,16 @@
         🎉&nbsp;&nbsp;{{ firstPlace.username }} is in the lead with
         <b>{{ firstPlace.number_of_judgments | formatNumber }}</b> points!
       </p>
+
       <v-list two-line>
         <v-list-tile
           v-for="(item, index) in leaderboardCondensed"
           :key="index"
-          :class="{ user: index === currentStanding }"
+          :class="{ user: item.username === currentUser.username }"
         >
           <v-list-tile-action>
-            <div class="rank" :class="{ first: index === 0 }">
-              {{ index + 1 }}
+            <div class="rank" :class="{ first: item.index === 0 }">
+              {{ item.index + 1 }}
             </div>
           </v-list-tile-action>
           <v-list-tile-content>
@@ -68,9 +69,7 @@ export default {
       return this.leaderboard[0];
     },
     currentUser() {
-      if (this.leaderboard.length)
-        return this.leaderboard[this.currentStanding];
-      return { username: "", number_of_judgments: 0 };
+      return this.leaderboard[this.currentStanding];
     },
     currentStanding() {
       let names = _.map(this.leaderboard, l => l.username);
@@ -90,6 +89,9 @@ export default {
       this.loading = true;
       leaderboardResource.getLeaderboard().then(results => {
         this.loading = false;
+        results.forEach((r, i) => {
+          r.index = i;
+        });
         this.leaderboard = results;
       });
     }
