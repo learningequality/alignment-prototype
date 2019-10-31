@@ -409,10 +409,17 @@ def review_section(request):
     text = section.text
     if not "<p>" in text:
         text = "<p>" + section.text.replace("\n", "</p><p>") + "</p>"
+
     vars = {
+        'document': {
+            'title': section.document.title,
+            'country': section.document.country
+        },
         'section_id': section.pk,
         'image_url': image_url,
-        'section_text': text
+        'section_text': text,
+        'section_name': section.name,
+        'ancestors': section.get_ancestors().values_list('name', flat=True)
     }
 
     return Response(vars)
