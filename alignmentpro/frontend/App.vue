@@ -1,6 +1,6 @@
 <template>
   <v-app id="app">
-    <v-toolbar app clipped-left>
+    <v-toolbar app clipped-left absolute>
       <v-btn flat icon to="/">
         <v-icon>home</v-icon>
       </v-btn>
