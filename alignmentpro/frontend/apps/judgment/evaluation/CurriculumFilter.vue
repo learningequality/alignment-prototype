@@ -7,6 +7,7 @@
 
     <v-autocomplete
       v-else
+      v-bind="$attrs"
       solo
       :items="curricula"
       v-model="curriculum"

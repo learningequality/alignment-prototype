@@ -10,7 +10,11 @@ Vue.config.productionTip = false;
 Vue.use(VueClipboard);
 Vue.use(Vuetify, {
   theme: {
-    background: "#F0F6FB"
+    background: "#F0F6FB",
+    primary: "#18BAFF",
+    green: "#22D64C",
+    red: "#FD867A",
+    grey: "#698DA0"
   }
 });
 Vue.use(VueConfetti);
