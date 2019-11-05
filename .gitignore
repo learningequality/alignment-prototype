@@ -1,3 +1,7 @@
+# credentials
+credentials
+
+
 # during initial prototype step no need to commit these
 Pipfile.lock
 alignmentpro/commonstandardsproject/migrations/
