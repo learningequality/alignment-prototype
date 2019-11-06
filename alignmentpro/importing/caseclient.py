@@ -164,7 +164,7 @@ if __name__ == '__main__':
     for creator, documents in documents_by_creator.items():
         print('  - Creator:', creator)
         for document in documents:
-            print('      -', document['title'], document['identifier'])
+            print('      -', document['title'], '('+document['adoptionStatus']+')', document['identifier'])
             # pprint(document)
             # print('\n')
 
