@@ -6,7 +6,7 @@
           <b>Source Standard:</b> {{ nodeData.document.title }}
           <p class="curriculum-metadata">
             {{ nodeData.document.country }}
-            <span v-if="true || nodeData.document.official">
+            <span v-if="nodeData.document.official">
               &nbsp;•&nbsp;
               <v-tooltip bottom max-width="200px">
                 <template v-slot:activator="{ on }">

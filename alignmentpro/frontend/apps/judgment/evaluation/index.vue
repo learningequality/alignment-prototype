@@ -66,7 +66,7 @@ export default {
   data() {
     return {
       count: 5,
-      step: 1,
+      step: 0,
       curriculum: null,
       oneComparison: false,
       dialog: false
