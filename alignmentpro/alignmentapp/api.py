@@ -43,6 +43,7 @@ class CurriculumDocumentSerializer(serializers.ModelSerializer):
             "digitization_method",
             "source_url",
             "created",
+            'official',
             "root_node_id",
             "root_node_url",
         ]
@@ -454,7 +455,7 @@ def review_section(request):
     vars = {
         'document': {
             'title': section.document.title,
-            'country': section.document.country
+            'country': section.document.country,
         },
         'section_id': section.pk,
         'image_url': image_url,   # still available, but deprecated
