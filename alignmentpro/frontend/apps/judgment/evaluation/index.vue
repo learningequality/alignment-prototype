@@ -65,7 +65,7 @@ export default {
   },
   data() {
     return {
-      count: 2,
+      count: 5,
       step: 1,
       curriculum: null,
       oneComparison: false,
