@@ -4,6 +4,24 @@
       <v-layout row wrap>
         <v-flex xs9 sm10>
           <b>Source Standard:</b> {{ nodeData.document.title }}
+          <p class="curriculum-metadata">
+            {{ nodeData.document.country }}
+            <span v-if="nodeData.document.official">
+              &nbsp;•&nbsp;
+              <v-tooltip bottom max-width="200px">
+                <template v-slot:activator="{ on }">
+                  <span v-on="on" class="official">
+                    <v-icon small color="primary">check_circle_outline</v-icon>
+                    Official national curriculum
+                  </span>
+                </template>
+                <span
+                  >These standards have been verified as the officially produced
+                  curriculum of their respective national ministry</span
+                >
+              </v-tooltip>
+            </span>
+          </p>
         </v-flex>
         <v-spacer />
         <v-flex style="text-align: right;">
@@ -23,14 +41,10 @@
 
     <v-container fluid>
       <h1>{{ nodeData.title }}</h1>
+      <p v-if="nodeData.nodes" style="margin-top: 15px;">
+        {{ nodeData.notes }}
+      </p>
     </v-container>
-    <v-container fluid> </v-container>
-    <template v-if="nodeData.notes">
-      <v-divider />
-      <v-container fluid>
-        <p>{{ nodeData.notes }}</p>
-      </v-container>
-    </template>
     <template v-if="nodeData.children && nodeData.children.length">
       <v-divider />
       <v-container fluid>
@@ -92,6 +106,16 @@ export default {
 .noderesource p {
   font-size: 12pt;
   color: gray;
+}
+
+.noderesource .curriculum-metadata {
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+.noderesource .official {
+  color: #18baff;
+  cursor: pointer;
 }
 
 h1 {

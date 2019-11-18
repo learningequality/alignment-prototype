@@ -87,6 +87,9 @@ class CurriculumDocument(models.Model):
     is_draft = models.BooleanField(
         default=True, help_text="True for draft version of the curriculum data."
     )
+    official = models.BooleanField(
+        default=False, help_text="Curriculum document is an official national standard"
+    )
 
     @property
     def root(self):

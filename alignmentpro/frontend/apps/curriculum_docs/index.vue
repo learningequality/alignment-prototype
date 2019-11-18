@@ -20,9 +20,13 @@
             </template>
           </v-breadcrumbs>
         </v-flex>
-        <v-flex xs12 sm6 md4>
+        <v-flex xs12 sm6 md4 class="image-area">
           <div v-for="image_url in image_urls" :key="image_url">
-            <img :src="image_url" style="max-width:100%; max-height:100%" />
+            <img
+              :src="image_url"
+              style="max-width:100%; max-height:70vh;"
+              :key="image_url"
+            />
           </div>
         </v-flex>
         <v-flex xs12 sm6 md8>
@@ -207,7 +211,7 @@ export default {
   data() {
     return {
       error: null,
-      image_url: "",
+      image_urls: [],
       section_id: null,
       section_text: "",
       curriculum: null,
@@ -228,11 +232,11 @@ export default {
           if (section_data["error"]) {
             this.error = section_data["error"];
           } else {
+            this.image_urls = section_data["image_urls"];
             this.section_id = section_data["section_id"];
             this.section_text = section_data["section_text"];
             this.curriculum = section_data["document"];
             this.ancestors = section_data["ancestors"];
-            this.image_urls = section_data["image_urls"];
           }
         });
     },
@@ -290,5 +294,11 @@ ul {
 .example-text {
   border: 1px solid #ccc;
   padding: 10px;
+}
+
+.image-area {
+  max-height: calc(100vh - 200px);
+  min-height: 500px;
+  overflow: auto;
 }
 </style>

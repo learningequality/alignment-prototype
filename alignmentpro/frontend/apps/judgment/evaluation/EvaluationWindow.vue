@@ -4,24 +4,23 @@
       <v-alert :value="errorMsg.length > 0" dismissible type="error">
         {{ errorMsg }}
       </v-alert>
-      <v-flex xs12 sm6 md4 class="section">
-        <h2>Main content item</h2>
+      <v-flex xs12 sm6 lg4 xl3 class="section" d-flex>
         <Node v-if="node1" :nodeData="node1" />
         <div v-else class="loading">
-          <v-progress-circular indeterminate color="#18BAFF" />
+          <v-progress-circular indeterminate color="primary" />
         </div>
       </v-flex>
-      <v-flex xs12 sm6 md4 class="section">
-        <h2>Is this item relevant?</h2>
+      <v-flex xs12 sm6 lg4 xl3 class="section" d-flex>
         <Node v-if="node2" :nodeData="node2" />
         <div v-else class="loading">
-          <v-progress-circular indeterminate color="#18BAFF" />
+          <v-progress-circular indeterminate color="primary" />
         </div>
       </v-flex>
       <v-spacer />
-      <v-flex sm12 md4 class="section" height="100%">
+      <v-flex sm12 lg4 xl6 class="section" height="100%" d-flex>
         <v-layout fill-height row wrap>
-          <div style="width: 100%;">
+          <v-flex xs12>
+            <h2>Are these two curricular standards relevant to one another?</h2>
             <v-layout row wrap>
               <v-flex>
                 <v-btn
@@ -29,135 +28,100 @@
                   v-if="answer"
                   @click="setAnswer(null)"
                   style="padding: 5px; min-width: 0px; font-weight: bold;"
-                  color="#18BAFF"
-                  >Back</v-btn
+                  color="primary"
                 >
+                  Back
+                </v-btn>
               </v-flex>
               <v-spacer />
               <v-flex class="progress"> {{ count }} / {{ total }} </v-flex>
-            </v-layout>
-            <div v-for="option in answers" :key="option.id">
-              <v-btn
-                block
-                round
-                outline
-                large
-                :color="option.color"
-                v-if="!answer || answer.id === option.id"
-                @click="setAnswer(option.id)"
-              >
-                <v-icon>{{ option.icon }}</v-icon>
-                &nbsp;&nbsp;
-                {{ option.text }}
-              </v-btn>
-              <br />
-              <v-expand-transition>
-                <v-form
-                  v-show="answer && answer.id === option.id"
-                  v-model="valid"
-                  ref="form"
-                  lazy-validation
+              <v-flex xs12 v-for="option in answers" :key="option.id">
+                <v-btn
+                  block
+                  round
+                  outline
+                  large
+                  :color="option.color"
+                  class="answer-button"
+                  v-if="!answer || answer.id === option.id"
+                  @click="setAnswer(option.id)"
                 >
-                  <div v-if="option.showSimilarities">
-                    <h4>Key SIMILARITIES</h4>
-                    <ToggleBox v-model="similarities.subject" label="Subject" />
-                    <ToggleBox
-                      v-model="similarities.keywords"
-                      label="Key Words"
-                    />
-                    <ToggleBox
-                      v-model="similarities.competency"
-                      label="Competency"
-                    />
-                    <ToggleBox v-model="similarities.task" label="Task" />
-                    <ToggleBox
-                      v-model="similarities.proficiency"
-                      label="Level Proficiency"
-                    />
-                  </div>
-                  <div v-if="option.showDifferences">
-                    <h4>Key DIFFERENCES</h4>
-                    <ToggleBox v-model="differences.subject" label="Subject" />
-                    <ToggleBox
-                      v-model="differences.keywords"
-                      label="Key Words"
-                    />
-                    <ToggleBox
-                      v-model="differences.competency"
-                      label="Competency"
-                    />
-                    <ToggleBox v-model="differences.task" label="Task" />
-                    <ToggleBox
-                      v-model="differences.proficiency"
-                      label="Level Proficiency"
-                    />
-                  </div>
+                  <v-icon large>{{ option.icon }}</v-icon>
+                  &nbsp;&nbsp;
+                  {{ option.text }}
+                </v-btn>
+                <br />
+              </v-flex>
+              <v-expand-transition>
+                <v-flex xs12 v-show="answer">
+                  <v-fade-transition>
+                    <v-alert
+                      ref="error"
+                      v-show="showValidationError"
+                      :value="true"
+                      color="red"
+                      icon="error"
+                    >
+                      Please complete the rubric to continue
+                    </v-alert>
+                  </v-fade-transition>
+                  <Rubric
+                    v-if="answer && answer.showRubric"
+                    v-model="rubric"
+                    ref="rubric"
+                    @change="showValidationError = false"
+                  />
+                  <br />
                   <v-divider />
                   <br />
-                  <v-textarea label="Additional notes" auto-grow />
-                </v-form>
+                  <h3 v-if="answer">{{ answer.textboxLabel }}</h3>
+                  <br />
+                  <v-textarea auto-grow solo v-model="comment" />
+                </v-flex>
               </v-expand-transition>
-            </div>
-            <br /><br /><br />
-            <v-layout row justify-center style="text-align: center;">
-              <v-spacer />
-              <v-flex>
-                <v-tooltip top>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      color="#18BAFF"
-                      dark
-                      outline
-                      fab
-                      depressed
-                      v-on="on"
-                      @click="skip"
-                    >
-                      <v-icon large>redo</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Skip</span>
-                </v-tooltip>
-              </v-flex>
-              <v-spacer />
-              <v-flex>
-                <v-tooltip top v-if="answer">
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      color="#18BAFF"
-                      dark
-                      outline
-                      fab
-                      depressed
-                      v-on="on"
-                      @click="submitRating"
-                    >
-                      <v-icon large>arrow_forward</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Next</span>
-                </v-tooltip>
-                <v-tooltip top v-else>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      color="#18BAFF"
-                      dark
-                      outline
-                      fab
-                      depressed
-                      v-on="on"
-                      v-clipboard:copy="shareUrl"
-                      @click="setCopied"
-                    >
-                      <v-icon large>share</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>{{ shareText }}</span>
-                </v-tooltip>
-              </v-flex>
-              <v-spacer />
+              <v-layout row style="text-align: center; margin-top: 25px;">
+                <v-spacer />
+                <v-flex>
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        color="primary"
+                        outline
+                        fab
+                        depressed
+                        v-on="on"
+                        v-clipboard:copy="shareUrl"
+                        @click="setCopied"
+                      >
+                        <v-icon large>share</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>{{ shareText }}</span>
+                  </v-tooltip>
+                </v-flex>
+                <v-spacer />
+                <v-flex>
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        color="primary"
+                        outline
+                        fab
+                        depressed
+                        :disabled="!answer"
+                        v-on="on"
+                        @click="submitRating"
+                      >
+                        <v-icon large>arrow_forward</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Next</span>
+                  </v-tooltip>
+                </v-flex>
+                <v-spacer />
+              </v-layout>
             </v-layout>
-          </div>
+          </v-flex>
         </v-layout>
       </v-flex>
     </v-layout>
@@ -167,13 +131,13 @@
 <script>
 import _ from "lodash";
 import Node from "./Node";
-import ToggleBox from "./ToggleBox";
+import Rubric from "./Rubric";
 import { nodeResource, judgmentResource } from "../../../client";
 export default {
   name: "EvaluationWindow",
   components: {
     Node,
-    ToggleBox
+    Rubric
   },
   data() {
     return {
@@ -182,11 +146,10 @@ export default {
       rating: null,
       confidence: null,
       comment: "",
-      valid: true,
       selectedCurriculum: null,
       answer: null,
-      differences: {},
-      similarities: {},
+      showValidationError: false,
+      rubric: {},
       count: 1,
       errorMsg: "",
       copied: false
@@ -214,9 +177,6 @@ export default {
       }
       return "";
     },
-    matchRules() {
-      return [v => !!v || "This field is required"];
-    },
     shareText() {
       return this.copied ? "Copied!" : "Share";
     },
@@ -228,17 +188,8 @@ export default {
           icon: "check",
           text: "Yes",
           rating: 1,
-          showSimilarities: true,
-          showDifferences: false
-        },
-        {
-          id: "somewhat",
-          color: "#FFB800",
-          icon: "remove",
-          text: "Somewhat",
-          rating: 0.5,
-          showSimilarities: true,
-          showDifferences: true
+          showRubric: true,
+          textboxLabel: "What factors made these standards relevant?"
         },
         {
           id: "no",
@@ -246,10 +197,24 @@ export default {
           icon: "clear",
           text: "No",
           rating: 0,
-          showSimilarities: false,
-          showDifferences: true
+          showRubric: true,
+          textboxLabel:
+            "What were the main indicators that these standards were not relevant?"
+        },
+        {
+          id: "unsure",
+          color: "grey",
+          icon: "remove",
+          text: "Not enough information",
+          rating: null,
+          showRubric: false,
+          textboxLabel:
+            "What information was missing that prevented you from deciding?"
         }
       ];
+    },
+    valid() {
+      return this.$refs.rubric.valid;
     }
   },
   watch: {
@@ -287,8 +252,8 @@ export default {
       this.valid = true;
       this.selectedCurriculum = null;
       this.answer = null;
-      this.differences = {};
-      this.similarities = {};
+      this.rubric = {};
+      this.showValidationError = false;
       this.count = 1;
       this.errorMsg = "";
       this.copied = false;
@@ -343,33 +308,40 @@ export default {
       return true;
     },
     submitRating() {
-      const name = this.$route.name.replace("judgment-", "");
-      const uiName =
-        name.slice(0, 1).toUpperCase() + name.replace("-index", "").slice(1);
-      this.stopTimer();
-      return judgmentResource
-        .submitJudgment(
-          this.node1.id,
-          this.node2.id,
-          this.answer.rating,
-          this.confidence,
-          uiName,
-          {
-            comment: this.comment,
-            time_for_judgment: this.elapsedTime,
-            similarities: this.similarities,
-            differences: this.differences
-          }
-        )
-        .then(() => {
-          if (this.count >= this.total) {
-            this.$emit("submitted");
-          } else {
-            this.count++;
-          }
+      if (this.valid) {
+        const name = this.$route.name.replace("judgment-", "");
+        const uiName =
+          name.slice(0, 1).toUpperCase() + name.replace("-index", "").slice(1);
+        this.stopTimer();
+        return judgmentResource
+          .submitJudgment(
+            this.node1.id,
+            this.node2.id,
+            this.answer.rating,
+            this.confidence,
+            uiName,
+            {
+              comment: this.comment,
+              time_for_judgment: this.elapsedTime,
+              rubric: this.rubric
+            }
+          )
+          .then(() => {
+            if (this.count >= this.total) {
+              this.$emit("submitted");
+            } else {
+              this.count++;
+            }
+            return this.setNodes();
+          });
+      } else {
+        this.showValidationError = true;
 
-          return this.setNodes();
+        window.scrollTo({
+          top: this.$refs.error.$el.scrollHeight,
+          behavior: "smooth"
         });
+      }
     },
     skip() {
       return this.setNodes();
@@ -394,8 +366,9 @@ export default {
     },
     setAnswer(answer) {
       this.answer = _.find(this.answers, { id: answer });
-      this.differences = {};
-      this.similarities = {};
+      this.rubric = {};
+      this.comment = "";
+      this.showValidationError = false;
     }
   }
 };
@@ -411,8 +384,18 @@ export default {
 }
 
 .v-btn {
-  border-width: 3px !important;
+  border-width: 5px !important;
+  height: unset;
+  padding: 10px;
+  font-weight: bold;
+  text-transform: none;
+  font-size: 16pt;
 }
+
+.v-btn .v-icon {
+  font-size: 14pt;
+}
+
 /deep/ .v-input--selection-controls {
   padding: 10px 20px;
   border: 2px solid #bbb;
@@ -425,11 +408,19 @@ export default {
   width: 100%;
 }
 
+/deep/ .v-textarea {
+  font-size: 16pt;
+}
+
 .progress {
   text-align: right;
   font-size: 13pt;
   font-weight: bold;
   margin-bottom: 10px;
   padding: 10px;
+}
+
+.v-alert {
+  font-size: 14pt;
 }
 </style>
