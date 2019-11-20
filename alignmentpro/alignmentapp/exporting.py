@@ -54,38 +54,41 @@ def export_data(drafts=False, includetestdata=False):
 
     # PART 2: EXPORT HUMAN JUDGMENTS DATA
     ########################################################################
-    p = Parameter.objects.get(key="test_size")
-    test_size = float(p.value)  # propotion of new jugments to be kept for test
-    judgments_test = list(HumanRelevanceJudgment.objects.filter(is_test_data=True))
-    judgments_train = list(HumanRelevanceJudgment.objects.filter(is_test_data=False))
-    new_feedback_data = HumanRelevanceJudgment.objects.filter(is_test_data=None)
 
+    all_users = User.objects.filter(profile__exclude=False)
+    all_judgments = HumanRelevanceJudgment.objects.filter(user__in=all_users)
+
+    # set the `is_test_data` field for new data
     with transaction.atomic():
-        for new_datum in new_feedback_data:
-            is_test_data = random.random() < test_size
-            if is_test_data:
-                new_datum.is_test_data = True
-                judgments_test.append(new_datum)
-            else:
-                new_datum.is_test_data = False
-                judgments_train.append(new_datum)
-            new_datum.save()
-    #
-    all_user_ids = set()
+        new_feedback_data = all_judgments.filter(is_test_data=None).order_by("?")
+        count = new_feedback_data.count()
+
+        test_fraction = float(
+            Parameter.objects.get(key="test_size").value
+        )  # proportion of new jugments to be kept for test
+        test_count = int(test_fraction * count)
+
+        new_ids = list(new_feedback_data.values_list("id", flat=True))
+
+        all_judgments.filter(id__in=new_ids[:test_count]).update(is_test_data=True)
+        all_judgments.filter(id__in=new_ids[test_count:]).update(is_test_data=False)
+
+    judgments_test = all_judgments.filter(is_test_data=True)
+    judgments_train = all_judgments.filter(is_test_data=False)
+
+    # write out the human judgments for training, and possibly also for testing
     csvpath5 = os.path.join(exportpath, settings.HUMAN_JUDGMENTS_FILENAME)
-    user_ids_train = export_human_judgments(judgments_train, csvpath5)
-    all_user_ids.update(user_ids_train)
+    export_human_judgments(judgments_train, csvpath5)
     if includetestdata:
         csvpath6 = os.path.join(exportpath, settings.HUMAN_JUDGMENTS_TEST_FILENAME)
-        user_ids_test = export_human_judgments(judgments_test, csvpath6)
-        all_user_ids.update(user_ids_test)
+        export_human_judgments(judgments_test, csvpath6)
 
-    all_users = User.objects.filter(id__in=all_user_ids)
+    # export the user profiles
     csvpath7 = os.path.join(exportpath, settings.USERPROFILES_FILENAME)
     export_userprofiles(all_users, csvpath7)
 
     # update latest symlink
-    latestpath = os.path.join(export_base_dir, 'latest')
+    latestpath = os.path.join(export_base_dir, "latest")
     if os.path.exists(latestpath):
         os.remove(latestpath)
     subprocess.run(["ln", "-s", exportpath, latestpath])
@@ -190,7 +193,7 @@ def dist_from_furthest_leaf(node):
     max_child_level = 0
     for desc in descendant_data:
         item, data = desc
-        level = data['level']
+        level = data["level"]
         if level > max_child_level:
             max_child_level = level
 
@@ -238,7 +241,7 @@ CONFIDENCE_KEY = "confidence"
 MODE_KEY = "mode"
 # UI_NAME_KEY = 'ui_name'
 # UI_VERSION_HASH_KEY = 'ui_version_hash'
-USER_ID_KEY = 'user_id'
+USER_ID_KEY = "user_id"
 # CREATED_KEY = 'created'
 # EXTRA_FIELDS_KEY = 'extra_fields',
 
@@ -272,15 +275,12 @@ def export_human_judgments(human_judgments, csvfilepath):
     """
     Writes the human judgements data to the CSV file at `csvfilepath`.
     """
-    user_ids = set()
     with open(csvfilepath, "w") as csv_file:
         csvwriter = csv.DictWriter(csv_file, HUMAN_JUDGMENTS_HEADER_V0)
         csvwriter.writeheader()
         for human_judgment in human_judgments:
             rowdict = human_judgment_to_rowdict(human_judgment)
-            user_ids.add(human_judgment.user_id)
             csvwriter.writerow(rowdict)
-    return user_ids
 
 
 # USERS CSV EXPORT FORMAT
@@ -289,11 +289,7 @@ def export_human_judgments(human_judgments, csvfilepath):
 BACKGROUND_KEY = "background"
 SUBJECT_AREAS_KEY = "subject_areas"
 
-USERPROFILES_HEADER_V0 = [
-    ID_KEY,
-    BACKGROUND_KEY,
-    SUBJECT_AREAS_KEY,
-]
+USERPROFILES_HEADER_V0 = [ID_KEY, BACKGROUND_KEY, SUBJECT_AREAS_KEY]
 
 
 def user_to_rowdict(user):
@@ -301,8 +297,8 @@ def user_to_rowdict(user):
         profile = user.profile
     except User.profile.RelatedObjectDoesNotExist:
         # create UserProfile if it doesn't exist (e.g. for admin user...)
-        profile = UserProfile.objects.create(user=user, background='other')
-    subject_areas_str = ','.join([sa.name for sa in user.profile.subject_areas.all()])
+        profile = UserProfile.objects.create(user=user, background="other")
+    subject_areas_str = ",".join([sa.name for sa in user.profile.subject_areas.all()])
     datum = {
         ID_KEY: user.id,
         BACKGROUND_KEY: user.profile.background,
