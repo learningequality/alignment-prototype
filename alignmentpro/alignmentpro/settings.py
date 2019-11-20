@@ -14,13 +14,13 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
+ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
 
-STATIC_ROOT = os.getenv("STATICFILES_DIR") or os.path.join(BASE_DIR, 'static')
-MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'files')
-SCANS_ROOT = os.path.join(MEDIA_ROOT, 'scans')
-UPLOADS_ROOT = os.path.join(MEDIA_ROOT, 'uploads')
-MEDIA_URL = '/files/'
+STATIC_ROOT = os.getenv("STATICFILES_DIR") or os.path.join(BASE_DIR, "static")
+MEDIA_ROOT = os.path.join(BASE_DIR, "..", "files")
+SCANS_ROOT = os.path.join(MEDIA_ROOT, "scans")
+UPLOADS_ROOT = os.path.join(MEDIA_ROOT, "uploads")
+MEDIA_URL = "/files/"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -45,18 +45,19 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.staticfiles",
     "rest_framework",
-    'rest_framework.authtoken',
+    "rest_framework.authtoken",
     "treebeard",  # for TreeAdmin views
     "alignmentapp",
     "corsheaders",
     # "commonstandardsproject",  # was only needed to extract CCSS and NGSS data
     "importing",
     "django_extensions",
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.github',
-    'webpack_loader',
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.github",
+    "webpack_loader",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -155,25 +156,27 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 
 # Data fixturees dir
-CURRICULUM_DOCS_FIXTURES_DIR = os.path.join(BASE_DIR, "..", "imports", "curriculumdocuments")
+CURRICULUM_DOCS_FIXTURES_DIR = os.path.join(
+    BASE_DIR, "..", "imports", "curriculumdocuments"
+)
 CURRICULUM_DOCS_CSVS_DIR = os.path.join(BASE_DIR, "..", "imports", "gsheetscsvs")
 
 
 # Data export paths and constnts
 DATA_EXPORT_DIR = os.path.join("exports", "data")
 DATA_EXPORT_BASE_DIR = os.path.join(MEDIA_ROOT, DATA_EXPORT_DIR)
-MODELS_BASE_DIR = os.path.join(MEDIA_ROOT, 'models')
+MODELS_BASE_DIR = os.path.join(MEDIA_ROOT, "models")
 DATA_EXPORT_URL = "{}{}".format(MEDIA_URL, DATA_EXPORT_DIR)
 CURRICULUM_DOCUMENTS_FILENAME = "curriculumdocuments.csv"
 STANDARD_NODES_FILENAME = "standardnodes.csv"
@@ -188,16 +191,16 @@ METADATA_FILENAME = "metadata.json"
 # https://pypi.org/project/django-cors-headers/
 CORS_ORIGIN_ALLOW_ALL = True
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': False,
-        'BUNDLE_DIR_NAME': 'bundles/', # must end with slash
-        'STATS_FILE': os.path.join(ROOT_DIR, 'webpack-stats.json'),
-        'POLL_INTERVAL': 0.1,
-        'TIMEOUT': None,
-        'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
+    "DEFAULT": {
+        "CACHE": False,
+        "BUNDLE_DIR_NAME": "bundles/",  # must end with slash
+        "STATS_FILE": os.path.join(ROOT_DIR, "webpack-stats.json"),
+        "POLL_INTERVAL": 0.1,
+        "TIMEOUT": None,
+        "IGNORE": [r".+\.hot-update.js", r".+\.map"],
     }
 }
