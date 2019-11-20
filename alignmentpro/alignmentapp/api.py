@@ -208,10 +208,6 @@ class HumanRelevanceJudgmentViewSet(viewsets.ModelViewSet):
     serializer_class = HumanRelevanceJudgmentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    @csrf_exempt
-    def create(self, request):
-        super().create(request)
-
     def get_queryset(self):
         if self.request.user.is_superuser:
             return self.queryset
