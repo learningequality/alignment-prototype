@@ -34,6 +34,10 @@
           @click="$emit('continue')"
           >Keep going</v-btn
         >
+        <br /><br />
+        <v-btn flat large dark color="primary" @click="$emit('reset')"
+          >Select a different curriculum</v-btn
+        >
         <br /><br /><br /><br /><br /><br />
         <v-divider dark />
         <div v-if="loadingLeaderboard">

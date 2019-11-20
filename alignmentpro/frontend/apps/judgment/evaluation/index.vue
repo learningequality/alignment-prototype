@@ -45,7 +45,12 @@
         />
       </v-window-item>
       <v-window-item :value="2">
-        <DoneScreen @continue="backToStart" :count="count" ref="donescreen" />
+        <DoneScreen
+          @continue="backToStart"
+          :count="count"
+          ref="donescreen"
+          @reset="reload"
+        />
       </v-window-item>
     </v-window>
   </v-content>
@@ -77,7 +82,7 @@ export default {
   },
   methods: {
     reload() {
-      window.location = "/#/judgment/evaluation";
+      window.location = "/#/judgment";
       window.location.reload();
     },
     backToStart() {
