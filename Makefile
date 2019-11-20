@@ -3,7 +3,7 @@ build:
 	cd alignmentpro && python manage.py collectstatic --noinput
 
 restart:
-	sudo systemctl gunicorn restart
+	sudo systemctl restart gunicorn
 
 pull:
 	git pull
