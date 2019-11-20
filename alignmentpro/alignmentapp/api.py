@@ -206,8 +206,7 @@ class HumanRelevanceJudgmentSerializer(serializers.ModelSerializer):
 class HumanRelevanceJudgmentViewSet(viewsets.ModelViewSet):
     queryset = HumanRelevanceJudgment.objects.all()
     serializer_class = HumanRelevanceJudgmentSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_superuser:
