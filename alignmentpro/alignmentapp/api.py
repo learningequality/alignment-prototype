@@ -23,7 +23,13 @@ from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from .models import CurriculumDocument, DocumentSection, StandardNode, HumanRelevanceJudgment, UserAction
+from .models import (
+    CurriculumDocument,
+    DocumentSection,
+    StandardNode,
+    HumanRelevanceJudgment,
+    UserAction,
+)
 from .schedulers import prob_weighted_random
 from .recommenders import recommend_top_ranked
 
@@ -43,7 +49,7 @@ class CurriculumDocumentSerializer(serializers.ModelSerializer):
             "digitization_method",
             "source_url",
             "created",
-            'official',
+            "official",
             "root_node_id",
             "root_node_url",
         ]
@@ -201,6 +207,10 @@ class HumanRelevanceJudgmentViewSet(viewsets.ModelViewSet):
     queryset = HumanRelevanceJudgment.objects.all()
     serializer_class = HumanRelevanceJudgmentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    @csrf_exempt
+    def create(self, request):
+        super().create(request)
 
     def get_queryset(self):
         if self.request.user.is_superuser:
@@ -392,8 +402,8 @@ class StandardNodeRecommendationViewSet(viewsets.ModelViewSet):
         )
 
 
-@api_view(['GET', 'POST'])
-@authentication_classes((TokenAuthentication, SessionAuthentication,))
+@api_view(["GET", "POST"])
+@authentication_classes((TokenAuthentication, SessionAuthentication))
 @permission_classes((IsAuthenticated,))
 def review_section(request):
     """
@@ -403,25 +413,25 @@ def review_section(request):
     GET this URL to load the next available topic (is_draft=True + reviewed_by=None)
     """
     # POST
-    if request.method == 'POST':
+    if request.method == "POST":
         data = json.loads(request.body)
-        section = DocumentSection.objects.get(pk=data['section_id'])
-        section.text = data['section_text']
+        section = DocumentSection.objects.get(pk=data["section_id"])
+        section.text = data["section_text"]
         section.reviewed_by = request.user
         # TODO: Add a 'Finalize' button to the UI, so that if they need to stop, they can
         # save and come back to finish later. We may also want to only allow finalizing after a review.
         points = 5
-        resp_data = {
-            'success': True
-        }
-        if 'finalize' in data and data['finalize']:
+        resp_data = {"success": True}
+        if "finalize" in data and data["finalize"]:
             section.is_draft = False
-            UserAction.objects.create(user=request.user, action='reviewed_section', points=points)
-            resp_data['points'] = 5
+            UserAction.objects.create(
+                user=request.user, action="reviewed_section", points=points
+            )
+            resp_data["points"] = 5
             # TODO: Add UserAction points for this.
         # TODO: Add a 'Abandon/Cancel' button to the UI so that users users can
         # put back section into available pile for another user to continue
-        if 'abandon' in data and data['abandon']:
+        if "abandon" in data and data["abandon"]:
             section.reviewed_by = None
         section.save()
         return Response(resp_data)
@@ -434,18 +444,28 @@ def review_section(request):
             # Otherwise assign next available section
             section = DocumentSection.get_section_for_review()
         if section is None:
-            return Response({'error': 'No document sections currently available for review. Please check back again later.'})
+            return Response(
+                {
+                    "error": "No document sections currently available for review. Please check back again later."
+                }
+            )
 
     # first chunk image (API v0 Oct29)
-    image_url = "{}scans/{}/{}".format(settings.MEDIA_URL, section.get_section_dir(), section.name + '_chunk001_lowres.png')
+    image_url = "{}scans/{}/{}".format(
+        settings.MEDIA_URL,
+        section.get_section_dir(),
+        section.name + "_chunk001_lowres.png",
+    )
 
     # all chunks images (API v1 > Oct30)
     rel_path = section.get_section_dir()
     full_path = os.path.join(settings.SCANS_ROOT, rel_path)
-    lowres_chunk_filanames = [f for f in os.listdir(full_path) if 'lowres' in f]
+    lowres_chunk_filanames = [f for f in os.listdir(full_path) if "lowres" in f]
     image_urls = []
     for lowres_chunk_filaname in lowres_chunk_filanames:
-        image_url = "{}scans/{}/{}".format(settings.MEDIA_URL, section.get_section_dir(), lowres_chunk_filaname)
+        image_url = "{}scans/{}/{}".format(
+            settings.MEDIA_URL, section.get_section_dir(), lowres_chunk_filaname
+        )
         image_urls.append(image_url)
 
     text = section.text
@@ -453,26 +473,31 @@ def review_section(request):
         text = "<p>" + section.text.replace("\n", "</p><p>") + "</p>"
 
     vars = {
-        'document': {
-            'title': section.document.title,
-            'country': section.document.country,
+        "document": {
+            "title": section.document.title,
+            "country": section.document.country,
         },
-        'section_id': section.pk,
-        'image_url': image_url,   # still available, but deprecated
-        'image_urls': sorted(image_urls), # list of URLs of chunk images in this section
-        'section_text': text,
-        'section_name': section.name,
-        'ancestors': section.get_ancestors().values_list('name', flat=True)
+        "section_id": section.pk,
+        "image_url": image_url,  # still available, but deprecated
+        "image_urls": sorted(
+            image_urls
+        ),  # list of URLs of chunk images in this section
+        "section_text": text,
+        "section_name": section.name,
+        "ancestors": section.get_ancestors().values_list("name", flat=True),
     }
 
     return Response(vars)
 
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication, SessionAuthentication,))
+
+@api_view(["GET"])
+@authentication_classes((TokenAuthentication, SessionAuthentication))
 @permission_classes((IsAuthenticated,))
 def get_user_points(request):
-    points = UserAction.objects.filter(user=request.user).aggregate(Sum('points'))['points__sum']
+    points = UserAction.objects.filter(user=request.user).aggregate(Sum("points"))[
+        "points__sum"
+    ]
     if points is None:
         points = 0
 
-    return Response({'points': points})
+    return Response({"points": points})
