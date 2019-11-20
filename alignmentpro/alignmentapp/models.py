@@ -13,31 +13,36 @@ from treebeard.mp_tree import MP_Node
 
 
 BACKGROUNDS = [
-    ('instructional_designer', 'Instructional Designer'),
-    ('curriculum', 'Curriculum Alignment Expert'),
-    ('content_expert', "OER Expert"),
-    ('teacher', 'Teacher/Coach'),
-    ('designer', 'Designer or Frontend Developer'),
-    ('developer', 'Technologist and/or Developer'),
-    ('data_science', 'Machine Learning and Data Science'),
-    ('metadata', 'Metadata'),
-    ('other', 'Other')
+    ("instructional_designer", "Instructional Designer"),
+    ("curriculum", "Curriculum Alignment Expert"),
+    ("content_expert", "OER Expert"),
+    ("teacher", "Teacher/Coach"),
+    ("designer", "Designer or Frontend Developer"),
+    ("developer", "Technologist and/or Developer"),
+    ("data_science", "Machine Learning and Data Science"),
+    ("metadata", "Metadata"),
+    ("other", "Other"),
 ]
 
 ACTIONS = [
-    ('reviewed_section', 'Reviewed Curriculum Document Section'),
-    ('submitted_judgment', 'Submitted Human Judgment')
+    ("reviewed_section", "Reviewed Curriculum Document Section"),
+    ("submitted_judgment", "Submitted Human Judgment"),
 ]
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    background = models.CharField(max_length=50, choices=BACKGROUNDS, help_text="What is your background experience?")
-    subject_areas = models.ManyToManyField(
-        to='alignmentapp.SubjectArea',
-        related_name='user_profiles',
-        blank=True,
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile"
     )
+    background = models.CharField(
+        max_length=50,
+        choices=BACKGROUNDS,
+        help_text="What is your background experience?",
+    )
+    subject_areas = models.ManyToManyField(
+        to="alignmentapp.SubjectArea", related_name="user_profiles", blank=True
+    )
+    exclude = models.BooleanField(default=False)
 
     def __str__(self):
         return "Profile for {}".format(self.user.username)
@@ -108,15 +113,24 @@ def overwriting_file_upload_name(section, filename):
         os.remove(path)
     return path
 
+
 class DocumentSection(MP_Node):
     document = models.ForeignKey(
         "CurriculumDocument", related_name="chunks", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
-    section_zip = models.FileField(null=True, blank=True, upload_to=overwriting_file_upload_name)
+    section_zip = models.FileField(
+        null=True, blank=True, upload_to=overwriting_file_upload_name
+    )
     num_chunks = models.IntegerField(default=0)
     text = models.TextField(null=True, blank=True)
-    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name='section_reviews')
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="section_reviews",
+    )
     is_draft = models.BooleanField(default=True)
 
     def __str__(self):
@@ -125,7 +139,12 @@ class DocumentSection(MP_Node):
     @classmethod
     def get_section_for_review(cls):
         # make sure we return an item that has a file associated with it, and has not had a review session yet.
-        return cls.objects.filter(reviewed_by=None).exclude(section_zip='').exclude(section_zip=None).first()
+        return (
+            cls.objects.filter(reviewed_by=None)
+            .exclude(section_zip="")
+            .exclude(section_zip=None)
+            .first()
+        )
 
     def get_section_dir(self):
         """
@@ -147,11 +166,13 @@ class DocumentSection(MP_Node):
         return None
 
     def save(self, *args, **kwargs):
-        super(DocumentSection, self).save(*args, **kwargs)  # pre-save to process self.section_zip
+        super(DocumentSection, self).save(
+            *args, **kwargs
+        )  # pre-save to process self.section_zip
         if self.section_zip:
             rel_path = self.get_section_dir()
             full_path = os.path.join(settings.SCANS_ROOT, rel_path)
-            text_path = os.path.join(full_path, '{}_combined.txt'.format(self.name))
+            text_path = os.path.join(full_path, "{}_combined.txt".format(self.name))
             if not os.path.exists(text_path):
                 os.makedirs(full_path, exist_ok=True)
 
@@ -160,9 +181,11 @@ class DocumentSection(MP_Node):
                 zip.close()
 
             if not self.text or len(self.text) == 0:
-                text = open(text_path, 'r', encoding='utf-8').read()
+                text = open(text_path, "r", encoding="utf-8").read()
                 # convert line breaks to new paragraphs to ease cleanup.
-                self.text = "<p>{}</p>".format(text.replace("\r", "").replace("\n", "</p><p>") )
+                self.text = "<p>{}</p>".format(
+                    text.replace("\r", "").replace("\n", "</p><p>")
+                )
 
                 super(DocumentSection, self).save(*args, **kwargs)
 
@@ -174,6 +197,7 @@ class DocumentSection(MP_Node):
                 condition=Q(depth=1),
             )
         ]
+
 
 # CURRICULUM DATA
 ################################################################################
@@ -268,7 +292,10 @@ class HumanRelevanceJudgment(models.Model):
     ui_name = models.CharField(max_length=100)
     ui_version_hash = models.CharField(max_length=100)
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="judgments", null=True, on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL,
+        related_name="judgments",
+        null=True,
+        on_delete=models.SET_NULL,
     )
     created = models.DateTimeField(auto_now_add=True)
     is_test_data = models.BooleanField(
@@ -311,6 +338,7 @@ class DataExport(models.Model):
 # CAMPAIGNS
 ################################################################################
 
+
 class Campaign(models.Model):
     """
     Campaigns set a particular goal, such as adding human judgments or doing curriculum document cleanup.
@@ -326,6 +354,7 @@ class Campaign(models.Model):
 
     Leaderboards can be shown by adding up the points of each user who participated in the campaign.
     """
+
     title = models.CharField(max_length=200)
     type = models.CharField(max_length=100)
     target_num = models.IntegerField()
@@ -357,19 +386,31 @@ class UserAction(models.Model):
     Action should be a string ID for a specific action performed, e.g. profile_completed, and we should
     keep a record of all possible actions and their point values. (In the db?)
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="actions", on_delete=models.CASCADE)
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="actions", on_delete=models.CASCADE
+    )
     # if a campaign gets deleted at some point, make sure people don't wake up to missing points!
-    campaign = models.ForeignKey('Campaign', null=True, blank=True, related_name="actions", on_delete=models.SET_NULL)
+    campaign = models.ForeignKey(
+        "Campaign",
+        null=True,
+        blank=True,
+        related_name="actions",
+        on_delete=models.SET_NULL,
+    )
     action = models.CharField(max_length=100)
     points = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return "{}: {} ({} points, {})".format(self.user.username, self.action, self.points, self.timestamp)
+        return "{}: {} ({} points, {})".format(
+            self.user.username, self.action, self.points, self.timestamp
+        )
 
 
 # SIGNALS
 ################################################################################
+
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
