@@ -282,7 +282,7 @@ class HumanRelevanceJudgment(models.Model):
     )
 
     # Relevnace rating: min = 0.0 (not relevant at all), max = 1.0 (highly relevant)
-    rating = models.FloatField()
+    rating = models.FloatField(blank=True, null=True)
     # Optional confidence level: 1.0= 100% sure, 50% depends, 0% just guessing
     confidence = models.FloatField(blank=True, null=True)
     extra_fields = JSONField(default=dict)
