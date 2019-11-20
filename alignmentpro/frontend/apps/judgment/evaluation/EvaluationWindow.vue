@@ -214,7 +214,7 @@ export default {
       ];
     },
     valid() {
-      return this.$refs.rubric.valid;
+      return this.$refs.rubric == null || this.$refs.rubric.valid;
     }
   },
   watch: {
