@@ -81,12 +81,15 @@ def prob_weighted_random(
 
     # skew the distribution by gamma exponent, normalize, and select a weighted random item
     rowi_asp = rowi ** gamma / sum(rowi ** gamma)
+    rowi_asp[np.isnan(rowi_asp)] = 0
+    if sum(rowi_asp) == 0:
+        rowi_asp = rowi
     jr = np.random.choice(n, p=rowi_asp)
     rightid = node_id_lookup[jr]
     rightnode = queryset.get(id=rightid)
 
     return (
-        relevance_matrix[leftid, rightid],
+        relevance_matrix[ir, jr],
         rowi_asp[jr],
         list(reversed(sorted(rowi_asp[rowi_asp > 0.001])))[:20],
         queryset.filter(id__in=[leftid, rightid]),
