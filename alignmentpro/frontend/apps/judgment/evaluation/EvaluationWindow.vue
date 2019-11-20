@@ -146,7 +146,6 @@ export default {
       rating: null,
       confidence: null,
       comment: "",
-      selectedCurriculum: null,
       answer: null,
       showValidationError: false,
       rubric: {},
@@ -189,7 +188,7 @@ export default {
           text: "Yes",
           rating: 1,
           showRubric: true,
-          textboxLabel: "What factors made these standards relevant?"
+          textboxLabel: "What factors made these standards relevant? (optional)"
         },
         {
           id: "no",
@@ -199,7 +198,7 @@ export default {
           rating: 0,
           showRubric: true,
           textboxLabel:
-            "What were the main indicators that these standards were not relevant?"
+            "What were the main indicators that these standards were not relevant? (optional)"
         },
         {
           id: "unsure",
@@ -209,7 +208,7 @@ export default {
           rating: null,
           showRubric: false,
           textboxLabel:
-            "What information was missing that prevented you from deciding?"
+            "What information was missing that prevented you from deciding? (optional)"
         }
       ];
     },
@@ -250,7 +249,6 @@ export default {
       this.confidence = null;
       this.comment = "";
       this.valid = true;
-      this.selectedCurriculum = null;
       this.answer = null;
       this.rubric = {};
       this.showValidationError = false;
@@ -332,6 +330,10 @@ export default {
             } else {
               this.count++;
             }
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            });
             return this.setNodes();
           });
       } else {
