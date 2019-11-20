@@ -122,7 +122,7 @@ class JudgmentResource extends Resource {
         rating,
         confidence,
         ui_name: uiName,
-        ui_version_hash: __webpack_hash__,
+        ui_version_hash: "2019_11_with_rubric",
         mode: "rapid_feedback",
         extra_fields: {
           ...extraFields,

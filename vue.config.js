@@ -1,6 +1,5 @@
 const path = require("path");
 const VueAutoRoutingPlugin = require("vue-auto-routing/lib/webpack-plugin");
-const webpack = require("webpack");
 const BundleTracker = require("webpack-bundle-tracker");
 
 module.exports = {
@@ -21,7 +20,6 @@ module.exports = {
       },
       plugins: [
         new BundleTracker({ filename: "./webpack-stats.json" }),
-        new webpack.ExtendedAPIPlugin(),
         new VueAutoRoutingPlugin({
           // Path to the directory that contains your page components.
           pages: "apps",
