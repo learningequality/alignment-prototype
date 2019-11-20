@@ -34,6 +34,14 @@ from .schedulers import prob_weighted_random
 from .recommenders import recommend_top_ranked
 
 
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
+
+class CsrfExemptIsAuthenticatedOrReadOnly(IsAuthenticatedOrReadOnly):
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
+
+
 class CurriculumDocumentSerializer(serializers.ModelSerializer):
     root_node_id = serializers.SerializerMethodField()
     root_node_url = serializers.SerializerMethodField()
@@ -206,7 +214,7 @@ class HumanRelevanceJudgmentSerializer(serializers.ModelSerializer):
 class HumanRelevanceJudgmentViewSet(viewsets.ModelViewSet):
     queryset = HumanRelevanceJudgment.objects.all()
     serializer_class = HumanRelevanceJudgmentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [CsrfExemptIsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_superuser:

@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.github",
     "webpack_loader",
-    # "django_filters",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
