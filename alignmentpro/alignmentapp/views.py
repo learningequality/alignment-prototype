@@ -20,7 +20,7 @@ class HomeView(View):
         except Token.DoesNotExist:
             pass
 
-        return render(request, 'home.html', {'token': token_str})
+        return render(request, 'home.html', {'token': token_str, 'admin': request.user.is_superuser})
 
 
 def register(request):

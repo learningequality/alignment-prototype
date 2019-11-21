@@ -8,7 +8,7 @@
           <h3>You currently have {{ points }} points</h3>
           <br />
           <div style="width: 600px; max-width: 100%; margin: 0 auto;">
-            <p>
+            <p v-if="isAdmin">
               <v-btn
                 block
                 round
@@ -64,7 +64,6 @@ import Leaderboard from "./Leaderboard";
 
 export default {
   name: "Home",
-  computed: {},
   components: {
     Leaderboard
   },
@@ -75,6 +74,11 @@ export default {
     return {
       points: 0
     };
+  },
+  computed: {
+    isAdmin() {
+      return window.isAdmin;
+    }
   },
   methods: {
     getUserPoints() {
