@@ -11,7 +11,7 @@ class UserProfileForm(ModelForm):
         queryset=SubjectArea.objects.all(),
         widget=forms.widgets.CheckboxSelectMultiple,
         required=False,
-        help_text="What subjects do you have experience with?"
+        label="What subjects do you have experience with?"
     )
 
     class Meta:
