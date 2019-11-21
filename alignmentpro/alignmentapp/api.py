@@ -340,7 +340,7 @@ class LeaderboardView(views.APIView):
 
     def get(self, request, *args, **kwargs):
         return Response(
-            User.objects.all()
+            User.objects.exclude(username="khan_academy_org")
             .annotate(number_of_judgments=Count("judgments"))
             .order_by("-number_of_judgments")
             .values("username", "number_of_judgments")
