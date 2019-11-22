@@ -115,47 +115,6 @@ We've prepared some sample curriculum structures in this gsheet.
 
 
 
-### New digitized curriculua
-
-#### Thursday 
-
-    ./alignmentpro/manage.py importchunk \
-        --source_id='zambia-math-5to7' \
-        --title='Zambia mathematics syllabus and competencies' \
-        --country='Zambia' \
-        --digitization_method='scan_manual' \
-        --gsheet_id='1mYcNjUvDUuk0QPjHlf1r81PjUGPZKxPk82-2mVNAye0' \
-        --gid='0'
-
-    ./alignmentpro/manage.py importchunk \
-        --source_id='zambia-english-5to7' \
-        --title='Zambia English syllabus and competencies' \
-        --country='Zambia' \
-        --digitization_method='scan_manual' \
-        --gsheet_id='1mYcNjUvDUuk0QPjHlf1r81PjUGPZKxPk82-2mVNAye0' \
-        --gid='2026133498'
-
-
-#### Friday
-
-    ./alignmentpro/manage.py importchunk \
-        --source_id='gov.uk.math' \
-        --title='United Kingdom Mathematics Curriculum' \
-        --country='UK' \
-        --digitization_method='website_scrape' \
-        --gsheet_id='1ezLBFXjZuMhHNEHyocytnf2fF4O9p9qyCDpYdXS1Z_U' \
-        --gid='366599359'
-
-    ./alignmentpro/manage.py importchunk \
-        --source_id='gov.uk.science' \
-        --title='United Kingdom Science Curriculum' \
-        --country='UK' \
-        --digitization_method='website_scrape' \
-        --gsheet_id='1JQ8ia-C1Z61IoLDVavFbZBwba4cHrXnD3MnAdo63zJk' \
-        --gid='1013147316'
-
-
-
 
 
 Interactive debug
@@ -242,3 +201,122 @@ Delete all data and start form clean slate:
     sleep 1
     ./alignmentpro/manage.py makemigrations alignmentapp
     ./alignmentpro/manage.py migrate
+
+
+
+
+Curriculum data
+---------------
+
+### Curriculum documents digitized during hackathon
+
+#### Zambia (imported from Excel)
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='zambia-math-5to7' \
+        --title='Zambia mathematics syllabus and competencies' \
+        --country='Zambia' \
+        --digitization_method='scan_manual' \
+        --gsheet_id='1mYcNjUvDUuk0QPjHlf1r81PjUGPZKxPk82-2mVNAye0' \
+        --gid='0'
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='zambia-english-5to7' \
+        --title='Zambia English syllabus and competencies' \
+        --country='Zambia' \
+        --digitization_method='scan_manual' \
+        --gsheet_id='1mYcNjUvDUuk0QPjHlf1r81PjUGPZKxPk82-2mVNAye0' \
+        --gid='2026133498'
+
+#### UK (scraped from web)
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='gov.uk.math' \
+        --title='United Kingdom Mathematics Curriculum' \
+        --country='UK' \
+        --digitization_method='website_scrape' \
+        --gsheet_id='1ezLBFXjZuMhHNEHyocytnf2fF4O9p9qyCDpYdXS1Z_U' \
+        --gid='366599359'
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='gov.uk.science' \
+        --title='United Kingdom Science Curriculum' \
+        --country='UK' \
+        --digitization_method='website_scrape' \
+        --gsheet_id='1JQ8ia-C1Z61IoLDVavFbZBwba4cHrXnD3MnAdo63zJk' \
+        --gid='1013147316'
+
+
+
+
+### Post-hackathon OCR efforts
+
+#### Kenya
+Automated OCR + structure recognition to turn into [doc](https://docs.google.com/document/d/1p48DXwSDtKzZVcW5UHnRpRwn4jQq5Abv-4jcJtQf9lk/edit)
+and subsequently into [spreadsheet](https://docs.google.com/spreadsheets/d/1nqv6CoT0ORtdrfOmhePiGmkNz4cDbu_HFPfpzfwQu4E/edit).
+The following commands import the data from the spreadsheet into the database:
+
+
+Mathematics
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='kicd-secondary-vol-ii-math' \
+        --title='Kenya Secondary Education Syllabus Volume Two - Mathematics' \
+        --country='Kenya' \
+        --digitization_method='automated_scan' \
+        --gsheet_id='1nqv6CoT0ORtdrfOmhePiGmkNz4cDbu_HFPfpzfwQu4E' \
+        --gid='2005563167'
+
+Physics
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='kicd-secondary-vol-ii-phys' \
+        --title='Kenya Secondary Education Syllabus Volume Two - Physics' \
+        --country='Kenya' \
+        --digitization_method='automated_scan' \
+        --gsheet_id='1nqv6CoT0ORtdrfOmhePiGmkNz4cDbu_HFPfpzfwQu4E' \
+        --gid='595764004'
+
+Chemistry
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='kicd-secondary-vol-ii-chem' \
+        --title='Kenya Secondary Education Syllabus Volume Two - Chemistry' \
+        --country='Kenya' \
+        --digitization_method='automated_scan' \
+        --gsheet_id='1nqv6CoT0ORtdrfOmhePiGmkNz4cDbu_HFPfpzfwQu4E' \
+        --gid='1414006838'
+
+Biology
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='kicd-secondary-vol-ii-bio' \
+        --title='Kenya Secondary Education Syllabus Volume Two - Biology' \
+        --country='Kenya' \
+        --digitization_method='automated_scan' \
+        --gsheet_id='1nqv6CoT0ORtdrfOmhePiGmkNz4cDbu_HFPfpzfwQu4E' \
+        --gid='397819960'
+
+Agriculture
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='kicd-secondary-vol-ii-agriculture' \
+        --title='Kenya Secondary Education Syllabus Volume Two - Agriculture' \
+        --country='Kenya' \
+        --digitization_method='automated_scan' \
+        --gsheet_id='1nqv6CoT0ORtdrfOmhePiGmkNz4cDbu_HFPfpzfwQu4E' \
+        --gid='990909679'
+
+Home Science
+
+    ./alignmentpro/manage.py importchunk \
+        --source_id='kicd-secondary-vol-ii-homesci' \
+        --title='Kenya Secondary Education Syllabus Volume Two - Home Science' \
+        --country='Kenya' \
+        --digitization_method='automated_scan' \
+        --gsheet_id='1nqv6CoT0ORtdrfOmhePiGmkNz4cDbu_HFPfpzfwQu4E' \
+        --gid='692796619'
+
+After importing, the documents will be in draft state. Navigate to the Curriculum Document
+admin at http://alignmentapp.learningequality.org/admin/alignmentapp/curriculumdocument/
+to set the `Is draft` to `False` and set `Official` to `True`.
