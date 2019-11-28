@@ -25,15 +25,17 @@
       <v-card-text class="card-text">
         <div v-if="node.notes.length > 0">{{ node.notes }} <br /><br /></div>
 
-        <p>Some standards:</p>
-        <ul v-if="fullNodeInfo">
-          <li
-            v-for="standard in fullNodeInfo.children.slice(0, 4)"
-            :key="standard.id"
-          >
-            {{ standard.title }}
-          </li>
-        </ul>
+        <span v-if="fullNodeInfo && fullNodeInfo.children.length > 0">
+          <p>Some standards under this:</p>
+          <ul>
+            <li
+              v-for="standard in fullNodeInfo.children.slice(0, 4)"
+              :key="standard.id"
+            >
+              {{ standard.title }}
+            </li>
+          </ul>
+        </span>
       </v-card-text>
 
       <v-card-actions>
