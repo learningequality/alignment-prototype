@@ -41,7 +41,7 @@
 
     <v-container fluid>
       <h1>{{ nodeData.title }}</h1>
-      <p v-if="nodeData.nodes" style="margin-top: 15px;">
+      <p v-if="nodeData.notes" style="margin-top: 15px;">
         {{ nodeData.notes }}
       </p>
     </v-container>
@@ -119,6 +119,7 @@ export default {
 }
 
 h1 {
-  font-size: 28pt;
+  font-size: 22pt;
+  line-height: 1.3;
 }
 </style>

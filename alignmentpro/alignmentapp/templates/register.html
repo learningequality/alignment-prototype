@@ -1,10 +1,64 @@
 {% extends 'base.html' %}
- 
+
 {% block content %}
- 
+    <style>
+        body {
+            background-color: #edf4f8;
+        }
+        .login {
+            background-color: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            font-size: 12pt;
+        }
+
+        .login h1 {
+            text-align: center;
+            margin-bottom: 0px;
+        }
+
+        .login input[type="text"],
+        .login input[type="password"],
+        .login select {
+            border: 1px solid #ccc;
+            padding: 2px 5px;
+            margin-left: 10px;
+        }
+        .login input[type="text"]:focus,
+        .login input[type="password"]:focus,
+        .login select:focus {
+            border-color: #18BAFF;
+            outline: none;
+        }
+        .login p {
+            margin-top: 20px;
+        }
+        .login h3 {
+            margin-top: 50px;
+        }
+        .login .helptext {
+            display: block;
+            font-size: 8.5pt;
+            margin-top: 3px;
+            margin-bottom: 10px;
+            color: #999;
+        }
+        .login .login-button {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .login-button input[type="submit"] {
+            background-color: #18BAFF;
+            padding: 10px 40px;
+            color: white;
+            font-size: 14pt;
+            border-radius: 15px;
+        }
+    </style>
+
      <div class="login">
         <h1>Create account</h1>
- 
          <form method="post" >
              {% csrf_token %}
              <div class="registration_form">
@@ -15,8 +69,10 @@
              <h3>Background and Expertise</h3>
                  {{ survey_form.as_p }}
             </div>
-             <input type="submit" name="submit" value="Register" />
+            <p class="login-button">
+                <input type="submit" name="submit" value="Register" />
+             </p>
          </form>
      </div>
- 
+
 {% endblock %}
