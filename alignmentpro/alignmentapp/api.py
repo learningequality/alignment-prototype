@@ -20,6 +20,7 @@ from rest_framework.decorators import authentication_classes
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import APIException
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -67,9 +68,19 @@ class CurriculumDocumentSerializer(serializers.ModelSerializer):
         )
 
 
+def LargeResultsSetPagination(size=100):
+    class CustomPagination(PageNumberPagination):
+        page_size = size
+        page_size_query_param = "page_size"
+        max_page_size = page_size * 10
+
+    return CustomPagination
+
+
 class CurriculumDocumentViewSet(viewsets.ModelViewSet):
     queryset = CurriculumDocument.objects.all()
     serializer_class = CurriculumDocumentSerializer
+    pagination_class = LargeResultsSetPagination(100)
 
     def get_queryset(self):
         if self.request.user.is_superuser:
