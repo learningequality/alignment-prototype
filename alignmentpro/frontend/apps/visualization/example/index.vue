@@ -23,15 +23,17 @@
 
     <v-content>
       <v-container align-center fluid grid-list-md>
-        <v-select
-          v-if="modelNames"
-          v-model="selectedModel"
-          :items="modelNames"
-          :rules="[v => !!v || 'Model is required']"
-          label="Model"
-          required
-          @change="setRecommendedNodes"
-        ></v-select>
+        <span v-if="isAdmin">
+          <v-select
+            v-if="modelNames"
+            v-model="selectedModel"
+            :items="modelNames"
+            :rules="[v => !!v || 'Model is required']"
+            label="Model"
+            required
+            @change="setRecommendedNodes"
+          ></v-select>
+        </span>
 
         <v-layout row justify-center wrap v-if="recommendedNodes">
           <v-flex
@@ -71,7 +73,7 @@ export default {
       selectedNode: null,
       recommendedNodes: null,
       relevanceScores: null,
-      selectedModel: "tf_idf_sample_negs_no_training",
+      selectedModel: "baseline",
       modelNames: null
     };
   },
@@ -82,6 +84,11 @@ export default {
   },
   created() {
     this.getModelNames();
+  },
+  computed: {
+    isAdmin() {
+      return window.isAdmin;
+    }
   },
   methods: {
     loadTree() {
