@@ -64,6 +64,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--digitization_method", type=str, help="How was the gsheet created?"
         )
+        # BUG: no way to set to False on command line -- must toggle through admin
         parser.add_argument(
             "--draft", type=bool, default=True, help="Set to false when ready."
         )
